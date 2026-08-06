@@ -73,6 +73,7 @@ printf 'Compiling %s original C++ source files (level editor omitted from browse
 
 em++ "${SOURCES[@]}" \
   -I. -Isrc -Iexternal/tinygettext \
+  -include src/util/raise_exception.hpp \
   -std=c++11 -O1 \
   -DVERSION='"0.7.6-web"' \
   -DHAVE_ICONV_CONST=1 -DICONV_CONST= \
