@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="theme-color" content="#102538">
+  <title>Pingus</title>
+  <!-- Yandex Games SDK. The relative loader is required inside Yandex Games. -->
+  <script src="/sdk.js"></script>
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #102538; }
+    body { display: grid; place-items: center; font-family: Arial, sans-serif; touch-action: none; }
+    #game-shell { position: fixed; inset: 0; display: grid; place-items: center; background: #102538; }
+    #canvas { display: block; width: 100%; height: 100%; outline: 0; background: #000; image-rendering: auto; }
+    #loading {
+      position: absolute; inset: 0; z-index: 2; display: grid; place-items: center;
+      background: linear-gradient(#173b56, #0d2031); color: #fff; transition: opacity .2s ease;
+    }
+    #loading[hidden] { opacity: 0; pointer-events: none; }
+    #loading-card { min-width: min(78vw, 420px); text-align: center; }
+    #loading-title { margin: 0 0 14px; font-size: clamp(24px, 5vw, 44px); }
+    #loading-status { min-height: 1.4em; margin: 10px 0; opacity: .9; }
+    #progress { width: 100%; height: 12px; accent-color: #8ccf55; }
+  </style>
+</head>
+<body>
+  <main id="game-shell">
+    <canvas id="canvas" tabindex="0" oncontextmenu="event.preventDefault()"></canvas>
+    <section id="loading" aria-live="polite">
+      <div id="loading-card">
+        <h1 id="loading-title">Pingus</h1>
+        <div id="loading-status">Loading…</div>
+        <progress id="progress" max="100" value="0"></progress>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const loading = document.getElementById('loading');
+      const status = document.getElementById('loading-status');
+      const progress = document.getElementById('progress');
+      const canvas = document.getElementById('canvas');
+      let gameReadySent = false;
+      let sdkInstance = null;
+
+      window.yandexSDKPromise = (async () => {
+        try {
+          if (typeof YaGames === 'undefined') return null;
+          sdkInstance = await YaGames.init();
+          window.ysdk = sdkInstance;
+          return sdkInstance;
+        } catch (error) {
+          console.warn('Yandex Games SDK initialization failed:', error);
+          return null;
+        }
+      })();
+
+      window.pingusMarkReady = async () => {
+        if (gameReadySent) return;
+        gameReadySent = true;
+        loading.hidden = true;
+        canvas.focus({ preventScroll: true });
+        const ysdk = await window.yandexSDKPromise;
+        try { ysdk?.features?.LoadingAPI?.ready(); } catch (error) { console.warn(error); }
+      };
+
+      const getAudioContext = () =>
+        window.SDL?.audioContext || window.SDL2?.audioContext || window.AL?.currentContext?.audioCtx || null;
+
+      const setAudioPaused = (paused) => {
+        const audioContext = getAudioContext();
+        if (!audioContext) return;
+        const action = paused ? audioContext.suspend?.() : audioContext.resume?.();
+        action?.catch?.(() => {});
+      };
+
+      window.pingusSaveNow = () => {
+        if (typeof FS === 'undefined' || typeof FS.syncfs !== 'function') return;
+        FS.syncfs(false, (error) => {
+          if (error) console.warn('Pingus save synchronization failed:', error);
+        });
+      };
+
+      document.addEventListener('visibilitychange', () => {
+        const paused = document.hidden;
+        setAudioPaused(paused);
+        if (paused) window.pingusSaveNow();
+      });
+      window.addEventListener('blur', () => setAudioPaused(true));
+      window.addEventListener('focus', () => setAudioPaused(false));
+      window.addEventListener('pagehide', window.pingusSaveNow);
+
+      window.Module = {
+        canvas,
+        preRun: [() => {
+          try { FS.mkdir('/home'); } catch (_) {}
+          try { FS.mkdir('/home/web_user'); } catch (_) {}
+          addRunDependency('pingus-idbfs');
+          try {
+            FS.mount(IDBFS, {}, '/home/web_user');
+            FS.syncfs(true, (error) => {
+              if (error) console.warn('Pingus save restore failed:', error);
+              removeRunDependency('pingus-idbfs');
+            });
+          } catch (error) {
+            console.warn('IDBFS unavailable:', error);
+            removeRunDependency('pingus-idbfs');
+          }
+        }],
+        print: (text) => console.log(text),
+        printErr: (text) => console.error(text),
+        setStatus: (text) => {
+          if (!text) return;
+          status.textContent = text;
+          const match = /\((\d+)\/(\d+)\)/.exec(text);
+          if (match) {
+            progress.max = Number(match[2]);
+            progress.value = Number(match[1]);
+          }
+        },
+        monitorRunDependencies: (left) => {
+          if (!left) progress.value = progress.max;
+        }
+      };
+    })();
+  </script>
+  {{{ SCRIPT }}}
+</body>
+</html>
