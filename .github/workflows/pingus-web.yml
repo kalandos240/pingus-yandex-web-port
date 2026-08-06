@@ -18,7 +18,7 @@ concurrency:
 jobs:
   compile-original-source:
     runs-on: ubuntu-22.04
-    timeout-minutes: 60
+    timeout-minutes: 45
     env:
       TARGET_BRANCH: ${{ github.head_ref || github.ref_name }}
       GH_TOKEN: ${{ github.token }}
@@ -29,14 +29,12 @@ jobs:
           git clone --depth 1 --single-branch --branch "$TARGET_BRANCH" \
             "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" repo
 
-      - name: Install Emscripten and headers
+      - name: Install compiler and headers
         run: |
           set -euxo pipefail
           sudo apt-get update
-          sudo apt-get install -y libboost-dev zip
-          git clone --depth 1 https://github.com/emscripten-core/emsdk.git emsdk
-          ./emsdk/emsdk install 3.1.64
-          ./emsdk/emsdk activate 3.1.64
+          sudo apt-get install -y emscripten libboost-dev zip
+          em++ --version
 
       - name: Download original Pingus 0.7.6
         working-directory: repo
@@ -54,7 +52,6 @@ jobs:
         working-directory: repo
         run: |
           set -o pipefail
-          source ../emsdk/emsdk_env.sh
           cp tools/build_web.sh pingus-src/build_web.sh
           cd pingus-src
           bash build_web.sh 2>&1 | tee ../build.log
