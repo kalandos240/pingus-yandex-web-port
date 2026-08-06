@@ -13,15 +13,23 @@
     html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #102538; }
     body { display: grid; place-items: center; font-family: Arial, sans-serif; touch-action: none; }
     #game-shell { position: fixed; inset: 0; display: grid; place-items: center; background: #102538; }
-    #canvas { display: block; width: 100%; height: 100%; outline: 0; background: #000; image-rendering: auto; }
+    #canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      outline: 0;
+      background: #000;
+      image-rendering: auto;
+    }
     #loading {
       position: absolute; inset: 0; z-index: 2; display: grid; place-items: center;
       background: linear-gradient(#173b56, #0d2031); color: #fff; transition: opacity .2s ease;
     }
     #loading[hidden] { opacity: 0; pointer-events: none; }
-    #loading-card { min-width: min(78vw, 420px); text-align: center; }
+    #loading-card { min-width: min(78vw, 420px); text-align: center; padding: 24px; }
     #loading-title { margin: 0 0 14px; font-size: clamp(24px, 5vw, 44px); }
-    #loading-status { min-height: 1.4em; margin: 10px 0; opacity: .9; }
+    #loading-status { min-height: 1.4em; margin: 10px 0; opacity: .9; overflow-wrap: anywhere; }
     #progress { width: 100%; height: 12px; accent-color: #8ccf55; }
   </style>
 </head>
@@ -45,6 +53,15 @@
       const canvas = document.getElementById('canvas');
       let gameReadySent = false;
       let sdkInstance = null;
+      let saveInProgress = false;
+      let saveRequestedAgain = false;
+      let autosaveTimer = 0;
+
+      const setLoadingError = (message) => {
+        loading.hidden = false;
+        status.textContent = message || 'The game could not be started.';
+        progress.removeAttribute('value');
+      };
 
       window.yandexSDKPromise = (async () => {
         try {
@@ -63,6 +80,7 @@
         gameReadySent = true;
         loading.hidden = true;
         canvas.focus({ preventScroll: true });
+        if (!autosaveTimer) autosaveTimer = window.setInterval(window.pingusSaveNow, 15000);
         const ysdk = await window.yandexSDKPromise;
         try { ysdk?.features?.LoadingAPI?.ready(); } catch (error) { console.warn(error); }
       };
@@ -79,8 +97,18 @@
 
       window.pingusSaveNow = () => {
         if (typeof FS === 'undefined' || typeof FS.syncfs !== 'function') return;
+        if (saveInProgress) {
+          saveRequestedAgain = true;
+          return;
+        }
+        saveInProgress = true;
         FS.syncfs(false, (error) => {
+          saveInProgress = false;
           if (error) console.warn('Pingus save synchronization failed:', error);
+          if (saveRequestedAgain) {
+            saveRequestedAgain = false;
+            window.pingusSaveNow();
+          }
         });
       };
 
@@ -92,12 +120,26 @@
       window.addEventListener('blur', () => setAudioPaused(true));
       window.addEventListener('focus', () => setAudioPaused(false));
       window.addEventListener('pagehide', window.pingusSaveNow);
+      window.addEventListener('beforeunload', window.pingusSaveNow);
+      window.addEventListener('error', (event) => {
+        if (!gameReadySent) setLoadingError(event.message);
+      });
+      window.addEventListener('unhandledrejection', (event) => {
+        if (!gameReadySent) setLoadingError(String(event.reason || 'Startup failed'));
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(event.code)) {
+          event.preventDefault();
+        }
+      }, { passive: false });
 
       window.Module = {
         canvas,
         preRun: [() => {
           try { FS.mkdir('/home'); } catch (_) {}
           try { FS.mkdir('/home/web_user'); } catch (_) {}
+          try { ENV.HOME = '/home/web_user'; } catch (_) {}
           addRunDependency('pingus-idbfs');
           try {
             FS.mount(IDBFS, {}, '/home/web_user');
@@ -112,6 +154,7 @@
         }],
         print: (text) => console.log(text),
         printErr: (text) => console.error(text),
+        onAbort: (reason) => setLoadingError(`Pingus stopped: ${reason || 'unknown error'}`),
         setStatus: (text) => {
           if (!text) return;
           status.textContent = text;
