@@ -4,9 +4,10 @@ set -euo pipefail
 # Browser port build: original Pingus 0.7.6 gameplay and data, with only
 # compatibility patches required for Emscripten/WebAssembly.
 mkdir -p ../dist
+rm -rf ../dist/*
 
-# Boost usage in Pingus 0.7.6 is header-only for the browser target. Copy the
-# host package into the project include tree so Clang does not see host libc.
+# Boost use in Pingus 0.7.6 is header-only for this browser target. Copy the
+# host headers into the project tree so Emscripten Clang resolves them locally.
 rm -rf external/boost
 cp -a /usr/include/boost external/boost
 
@@ -14,8 +15,8 @@ python3 - <<'PY'
 from pathlib import Path
 import re
 
-# The browser build does not ship the desktop level editor. Removing its
-# command-line entry points also avoids the obsolete Boost.Signals dependency.
+# The desktop level editor depends on obsolete Boost.Signals and is not part of
+# the published game. Remove its command-line entry points from the web build.
 path = Path('src/pingus/pingus_main.cpp')
 source = path.read_text(encoding='utf-8')
 source = source.replace(
@@ -37,7 +38,7 @@ source, editor_case_count = re.subn(
 source, editor_start_count = re.subn(
     r'  if \(cmd_options\.editor\.is_set\(\) && cmd_options\.editor\.get\(\)\)\n'
     r'  \{ // Editor\n.*?  \}\n'
-    r'  else if \(cmd_options\.rest\.is_set\(\)\)',
+    r'  else if \(cmd_options\.rest\.is_set\(\)',
     '  if (cmd_options.rest.is_set())', source, count=1, flags=re.DOTALL,
 )
 if (editor_option_count, editor_case_count, editor_start_count) != (1, 1, 1):
@@ -48,8 +49,7 @@ if (editor_option_count, editor_case_count, editor_start_count) != (1, 1, 1):
 path.write_text(source, encoding='utf-8')
 
 # The original SCons build supplied the exception helper globally. Add it only
-# to Pingus translation units that use the helper, avoiding macro collisions
-# with tinygettext's own log macros.
+# to translation units that actually use the helper.
 for path in Path('src').rglob('*.cpp'):
     source = path.read_text(encoding='utf-8')
     if ('raise_exception(' in source or 'raise_error(' in source) and \
@@ -61,7 +61,7 @@ for path in Path('src').rglob('*.cpp'):
         path.write_text(source, encoding='utf-8')
 
 # Emscripten's SDL 1 compatibility layer stores colour-key and alpha state on
-# SDL_Surface rather than exposing the removed SDL_PixelFormat fields.
+# SDL_Surface instead of exposing the removed SDL_PixelFormat members.
 path = Path('src/engine/display/blitter.cpp')
 source = path.read_text(encoding='utf-8')
 replacements = {
@@ -78,8 +78,6 @@ for old, new in replacements.items():
     source = source.replace(old, new, 1)
 path.write_text(source, encoding='utf-8')
 
-# Apply the same SDL state-access conversion in Surface, where 0.7.6 reads
-# colour-key and alpha values directly from SDL_PixelFormat.
 path = Path('src/engine/display/surface.cpp')
 source = path.read_text(encoding='utf-8')
 replacements = {
@@ -98,7 +96,7 @@ for old, new in replacements.items():
     source = source.replace(old, new, 1)
 path.write_text(source, encoding='utf-8')
 
-# Emscripten's SDL headers use the canonical SDL_Keysym type name.
+# Emscripten SDL uses the canonical SDL_Keysym spelling.
 path = Path('src/engine/input/event.hpp')
 source = path.read_text(encoding='utf-8')
 old = '  SDL_keysym keysym;'
@@ -107,8 +105,9 @@ if old not in source:
     raise SystemExit('Pingus SDL keysym patch mismatch')
 path.write_text(source.replace(old, new, 1), encoding='utf-8')
 
-# Signal Game Ready only after Pingus has created its first screen and is about
-# to enter the real gameplay/menu loop. This avoids a timer-based SDK signal.
+# Browser lifecycle integration. Yield while the page is hidden, signal Game
+# Ready only after the first frame was actually rendered, and persist saves on
+# a clean exit from the original screen loop.
 path = Path('src/engine/screen/screen_manager.cpp')
 source = path.read_text(encoding='utf-8')
 include_anchor = '#include <iostream>\n'
@@ -116,20 +115,42 @@ include_patch = '#include <iostream>\n\n#ifdef __EMSCRIPTEN__\n#include <emscrip
 if include_anchor not in source:
     raise SystemExit('Pingus ScreenManager include patch mismatch')
 source = source.replace(include_anchor, include_patch, 1)
-loop_anchor = '  while (!screens.empty())\n  {'
-loop_patch = '''#ifdef __EMSCRIPTEN__
-  EM_ASM({
-    if (typeof window.pingusMarkReady === 'function') {
-      window.pingusMarkReady();
-    }
-  });
-#endif
 
-  while (!screens.empty())
-  {'''
+loop_anchor = '  while (!screens.empty())\n  {\n    events.clear();'
+loop_patch = '''  while (!screens.empty())
+  {
+#ifdef __EMSCRIPTEN__
+    if (EM_ASM_INT({ return document.hidden ? 1 : 0; }))
+    {
+      emscripten_sleep(100);
+      last_ticks = SDL_GetTicks();
+      continue;
+    }
+#endif
+    events.clear();'''
 if loop_anchor not in source:
-    raise SystemExit('Pingus ScreenManager ready hook mismatch')
+    raise SystemExit('Pingus ScreenManager hidden-page patch mismatch')
 source = source.replace(loop_anchor, loop_patch, 1)
+
+flip_anchor = '  Display::flip_display();\n}'
+flip_patch = '''  Display::flip_display();
+#ifdef __EMSCRIPTEN__
+  static bool game_ready_sent = false;
+  if (!game_ready_sent)
+  {
+    game_ready_sent = true;
+    EM_ASM({
+      if (typeof window.pingusMarkReady === 'function') {
+        window.pingusMarkReady();
+      }
+    });
+  }
+#endif
+}'''
+if flip_anchor not in source:
+    raise SystemExit('Pingus ScreenManager first-frame patch mismatch')
+source = source.replace(flip_anchor, flip_patch, 1)
+
 end_anchor = '  }\n}\n \nvoid\nScreenManager::update'
 end_patch = '''  }
 #ifdef __EMSCRIPTEN__
@@ -159,11 +180,16 @@ mapfile -t SOURCES < <(
     -print | sort
 )
 
-printf 'Compiling %s original C++ source files (level editor omitted from browser build)\n' "${#SOURCES[@]}"
+if (( ${#SOURCES[@]} < 200 )); then
+  echo "Unexpectedly small Pingus source set: ${#SOURCES[@]}" >&2
+  exit 1
+fi
+printf 'Compiling %s original C++ source files (desktop editor omitted)\n' "${#SOURCES[@]}"
 
 em++ "${SOURCES[@]}" \
   -I. -Isrc -Iexternal -Iexternal/tinygettext \
   -std=c++11 -O1 -fexceptions \
+  -Wno-invalid-source-encoding \
   -DVERSION='"0.7.6-web"' \
   -DHAVE_ICONV_CONST=1 -DICONV_CONST= \
   -sUSE_SDL=1 \
@@ -175,9 +201,14 @@ em++ "${SOURCES[@]}" \
   -sDISABLE_EXCEPTION_CATCHING=0 \
   -sFORCE_FILESYSTEM=1 \
   -sASYNCIFY=1 \
+  -sASYNCIFY_STACK_SIZE=65536 \
+  -sINITIAL_MEMORY=67108864 \
   -sALLOW_MEMORY_GROWTH=1 \
+  -sMAXIMUM_MEMORY=1073741824 \
   -sASSERTIONS=1 \
+  -sERROR_ON_UNDEFINED_SYMBOLS=1 \
   -sEXIT_RUNTIME=0 \
+  -sENVIRONMENT=web \
   -lidbfs.js \
   --shell-file ../web/shell.html \
   --preload-file data@/data \
