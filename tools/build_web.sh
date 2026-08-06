@@ -18,7 +18,7 @@ em++ "${SOURCES[@]}" \
   -I. -Isrc -Iexternal/tinygettext \
   -std=c++11 -O1 \
   -DVERSION='"0.7.6-web"' \
-  -DHAVE_ICONV_CONST=1 -DICONV_CONST=const \
+  -DHAVE_ICONV_CONST=1 -DICONV_CONST= \
   -sUSE_SDL=1 \
   -sUSE_SDL_IMAGE=1 \
   -sUSE_SDL_MIXER=1 \
