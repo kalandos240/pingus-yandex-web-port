@@ -111,13 +111,15 @@ printf 'Compiling %s original C++ source files (level editor omitted from browse
 
 em++ "${SOURCES[@]}" \
   -I. -Isrc -Iexternal -Iexternal/tinygettext \
-  -std=c++11 -O1 \
+  -std=c++11 -O1 -fexceptions \
   -DVERSION='"0.7.6-web"' \
   -DHAVE_ICONV_CONST=1 -DICONV_CONST= \
   -sUSE_SDL=1 \
   -sUSE_SDL_IMAGE=1 \
   -sUSE_SDL_MIXER=1 \
   -sUSE_LIBPNG=1 \
+  -sDISABLE_EXCEPTION_CATCHING=0 \
+  -sASYNCIFY=1 \
   -sALLOW_MEMORY_GROWTH=1 \
   -sASSERTIONS=1 \
   -sEXIT_RUNTIME=0 \
