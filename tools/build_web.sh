@@ -106,6 +106,47 @@ new = '  SDL_Keysym keysym;'
 if old not in source:
     raise SystemExit('Pingus SDL keysym patch mismatch')
 path.write_text(source.replace(old, new, 1), encoding='utf-8')
+
+# Signal Game Ready only after Pingus has created its first screen and is about
+# to enter the real gameplay/menu loop. This avoids a timer-based SDK signal.
+path = Path('src/engine/screen/screen_manager.cpp')
+source = path.read_text(encoding='utf-8')
+include_anchor = '#include <iostream>\n'
+include_patch = '#include <iostream>\n\n#ifdef __EMSCRIPTEN__\n#include <emscripten.h>\n#endif\n'
+if include_anchor not in source:
+    raise SystemExit('Pingus ScreenManager include patch mismatch')
+source = source.replace(include_anchor, include_patch, 1)
+loop_anchor = '  while (!screens.empty())\n  {'
+loop_patch = '''#ifdef __EMSCRIPTEN__
+  EM_ASM({
+    if (typeof window.pingusMarkReady === 'function') {
+      window.pingusMarkReady();
+    }
+  });
+#endif
+
+  while (!screens.empty())
+  {'''
+if loop_anchor not in source:
+    raise SystemExit('Pingus ScreenManager ready hook mismatch')
+source = source.replace(loop_anchor, loop_patch, 1)
+end_anchor = '  }\n}\n \nvoid\nScreenManager::update'
+end_patch = '''  }
+#ifdef __EMSCRIPTEN__
+  EM_ASM({
+    if (typeof window.pingusSaveNow === 'function') {
+      window.pingusSaveNow();
+    }
+  });
+#endif
+}
+ 
+void
+ScreenManager::update'''
+if end_anchor not in source:
+    raise SystemExit('Pingus ScreenManager save hook mismatch')
+source = source.replace(end_anchor, end_patch, 1)
+path.write_text(source, encoding='utf-8')
 PY
 
 mapfile -t SOURCES < <(
@@ -137,5 +178,7 @@ em++ "${SOURCES[@]}" \
   -sALLOW_MEMORY_GROWTH=1 \
   -sASSERTIONS=1 \
   -sEXIT_RUNTIME=0 \
+  -lidbfs.js \
+  --shell-file ../web/shell.html \
   --preload-file data@/data \
   -o ../dist/index.html
