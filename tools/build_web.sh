@@ -72,6 +72,26 @@ replacements = {
 }
 for old, new in replacements.items():
     if old not in source:
+        raise SystemExit(f'Pingus SDL blitter patch mismatch: {old!r}')
+    source = source.replace(old, new, 1)
+path.write_text(source, encoding='utf-8')
+
+# Apply the same SDL state-access conversion in Surface, where 0.7.6 reads
+# colour-key and alpha values directly from SDL_PixelFormat.
+path = Path('src/engine/display/surface.cpp')
+source = path.read_text(encoding='utf-8')
+replacements = {
+    '          if (impl->surface->flags & SDL_SRCCOLORKEY &&\n              pixel == impl->surface->format->colorkey)':
+        '          Uint32 color_key = 0;\n          if (SDL_GetColorKey(impl->surface, &color_key) == 0 &&\n              pixel == color_key)',
+    '    Uint8 alpha = impl->surface->format->alpha;':
+        '    Uint8 alpha = SDL_ALPHA_OPAQUE;\n    SDL_GetSurfaceAlphaMod(impl->surface, &alpha);',
+    '  if (impl->surface->flags & SDL_SRCCOLORKEY)\n    out << "Colorkey: " << static_cast<int>(impl->surface->format->colorkey) << std::endl;':
+        '  if (impl->surface->flags & SDL_SRCCOLORKEY)\n  {\n    Uint32 color_key = 0;\n    SDL_GetColorKey(impl->surface, &color_key);\n    out << "Colorkey: " << static_cast<int>(color_key) << std::endl;\n  }',
+    '  if (impl->surface->flags & SDL_SRCALPHA)\n    out << "Alpha: " << static_cast<int>(impl->surface->format->alpha) << std::endl;':
+        '  if (impl->surface->flags & SDL_SRCALPHA)\n  {\n    Uint8 alpha = SDL_ALPHA_OPAQUE;\n    SDL_GetSurfaceAlphaMod(impl->surface, &alpha);\n    out << "Alpha: " << static_cast<int>(alpha) << std::endl;\n  }',
+}
+for old, new in replacements.items():
+    if old not in source:
         raise SystemExit(f'Pingus SDL surface patch mismatch: {old!r}')
     source = source.replace(old, new, 1)
 path.write_text(source, encoding='utf-8')
