@@ -1,25 +1,24 @@
-Compiling 206 original C++ source files (level editor omitted from browser build)
-shared:INFO: (Emscripten: Running sanity checks)
+Compiling 206 original C++ source files (desktop editor omitted)
 ports:INFO: retrieving port: zlib from https://github.com/madler/zlib/archive/refs/tags/v1.2.13.tar.gz
 ports:INFO: unpacking port: zlib
-cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libz.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libz.a" for subsequent builds)
-system_libs:INFO: compiled 15 inputs in 1.99s
+cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libz.a... (this will be cached in "/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libz.a" for subsequent builds)
+system_libs:INFO: compiled 15 inputs in 2.00s
+cache:INFO:  - ok
+ports:INFO: retrieving port: ogg from https://github.com/emscripten-ports/ogg/archive/version_1.zip
+ports:INFO: unpacking port: ogg
+cache:INFO: generating system library: sysroot/lib/wasm32-emscripten/libogg.a... (this will be cached in "/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libogg.a" for subsequent builds)
+system_libs:INFO: compiled 2 inputs in 0.30s
 cache:INFO:  - ok
 ports:INFO: retrieving port: libpng from https://storage.googleapis.com/webassembly/emscripten-ports/libpng-1.6.39.tar.gz
 ports:INFO: unpacking port: libpng
-cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libpng.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libpng.a" for subsequent builds)
-system_libs:INFO: compiled 25 inputs in 3.83s
+cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libpng.a... (this will be cached in "/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libpng.a" for subsequent builds)
+system_libs:INFO: compiled 25 inputs in 4.28s
 cache:INFO:  - ok
-external/tinygettext/tinygettext/language.cpp:194:35: warning: illegal character encoding in string literal [-Winvalid-source-encoding]
-  194 |   { "nb", "NO", 0, "Norwegian Bokm<E5>l (Norway)"   },
-      |                                   ^~~~
-external/tinygettext/tinygettext/language.cpp:298:27: warning: illegal character encoding in string literal [-Winvalid-source-encoding]
-  298 |     language_aliases["bokm<E5>l"]           = "nb_NO.ISO-8859-1";
-      |                           ^~~~
-external/tinygettext/tinygettext/language.cpp:309:27: warning: illegal character encoding in string literal [-Winvalid-source-encoding]
-  309 |     language_aliases["fran<E7>ais"]         = "fr_FR.ISO-8859-1";
-      |                           ^~~~
-3 warnings generated.
+ports:INFO: retrieving port: vorbis from https://github.com/emscripten-ports/vorbis/archive/version_1.zip
+ports:INFO: unpacking port: vorbis
+cache:INFO: generating system library: sysroot/lib/wasm32-emscripten/libvorbis.a... (this will be cached in "/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libvorbis.a" for subsequent builds)
+system_libs:INFO: compiled 22 inputs in 3.74s
+cache:INFO:  - ok
 In file included from src/engine/display/surface.cpp:20:
 In file included from external/boost/format.hpp:38:
 In file included from external/boost/format/internals.hpp:21:
@@ -105,15 +104,8 @@ external/boost/move/detail/type_traits.hpp:134:46: note: expanded from macro 'BO
   134 | #     define BOOST_MOVE_HAS_NOTHROW_COPY(T) (__has_nothrow_copy(T))
       |                                              ^
 8 warnings generated.
-In file included from src/engine/gui/surface_button.cpp:17:
-In file included from src/engine/gui/surface_button.hpp:21:
-In file included from src/engine/gui/component.hpp:20:
-src/engine/input/event.hpp:101:3: error: unknown type name 'SDL_keysym'; did you mean 'SDL_Keysym'?
-  101 |   SDL_keysym keysym;
-      |   ^~~~~~~~~~
-      |   SDL_Keysym
-/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/emsdk/upstream/emscripten/cache/sysroot/include/SDL/SDL_keyboard.h:53:3: note: 'SDL_Keysym' declared here
-   53 | } SDL_Keysym;
-      |   ^
+src/engine/input/sdl_driver.cpp:38:11: error: cannot initialize a variable of type 'char *' with an rvalue of type 'const char *'
+   38 |     char* key_name = SDL_GetKeyName(static_cast<SDLKey>(i));
+      |           ^          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1 error generated.
-em++: error: '/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/emsdk/upstream/bin/clang++ -target wasm32-unknown-emscripten -fignore-exceptions -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr --sysroot=/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/emsdk/upstream/emscripten/cache/sysroot -DEMSCRIPTEN -I/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/emsdk/upstream/emscripten/cache/sysroot/include/SDL -Xclang -iwithsysroot/include/compat -I. -Isrc -Iexternal -Iexternal/tinygettext -std=c++11 -O1 -DVERSION="0.7.6-web" -DHAVE_ICONV_CONST=1 -DICONV_CONST= src/engine/gui/surface_button.cpp -c -o /tmp/emscripten_temp_ag07_9wr/surface_button_33.o' failed (returned 1)
+em++: error: '/emsdk/upstream/bin/clang++ -target wasm32-unknown-emscripten -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-cxx-exceptions -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr --sysroot=/emsdk/upstream/emscripten/cache/sysroot -DEMSCRIPTEN -I/emsdk/upstream/emscripten/cache/sysroot/include/SDL -Xclang -iwithsysroot/include/compat -I. -Isrc -Iexternal -Iexternal/tinygettext -std=c++11 -O1 -fexceptions -Wno-invalid-source-encoding -DVERSION="0.7.6-web" -DHAVE_ICONV_CONST=1 -DICONV_CONST= src/engine/input/sdl_driver.cpp -c -o /tmp/emscripten_temp_o0kzmswp/sdl_driver_39.o' failed (returned 1)
