@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Browser port build: original Pingus 0.7.6 gameplay and data, with only
+# compatibility patches required for Emscripten/WebAssembly.
 mkdir -p ../dist
 
 # Boost usage in Pingus 0.7.6 is header-only for the browser target. Copy the
