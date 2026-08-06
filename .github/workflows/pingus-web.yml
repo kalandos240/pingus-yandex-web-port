@@ -9,15 +9,13 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   compile-original-source:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: pingus-web-port
 
       - name: Install Emscripten
         uses: mymindstorm/setup-emsdk@v14
@@ -65,22 +63,6 @@ jobs:
             pingus-yandex-web.zip
           if-no-files-found: warn
           retention-days: 14
-
-      - name: Commit latest CI report
-        if: always()
-        env:
-          COMPILE_OUTCOME: ${{ steps.compile.outcome }}
-          RUN_ID: ${{ github.run_id }}
-        run: |
-          mkdir -p ci
-          printf 'outcome=%s\nrun_id=%s\ncommit=%s\n' "$COMPILE_OUTCOME" "$RUN_ID" "$GITHUB_SHA" > ci/last-build-status.txt
-          cp build.log ci/last-build.log 2>/dev/null || true
-          cp size-report.txt ci/last-size-report.txt 2>/dev/null || true
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git add ci
-          git commit -m 'ci: record latest Pingus web build [skip ci]' || exit 0
-          git push origin HEAD:pingus-web-port
 
       - name: Fail when compilation failed
         if: steps.compile.outcome != 'success'
