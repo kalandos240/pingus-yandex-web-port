@@ -2,7 +2,9 @@ name: Build original Pingus for Web
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - agent/pingus-web-build
     paths-ignore:
       - 'ci/**'
       - 'release/**'
@@ -20,7 +22,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: pingus-web-${{ github.head_ref || github.ref_name }}
+  group: pingus-web-${{ github.workflow }}-${{ github.run_id }}
   cancel-in-progress: false
 
 jobs:
