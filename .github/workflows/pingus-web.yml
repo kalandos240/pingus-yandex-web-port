@@ -12,12 +12,12 @@ permissions:
   contents: write
 
 concurrency:
-  group: pingus-web-${{ github.workflow }}-${{ github.ref }}
+  group: pingus-web-${{ github.workflow }}
   cancel-in-progress: true
 
 jobs:
   compile-original-source:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
       TARGET_BRANCH: ${{ github.head_ref || github.ref_name }}
