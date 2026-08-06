@@ -3,6 +3,11 @@ set -euo pipefail
 
 mkdir -p ../dist
 
+# Boost usage in Pingus 0.7.6 is header-only for the browser target. Copy the
+# host package into the project include tree so Clang does not see host libc.
+rm -rf external/boost
+cp -a /usr/include/boost external/boost
+
 python3 - <<'PY'
 from pathlib import Path
 import re
@@ -40,6 +45,19 @@ if (editor_option_count, editor_case_count, editor_start_count) != (1, 1, 1):
     )
 path.write_text(source, encoding='utf-8')
 
+# The original SCons build supplied the exception helper globally. Add it only
+# to Pingus translation units that use the helper, avoiding macro collisions
+# with tinygettext's own log macros.
+for path in Path('src').rglob('*.cpp'):
+    source = path.read_text(encoding='utf-8')
+    if ('raise_exception(' in source or 'raise_error(' in source) and \
+       'util/raise_exception.hpp' not in source:
+        match = re.search(r'^#include ', source, flags=re.MULTILINE)
+        if not match:
+            raise SystemExit(f'No include location in {path}')
+        source = source[:match.start()] + '#include "util/raise_exception.hpp"\n\n' + source[match.start():]
+        path.write_text(source, encoding='utf-8')
+
 # Emscripten's SDL 1 compatibility layer stores colour-key and alpha state on
 # SDL_Surface rather than exposing the removed SDL_PixelFormat fields.
 path = Path('src/engine/display/blitter.cpp')
@@ -72,8 +90,7 @@ mapfile -t SOURCES < <(
 printf 'Compiling %s original C++ source files (level editor omitted from browser build)\n' "${#SOURCES[@]}"
 
 em++ "${SOURCES[@]}" \
-  -I. -Isrc -Iexternal/tinygettext \
-  -include src/util/raise_exception.hpp \
+  -I. -Isrc -Iexternal -Iexternal/tinygettext \
   -std=c++11 -O1 \
   -DVERSION='"0.7.6-web"' \
   -DHAVE_ICONV_CONST=1 -DICONV_CONST= \
