@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 jobs:
-  inspect-original-source:
+  compile-original-source:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -22,33 +22,47 @@ jobs:
           version: 3.1.64
           actions-cache-folder: emsdk-cache
 
-      - name: Download original Pingus 0.7.6 source
+      - name: Install headers
         run: |
-          set -euxo pipefail
-          curl -L --fail --retry 3 \
-            https://deb.debian.org/debian/pool/main/p/pingus/pingus_0.7.6.orig.tar.bz2 \
-            -o pingus_0.7.6.orig.tar.bz2
-          tar -xjf pingus_0.7.6.orig.tar.bz2
+          sudo apt-get update
+          sudo apt-get install -y libboost-dev
+
+      - name: Download original Pingus 0.7.6
+        run: |
+          curl -L --fail --retry 3 https://deb.debian.org/debian/pool/main/p/pingus/pingus_0.7.6.orig.tar.bz2 -o pingus.tar.bz2
+          tar -xjf pingus.tar.bz2
           mv pingus-0.7.6 pingus-src
 
-      - name: Record source and toolchain details
+      - name: Compile original source to WebAssembly
         run: |
-          set -euxo pipefail
-          emcc --version
-          em++ --version
-          find pingus-src -maxdepth 2 -type f | sort | head -400 > source-tree.txt
-          {
-            echo "===== SConstruct ====="
-            sed -n '1,320p' pingus-src/SConstruct || true
-            echo "===== SConscript ====="
-            sed -n '1,520p' pingus-src/SConscript || true
-          } > build-system.txt
+          set -o pipefail
+          cp tools/build_web.sh pingus-src/build_web.sh
+          cd pingus-src
+          bash build_web.sh 2>&1 | tee ../build.log
 
-      - name: Upload inspection files
+      - name: Upload compiler output
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: pingus-source-inspection
+          name: pingus-web-compile-output
           path: |
-            source-tree.txt
-            build-system.txt
+            build.log
+            dist/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Package browser build
+        if: success()
+        run: |
+          cp pingus-src/COPYING dist/COPYING
+          cp pingus-src/AUTHORS dist/AUTHORS
+          (cd dist && zip -9 -r ../pingus-yandex-web.zip .)
+          du -sh dist pingus-yandex-web.zip
+
+      - name: Upload browser-ready ZIP
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pingus-yandex-web
+          path: pingus-yandex-web.zip
           retention-days: 14
