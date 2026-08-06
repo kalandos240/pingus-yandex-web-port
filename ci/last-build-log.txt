@@ -1,0 +1,28 @@
+Compiling 230 original C++ source files
+shared:INFO: (Emscripten: Running sanity checks)
+ports:INFO: retrieving port: zlib from https://github.com/madler/zlib/archive/refs/tags/v1.2.13.tar.gz
+ports:INFO: unpacking port: zlib
+cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libz.a... (this will be cached in "/home/runner/work/_temp/19513f26-6671-4088-b32e-37629bacc398/emsdk-main/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libz.a" for subsequent builds)
+system_libs:INFO: compiled 15 inputs in 2.11s
+cache:INFO:  - ok
+ports:INFO: retrieving port: libpng from https://storage.googleapis.com/webassembly/emscripten-ports/libpng-1.6.39.tar.gz
+ports:INFO: unpacking port: libpng
+cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libpng.a... (this will be cached in "/home/runner/work/_temp/19513f26-6671-4088-b32e-37629bacc398/emsdk-main/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libpng.a" for subsequent builds)
+system_libs:INFO: compiled 25 inputs in 4.17s
+cache:INFO:  - ok
+external/tinygettext/tinygettext/language.cpp:194:35: warning: illegal character encoding in string literal [-Winvalid-source-encoding]
+  194 |   { "nb", "NO", 0, "Norwegian Bokm<E5>l (Norway)"   },
+      |                                   ^~~~
+external/tinygettext/tinygettext/language.cpp:298:27: warning: illegal character encoding in string literal [-Winvalid-source-encoding]
+  298 |     language_aliases["bokm<E5>l"]           = "nb_NO.ISO-8859-1";
+      |                           ^~~~
+external/tinygettext/tinygettext/language.cpp:309:27: warning: illegal character encoding in string literal [-Winvalid-source-encoding]
+  309 |     language_aliases["fran<E7>ais"]         = "fr_FR.ISO-8859-1";
+      |                           ^~~~
+3 warnings generated.
+In file included from src/editor/action_properties.cpp:19:
+src/editor/checkbox.hpp:20:10: fatal error: 'boost/signal.hpp' file not found
+   20 | #include <boost/signal.hpp>
+      |          ^~~~~~~~~~~~~~~~~~
+1 error generated.
+em++: error: '/home/runner/work/_temp/19513f26-6671-4088-b32e-37629bacc398/emsdk-main/upstream/bin/clang++ -target wasm32-unknown-emscripten -fignore-exceptions -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr --sysroot=/home/runner/work/_temp/19513f26-6671-4088-b32e-37629bacc398/emsdk-main/upstream/emscripten/cache/sysroot -DEMSCRIPTEN -I/home/runner/work/_temp/19513f26-6671-4088-b32e-37629bacc398/emsdk-main/upstream/emscripten/cache/sysroot/include/SDL -Xclang -iwithsysroot/include/compat -I. -Isrc -Iexternal/tinygettext -std=c++11 -O1 -DVERSION="0.7.6-web" -DHAVE_ICONV_CONST=1 -DICONV_CONST= src/editor/action_properties.cpp -c -o /tmp/emscripten_temp_epthrfm1/action_properties_9.o' failed (returned 1)
