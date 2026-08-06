@@ -21,7 +21,7 @@ permissions:
 
 concurrency:
   group: pingus-web-${{ github.head_ref || github.ref_name }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   compile-original-source:
@@ -120,6 +120,16 @@ jobs:
           zipinfo -1 pingus-yandex-web.zip | grep -qx 'COPYING'
           sha256sum pingus-yandex-web.zip | tee checksum.txt
           du -sh dist pingus-yandex-web.zip | tee -a size-report.txt
+
+      - name: Upload Yandex ZIP artifact
+        if: steps.compile.outputs.exit_code == '0'
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: pingus-yandex-web
+          path: repo/pingus-yandex-web.zip
+          if-no-files-found: error
+          retention-days: 30
 
       - name: Persist diagnostics and successful ZIP in branch
         if: always()
