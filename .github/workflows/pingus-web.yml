@@ -6,27 +6,34 @@ on:
     paths-ignore:
       - 'ci/**'
       - 'release/**'
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths-ignore:
+      - 'ci/**'
+      - 'release/**'
   workflow_dispatch:
 
 permissions:
   contents: write
 
 concurrency:
-  group: pingus-web-${{ github.run_id }}
-  cancel-in-progress: false
+  group: pingus-web-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
 
 jobs:
   compile-original-source:
     runs-on: ubuntu-24.04
     timeout-minutes: 75
     env:
+      TARGET_BRANCH: ${{ github.head_ref || github.ref_name }}
       GH_TOKEN: ${{ github.token }}
 
     steps:
-      - name: Clone current main without marketplace actions
+      - name: Clone current port branch without marketplace actions
         run: |
           set -euxo pipefail
-          git clone --depth 1 --single-branch --branch main \
+          git clone --depth 1 --single-branch --branch "$TARGET_BRANCH" \
             "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" repo
 
       - name: Install host tools
@@ -112,7 +119,7 @@ jobs:
           sha256sum pingus-yandex-web.zip | tee checksum.txt
           du -sh dist pingus-yandex-web.zip | tee -a size-report.txt
 
-      - name: Persist diagnostics and successful ZIP in repository
+      - name: Persist diagnostics and successful ZIP in branch
         if: always()
         working-directory: repo
         env:
@@ -141,7 +148,7 @@ jobs:
           git add -f ci
           if [ -d release ]; then git add -f release; fi
           git commit -m 'ci: record Pingus web build result [skip ci]' || exit 0
-          git push origin HEAD:main
+          git push origin HEAD:"$TARGET_BRANCH"
 
       - name: Fail when compilation failed
         if: steps.compile.outputs.exit_code != '0'
