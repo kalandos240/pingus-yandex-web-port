@@ -3,6 +3,7 @@ set -euo pipefail
 
 # Browser port build: original Pingus 0.7.6 gameplay and data, with only
 # compatibility patches required for Emscripten/WebAssembly.
+# CI rebuild marker: verify the SDL_Keysym compatibility patch on current main.
 mkdir -p ../dist
 rm -rf ../dist/*
 
