@@ -1,0 +1,21 @@
+name: Cancel stale Pingus build
+
+on:
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pingus-web-main
+  cancel-in-progress: true
+
+jobs:
+  cancel-stale-run:
+    if: github.event_name != 'issue_comment' || (github.event.issue.number == 15 && contains(github.event.comment.body, '/cancel-stale-pingus'))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    steps:
+      - run: echo 'Stale Pingus workflow concurrency slot released.'
