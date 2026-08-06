@@ -5,6 +5,7 @@ mkdir -p ../dist
 
 mapfile -t SOURCES < <(
   find external/tinygettext/tinygettext src -type f -name '*.cpp' \
+    ! -path 'src/editor/*' \
     ! -path '*/opengl/*' \
     ! -path '*/evdev/*' \
     ! -path '*/xinput/*' \
@@ -12,7 +13,7 @@ mapfile -t SOURCES < <(
     -print | sort
 )
 
-printf 'Compiling %s original C++ source files\n' "${#SOURCES[@]}"
+printf 'Compiling %s original C++ source files (level editor omitted from browser build)\n' "${#SOURCES[@]}"
 
 em++ "${SOURCES[@]}" \
   -I. -Isrc -Iexternal/tinygettext \
