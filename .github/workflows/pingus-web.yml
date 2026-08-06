@@ -2,14 +2,16 @@ name: Build original Pingus for Web
 
 on:
   push:
-    branches: [web-port-iter2]
+    branches: [main]
+    paths-ignore:
+      - 'ci/**'
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: pingus-web-${{ github.head_ref || github.ref_name }}
@@ -122,6 +124,28 @@ jobs:
           path: pingus-yandex-web.zip
           if-no-files-found: error
           retention-days: 30
+
+      - name: Record latest push-build result
+        if: always() && github.event_name == 'push'
+        env:
+          COMPILE_EXIT: ${{ steps.compile.outputs.exit_code }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          set -euxo pipefail
+          rm -rf ci
+          mkdir -p ci
+          cp build.log ci/last-build-log.txt 2>/dev/null || true
+          cp size-report.txt ci/last-size-report.txt 2>/dev/null || true
+          cp checksum.txt ci/last-checksum.txt 2>/dev/null || true
+          printf 'job_status=%s\ncompile_exit=%s\nrun_id=%s\ncommit=%s\nzip_present=%s\n' \
+            "$JOB_STATUS" "${COMPILE_EXIT:-not-run}" "$GITHUB_RUN_ID" "$GITHUB_SHA" \
+            "$([ -s pingus-yandex-web.zip ] && echo yes || echo no)" \
+            > ci/last-build-status.txt
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add -f ci
+          git commit -m 'ci: record latest Pingus web build [skip ci]' || exit 0
+          git push origin HEAD:main
 
       - name: Fail when compilation failed
         if: steps.compile.outputs.exit_code != '0'
