@@ -6,6 +6,8 @@ on:
     paths-ignore:
       - 'ci/**'
       - 'release/**'
+  issue_comment:
+    types: [created]
   schedule:
     - cron: '*/5 * * * *'
   workflow_dispatch:
@@ -19,6 +21,7 @@ concurrency:
 
 jobs:
   announce:
+    if: github.event_name != 'issue_comment' || (github.event.issue.number == 15 && contains(github.event.comment.body, '/build-pingus'))
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     env:
