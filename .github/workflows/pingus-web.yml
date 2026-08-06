@@ -2,7 +2,7 @@ name: Build original Pingus for Web
 
 on:
   push:
-    branches: [main, pingus-web-port]
+    branches: [main]
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened]
@@ -14,10 +14,12 @@ permissions:
 jobs:
   compile-original-source:
     runs-on: ubuntu-24.04
+    env:
+      TARGET_BRANCH: ${{ github.head_ref || github.ref_name }}
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: pingus-web-port
+          ref: ${{ github.head_ref || github.ref_name }}
 
       - name: Install Emscripten
         uses: mymindstorm/setup-emsdk@v14
@@ -74,13 +76,13 @@ jobs:
         run: |
           mkdir -p ci
           printf 'outcome=%s\nrun_id=%s\ncommit=%s\n' "$COMPILE_OUTCOME" "$RUN_ID" "$GITHUB_SHA" > ci/last-build-status.txt
-          cp build.log ci/last-build.log 2>/dev/null || true
+          cp build.log ci/last-build-log.txt 2>/dev/null || true
           cp size-report.txt ci/last-size-report.txt 2>/dev/null || true
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git add ci
+          git add -f ci
           git commit -m 'ci: record latest Pingus web build [skip ci]' || exit 0
-          git push origin HEAD:pingus-web-port
+          git push origin HEAD:"$TARGET_BRANCH"
 
       - name: Fail when compilation failed
         if: steps.compile.outcome != 'success'
