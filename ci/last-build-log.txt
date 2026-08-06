@@ -1,0 +1,23 @@
+Compiling 230 original C++ source files
+shared:INFO: (Emscripten: Running sanity checks)
+ports:INFO: retrieving port: zlib from https://github.com/madler/zlib/archive/refs/tags/v1.2.13.tar.gz
+ports:INFO: unpacking port: zlib
+cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libz.a... (this will be cached in "/home/runner/work/_temp/e415e5f7-0aa9-4fb6-8481-98d44905026a/emsdk-main/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libz.a" for subsequent builds)
+system_libs:INFO: compiled 15 inputs in 2.10s
+cache:INFO:  - ok
+ports:INFO: retrieving port: libpng from https://storage.googleapis.com/webassembly/emscripten-ports/libpng-1.6.39.tar.gz
+ports:INFO: unpacking port: libpng
+cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libpng.a... (this will be cached in "/home/runner/work/_temp/e415e5f7-0aa9-4fb6-8481-98d44905026a/emsdk-main/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libpng.a" for subsequent builds)
+system_libs:INFO: compiled 25 inputs in 4.17s
+cache:INFO:  - ok
+external/tinygettext/tinygettext/iconv.cpp:116:18: error: no matching function for call to 'iconv'
+  116 |     size_t ret = tinygettext_iconv(cd, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
+      |                  ^~~~~~~~~~~~~~~~~
+external/tinygettext/tinygettext/iconv.hpp:40:35: note: expanded from macro 'tinygettext_iconv'
+   40 | #  define tinygettext_iconv       iconv
+      |                                   ^~~~~
+/home/runner/work/_temp/e415e5f7-0aa9-4fb6-8481-98d44905026a/emsdk-main/upstream/emscripten/cache/sysroot/include/iconv.h:17:8: note: candidate function not viable: no known conversion from 'const char **' to 'char **__restrict' for 2nd argument
+   17 | size_t iconv(iconv_t, char **__restrict, size_t *__restrict, char **__restrict, size_t *__restrict);
+      |        ^              ~~~~~~~
+1 error generated.
+em++: error: '/home/runner/work/_temp/e415e5f7-0aa9-4fb6-8481-98d44905026a/emsdk-main/upstream/bin/clang++ -target wasm32-unknown-emscripten -fignore-exceptions -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr --sysroot=/home/runner/work/_temp/e415e5f7-0aa9-4fb6-8481-98d44905026a/emsdk-main/upstream/emscripten/cache/sysroot -DEMSCRIPTEN -I/home/runner/work/_temp/e415e5f7-0aa9-4fb6-8481-98d44905026a/emsdk-main/upstream/emscripten/cache/sysroot/include/SDL -Xclang -iwithsysroot/include/compat -I. -Isrc -Iexternal/tinygettext -std=c++11 -O1 -DVERSION="0.7.6-web" -DHAVE_ICONV_CONST=1 -DICONV_CONST=const external/tinygettext/tinygettext/iconv.cpp -c -o /tmp/emscripten_temp_c5hvtzsx/iconv_2.o' failed (returned 1)
