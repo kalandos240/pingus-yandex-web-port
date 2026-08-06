@@ -7,50 +7,55 @@ python3 - <<'PY'
 from pathlib import Path
 import re
 
+# The browser build does not ship the desktop level editor. Removing its
+# command-line entry points also avoids the obsolete Boost.Signals dependency.
 path = Path('src/pingus/pingus_main.cpp')
 source = path.read_text(encoding='utf-8')
-
 source = source.replace(
     '#include "editor/editor_level.hpp"\n#include "editor/editor_screen.hpp"\n',
     ''
 )
-
 source, editor_option_count = re.subn(
     r'\n  argp\.add_group\("Editor Options:"\);\n'
     r'  argp\.add_option\(\'e\', "editor", "",\n'
     r'                  _\("Loads the level editor"\)\);\n',
-    '\n',
-    source,
-    count=1,
+    '\n', source, count=1,
 )
-
 source, editor_case_count = re.subn(
     r"\n      case 'e': // -e, --editor\n"
     r"        cmd_options\.editor\.set\(true\);\n"
     r"        break;\n",
-    '\n',
-    source,
-    count=1,
+    '\n', source, count=1,
 )
-
 source, editor_start_count = re.subn(
     r'  if \(cmd_options\.editor\.is_set\(\) && cmd_options\.editor\.get\(\)\)\n'
-    r'  \{ // Editor\n'
-    r'.*?'
-    r'  \}\n'
+    r'  \{ // Editor\n.*?  \}\n'
     r'  else if \(cmd_options\.rest\.is_set\(\)\)',
-    '  if (cmd_options.rest.is_set())',
-    source,
-    count=1,
-    flags=re.DOTALL,
+    '  if (cmd_options.rest.is_set())', source, count=1, flags=re.DOTALL,
 )
-
-if editor_option_count != 1 or editor_case_count != 1 or editor_start_count != 1:
+if (editor_option_count, editor_case_count, editor_start_count) != (1, 1, 1):
     raise SystemExit(
         f'Pingus editor patch mismatch: option={editor_option_count}, '
         f'case={editor_case_count}, start={editor_start_count}'
     )
+path.write_text(source, encoding='utf-8')
 
+# Emscripten's SDL 1 compatibility layer stores colour-key and alpha state on
+# SDL_Surface rather than exposing the removed SDL_PixelFormat fields.
+path = Path('src/engine/display/blitter.cpp')
+source = path.read_text(encoding='utf-8')
+replacements = {
+    '    ckey = surface->format->colorkey;':
+        '    ckey = 0;\n    SDL_GetColorKey(surface, &ckey);',
+    '  if (surface->flags & SDL_SRCALPHA)\n    SDL_SetAlpha(new_surface, SDL_SRCALPHA, surface->format->alpha);':
+        '  if (surface->flags & SDL_SRCALPHA)\n  {\n    Uint8 alpha = SDL_ALPHA_OPAQUE;\n    SDL_GetSurfaceAlphaMod(surface, &alpha);\n    SDL_SetAlpha(new_surface, SDL_SRCALPHA, alpha);\n  }',
+    '  if (surface->flags & SDL_SRCCOLORKEY)\n    SDL_SetColorKey(new_surface, SDL_SRCCOLORKEY, surface->format->colorkey);':
+        '  if (surface->flags & SDL_SRCCOLORKEY)\n  {\n    Uint32 color_key = 0;\n    SDL_GetColorKey(surface, &color_key);\n    SDL_SetColorKey(new_surface, SDL_SRCCOLORKEY, color_key);\n  }',
+}
+for old, new in replacements.items():
+    if old not in source:
+        raise SystemExit(f'Pingus SDL surface patch mismatch: {old!r}')
+    source = source.replace(old, new, 1)
 path.write_text(source, encoding='utf-8')
 PY
 
