@@ -3,6 +3,9 @@ name: Build original Pingus for Web
 on:
   push:
     branches: [main, pingus-web-port]
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
   workflow_dispatch:
 
 permissions:
