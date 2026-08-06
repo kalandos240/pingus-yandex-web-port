@@ -40,6 +40,20 @@ jobs:
           git clone --depth 1 --single-branch --branch "$TARGET_BRANCH" \
             "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" repo
 
+      - name: Record build start
+        working-directory: repo
+        run: |
+          set -euxo pipefail
+          mkdir -p ci
+          printf 'state=running\nrun_id=%s\ncommit=%s\nbranch=%s\nstarted_at=%s\n' \
+            "$GITHUB_RUN_ID" "$GITHUB_SHA" "$TARGET_BRANCH" "$(date -u +%FT%TZ)" \
+            > ci/current-run.txt
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add -f ci/current-run.txt
+          git commit -m 'ci: record active Pingus build [skip ci]' || true
+          git push origin HEAD:"$TARGET_BRANCH"
+
       - name: Install host tools
         run: |
           set -euxo pipefail
