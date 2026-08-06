@@ -12,6 +12,8 @@ mapfile -t SOURCES < <(
     -print | sort
 )
 
+printf 'Compiling %s original C++ source files\n' "${#SOURCES[@]}"
+
 em++ "${SOURCES[@]}" \
   -I. -Isrc -Iexternal/tinygettext \
   -std=c++11 -O1 \
