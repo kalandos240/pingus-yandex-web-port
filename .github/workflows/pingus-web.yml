@@ -13,7 +13,7 @@ on:
       - 'ci/**'
       - 'release/**'
   schedule:
-    - cron: '*/5 * * * *'
+    - cron: '0 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -21,7 +21,7 @@ permissions:
 
 concurrency:
   group: pingus-web-${{ github.head_ref || github.ref_name }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   compile-original-source:
