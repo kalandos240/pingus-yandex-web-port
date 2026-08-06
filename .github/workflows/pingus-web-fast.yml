@@ -18,7 +18,29 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  announce:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Record active run
+        run: |
+          set -euxo pipefail
+          git clone --depth 1 --single-branch --branch main \
+            "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" repo
+          cd repo
+          mkdir -p ci
+          printf 'state=running\nrun_id=%s\ncommit=%s\nstarted_at=%s\n' \
+            "$GITHUB_RUN_ID" "$GITHUB_SHA" "$(date -u +%FT%TZ)" > ci/fast-current-run.txt
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add -f ci/fast-current-run.txt
+          git commit -m 'ci: record fast Pingus build [skip ci]' || true
+          git push origin HEAD:main
+
   build:
+    needs: announce
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     container:
@@ -40,19 +62,6 @@ jobs:
           set -eux
           git clone --depth 1 --single-branch --branch main \
             "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" repo
-
-      - name: Record active run
-        working-directory: repo
-        run: |
-          set -eux
-          mkdir -p ci
-          printf 'state=running\nrun_id=%s\ncommit=%s\nstarted_at=%s\n' \
-            "$GITHUB_RUN_ID" "$GITHUB_SHA" "$(date -u +%FT%TZ)" > ci/fast-current-run.txt
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git add -f ci/fast-current-run.txt
-          git commit -m 'ci: record fast Pingus build [skip ci]' || true
-          git push origin HEAD:main
 
       - name: Download original Pingus 0.7.6
         working-directory: repo
