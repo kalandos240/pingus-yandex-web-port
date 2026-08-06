@@ -95,6 +95,15 @@ for old, new in replacements.items():
         raise SystemExit(f'Pingus SDL surface patch mismatch: {old!r}')
     source = source.replace(old, new, 1)
 path.write_text(source, encoding='utf-8')
+
+# Emscripten's SDL headers use the canonical SDL_Keysym type name.
+path = Path('src/engine/input/event.hpp')
+source = path.read_text(encoding='utf-8')
+old = '  SDL_keysym keysym;'
+new = '  SDL_Keysym keysym;'
+if old not in source:
+    raise SystemExit('Pingus SDL keysym patch mismatch')
+path.write_text(source.replace(old, new, 1), encoding='utf-8')
 PY
 
 mapfile -t SOURCES < <(
