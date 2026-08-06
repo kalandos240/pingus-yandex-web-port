@@ -2,113 +2,109 @@ name: Build original Pingus for Web
 
 on:
   push:
-    branches: [main, web-port-iter2]
+    branches: [web-port-iter2]
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
-  group: pingus-web-${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  group: pingus-web-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:
   compile-original-source:
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
-    env:
-      TARGET_BRANCH: ${{ github.head_ref || github.ref_name }}
-      GH_TOKEN: ${{ github.token }}
-    steps:
-      - name: Clone working branch
-        run: |
-          set -euxo pipefail
-          git clone --depth 1 --single-branch --branch "$TARGET_BRANCH" \
-            "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" repo
+    timeout-minutes: 60
 
-      - name: Install compiler and headers
+    steps:
+      - name: Checkout port sources
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - name: Install host tools
         run: |
           set -euxo pipefail
           sudo apt-get update
-          sudo apt-get install -y emscripten libboost-dev zip
+          sudo apt-get install -y --no-install-recommends \
+            bzip2 ca-certificates curl git libboost-dev python3 xz-utils zip
+
+      - name: Install pinned Emscripten SDK
+        run: |
+          set -euxo pipefail
+          git clone --depth 1 https://github.com/emscripten-core/emsdk.git .emsdk
+          ./.emsdk/emsdk install 3.1.64
+          ./.emsdk/emsdk activate 3.1.64
+          source ./.emsdk/emsdk_env.sh
           em++ --version
 
       - name: Download original Pingus 0.7.6
-        working-directory: repo
         run: |
           set -euxo pipefail
-          curl -L --fail --retry 3 \
+          curl -L --fail --retry 3 --retry-all-errors \
             https://deb.debian.org/debian/pool/main/p/pingus/pingus_0.7.6.orig.tar.bz2 \
             -o pingus.tar.bz2
           tar -xjf pingus.tar.bz2
           mv pingus-0.7.6 pingus-src
+          cp tools/build_web.sh pingus-src/build_web.sh
 
       - name: Compile original source to WebAssembly
         id: compile
-        continue-on-error: true
-        working-directory: repo
+        shell: bash
         run: |
+          set +e
           set -o pipefail
-          cp tools/build_web.sh pingus-src/build_web.sh
+          source ./.emsdk/emsdk_env.sh
           cd pingus-src
           bash build_web.sh 2>&1 | tee ../build.log
+          compile_status=${PIPESTATUS[0]}
+          cd ..
+          printf 'exit_code=%s\ncommit=%s\nrun_id=%s\n' \
+            "$compile_status" "$GITHUB_SHA" "$GITHUB_RUN_ID" > build-status.txt
+          echo "exit_code=$compile_status" >> "$GITHUB_OUTPUT"
+          exit 0
 
-      - name: Package successful browser build
-        if: steps.compile.outcome == 'success'
-        working-directory: repo
+      - name: Validate and package browser build
+        if: steps.compile.outputs.exit_code == '0'
         run: |
           set -euxo pipefail
+          test -s dist/index.html
+          test -s dist/index.js
+          test -s dist/index.wasm
+          test -s dist/index.data
           cp pingus-src/COPYING dist/COPYING
           cp pingus-src/AUTHORS dist/AUTHORS
+          printf 'Original Pingus 0.7.6 browser port for Yandex Games.\n' > dist/README.txt
           (cd dist && zip -9 -r ../pingus-yandex-web.zip .)
           du -sh dist pingus-yandex-web.zip | tee size-report.txt
 
-      - name: Commit CI report and successful build
+      - name: Upload build diagnostics
         if: always()
-        working-directory: repo
-        env:
-          COMPILE_OUTCOME: ${{ steps.compile.outcome }}
-          RUN_ID: ${{ github.run_id }}
-        run: |
-          set -euxo pipefail
-          rm -rf /tmp/pingus-ci-report /tmp/pingus-release
-          mkdir -p /tmp/pingus-ci-report
-          printf 'outcome=%s\nrun_id=%s\ncommit=%s\n' \
-            "$COMPILE_OUTCOME" "$RUN_ID" "$GITHUB_SHA" \
-            > /tmp/pingus-ci-report/last-build-status.txt
-          cp build.log /tmp/pingus-ci-report/last-build-log.txt 2>/dev/null || true
-          cp size-report.txt /tmp/pingus-ci-report/last-size-report.txt 2>/dev/null || true
+        uses: actions/upload-artifact@v4
+        with:
+          name: pingus-build-diagnostics-${{ github.run_number }}
+          path: |
+            build.log
+            build-status.txt
+            size-report.txt
+          if-no-files-found: warn
+          retention-days: 14
 
-          if [ "$COMPILE_OUTCOME" = success ]; then
-            mkdir -p /tmp/pingus-release
-            cp -a dist/. /tmp/pingus-release/
-            cp pingus-yandex-web.zip /tmp/pingus-release/
-          fi
-
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git fetch origin "$TARGET_BRANCH"
-          git reset --hard "origin/$TARGET_BRANCH"
-          git clean -fdx
-
-          rm -rf ci release
-          mkdir -p ci
-          cp -a /tmp/pingus-ci-report/. ci/
-          if [ "$COMPILE_OUTCOME" = success ]; then
-            mkdir -p release
-            cp -a /tmp/pingus-release/. release/
-          fi
-
-          git add -f ci
-          if [ "$COMPILE_OUTCOME" = success ]; then
-            git add -f release
-          fi
-          git commit -m 'ci: record latest Pingus web build [skip ci]' || exit 0
-          git push origin HEAD:"$TARGET_BRANCH"
+      - name: Upload Yandex Games ZIP
+        if: steps.compile.outputs.exit_code == '0'
+        uses: actions/upload-artifact@v4
+        with:
+          name: pingus-yandex-web
+          path: pingus-yandex-web.zip
+          if-no-files-found: error
+          retention-days: 30
 
       - name: Fail when compilation failed
-        if: steps.compile.outcome != 'success'
-        run: exit 1
+        if: steps.compile.outputs.exit_code != '0'
+        run: |
+          echo 'Original Pingus WebAssembly compilation failed. See the diagnostics artifact.'
+          exit 1
