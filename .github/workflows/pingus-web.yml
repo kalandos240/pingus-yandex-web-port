@@ -12,87 +12,103 @@ permissions:
   contents: write
 
 concurrency:
-  group: pingus-web-${{ github.workflow }}
+  group: pingus-web-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   compile-original-source:
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
+    runs-on: ubuntu-22.04
+    timeout-minutes: 60
     env:
       TARGET_BRANCH: ${{ github.head_ref || github.ref_name }}
+      GH_TOKEN: ${{ github.token }}
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref || github.ref_name }}
-
-      - name: Install Emscripten
-        uses: mymindstorm/setup-emsdk@v14
-        with:
-          version: 3.1.64
-          actions-cache-folder: emsdk-cache
-
-      - name: Install headers
+      - name: Clone working branch
         run: |
+          set -euxo pipefail
+          git clone --depth 1 --single-branch --branch "$TARGET_BRANCH" \
+            "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" repo
+
+      - name: Install Emscripten and headers
+        run: |
+          set -euxo pipefail
           sudo apt-get update
-          sudo apt-get install -y libboost-dev
+          sudo apt-get install -y libboost-dev zip
+          git clone --depth 1 https://github.com/emscripten-core/emsdk.git emsdk
+          ./emsdk/emsdk install 3.1.64
+          ./emsdk/emsdk activate 3.1.64
 
       - name: Download original Pingus 0.7.6
+        working-directory: repo
         run: |
-          curl -L --fail --retry 3 https://deb.debian.org/debian/pool/main/p/pingus/pingus_0.7.6.orig.tar.bz2 -o pingus.tar.bz2
+          set -euxo pipefail
+          curl -L --fail --retry 3 \
+            https://deb.debian.org/debian/pool/main/p/pingus/pingus_0.7.6.orig.tar.bz2 \
+            -o pingus.tar.bz2
           tar -xjf pingus.tar.bz2
           mv pingus-0.7.6 pingus-src
 
       - name: Compile original source to WebAssembly
         id: compile
         continue-on-error: true
+        working-directory: repo
         run: |
           set -o pipefail
+          source ../emsdk/emsdk_env.sh
           cp tools/build_web.sh pingus-src/build_web.sh
           cd pingus-src
           bash build_web.sh 2>&1 | tee ../build.log
 
       - name: Package successful browser build
         if: steps.compile.outcome == 'success'
+        working-directory: repo
         run: |
+          set -euxo pipefail
           cp pingus-src/COPYING dist/COPYING
           cp pingus-src/AUTHORS dist/AUTHORS
           (cd dist && zip -9 -r ../pingus-yandex-web.zip .)
           du -sh dist pingus-yandex-web.zip | tee size-report.txt
 
-      - name: Upload compiler output
+      - name: Commit CI report and successful build
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: pingus-web-compile-output
-          path: |
-            build.log
-            size-report.txt
-            dist/
-            pingus-yandex-web.zip
-          if-no-files-found: warn
-          retention-days: 14
-
-      - name: Commit latest CI report
-        if: always()
+        working-directory: repo
         env:
           COMPILE_OUTCOME: ${{ steps.compile.outcome }}
           RUN_ID: ${{ github.run_id }}
         run: |
-          rm -rf /tmp/pingus-ci-report
+          set -euxo pipefail
+          rm -rf /tmp/pingus-ci-report /tmp/pingus-release
           mkdir -p /tmp/pingus-ci-report
-          printf 'outcome=%s\nrun_id=%s\ncommit=%s\n' "$COMPILE_OUTCOME" "$RUN_ID" "$GITHUB_SHA" > /tmp/pingus-ci-report/last-build-status.txt
+          printf 'outcome=%s\nrun_id=%s\ncommit=%s\n' \
+            "$COMPILE_OUTCOME" "$RUN_ID" "$GITHUB_SHA" \
+            > /tmp/pingus-ci-report/last-build-status.txt
           cp build.log /tmp/pingus-ci-report/last-build-log.txt 2>/dev/null || true
           cp size-report.txt /tmp/pingus-ci-report/last-size-report.txt 2>/dev/null || true
+
+          if [ "$COMPILE_OUTCOME" = success ]; then
+            mkdir -p /tmp/pingus-release
+            cp -a dist/. /tmp/pingus-release/
+            cp pingus-yandex-web.zip /tmp/pingus-release/
+          fi
 
           git config user.name github-actions
           git config user.email github-actions@github.com
           git fetch origin "$TARGET_BRANCH"
           git reset --hard "origin/$TARGET_BRANCH"
-          rm -rf ci
+          git clean -fdx
+
+          rm -rf ci release
           mkdir -p ci
           cp -a /tmp/pingus-ci-report/. ci/
+          if [ "$COMPILE_OUTCOME" = success ]; then
+            mkdir -p release
+            cp -a /tmp/pingus-release/. release/
+          fi
+
           git add -f ci
+          if [ "$COMPILE_OUTCOME" = success ]; then
+            git add -f release
+          fi
           git commit -m 'ci: record latest Pingus web build [skip ci]' || exit 0
           git push origin HEAD:"$TARGET_BRANCH"
 
