@@ -12,6 +12,8 @@ on:
     paths-ignore:
       - 'ci/**'
       - 'release/**'
+  schedule:
+    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 permissions:
