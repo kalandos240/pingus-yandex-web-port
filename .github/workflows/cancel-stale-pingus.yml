@@ -3,6 +3,8 @@ name: Cancel stale Pingus build
 on:
   issue_comment:
     types: [created]
+  schedule:
+    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 permissions:
