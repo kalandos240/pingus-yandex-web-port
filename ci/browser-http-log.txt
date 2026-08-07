@@ -1,8 +1,8 @@
-127.0.0.1 - - [07/Aug/2026 19:29:04] "GET /index.html HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 19:29:04] "GET /index.html HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 19:29:10] "GET /index.html?pingus-smoke=1 HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 19:29:10] code 404, message File not found
-127.0.0.1 - - [07/Aug/2026 19:29:10] "GET /sdk.js HTTP/1.1" 404 -
-127.0.0.1 - - [07/Aug/2026 19:29:10] "GET /pingus.js HTTP/1.1" 200 -
-127.0.0.1 - - [07/Aug/2026 19:29:12] code 404, message File not found
-127.0.0.1 - - [07/Aug/2026 19:29:12] "GET /__pingus_ready__ HTTP/1.1" 404 -
+127.0.0.1 - - [07/Aug/2026 19:46:23] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 19:46:23] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 19:46:24] "GET /index.html?pingus-smoke=1 HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 19:46:24] "GET /pingus.js HTTP/1.1" 200 -
+127.0.0.1 - - [07/Aug/2026 19:46:24] code 404, message File not found
+127.0.0.1 - - [07/Aug/2026 19:46:24] "GET /sdk.js HTTP/1.1" 404 -
+127.0.0.1 - - [07/Aug/2026 19:46:26] code 404, message File not found
+127.0.0.1 - - [07/Aug/2026 19:46:26] "GET /__pingus_ready__ HTTP/1.1" 404 -
