@@ -23,11 +23,15 @@ except Exception as error:
 if 'Language: ru' not in ru_text or 'msgid "Story"' not in ru_text:
     raise SystemExit('downloaded ru.po did not look like the expected Russian Pingus catalog')
 
-# Fill a small number of still-empty, player-facing strings in that upstream
-# catalog. This avoids visibly mixed English/Russian UI in the Yandex build.
-# Only strings present in original Pingus 0.7.6 are touched.
+# Player-facing Web overrides. Some fill still-empty upstream entries; a few
+# deliberately shorten translations so they fit the original fixed-size 2007
+# bitmap UI without overlapping neighbouring controls.
 WEB_RU = {
+    'Levelsets': 'Уровни',
     'Option Menu': 'Настройки',
+    'Master Volume:': 'Общая:',
+    'Sound Volume:': 'Звуки:',
+    'Music Volume:': 'Музыка:',
     'Play': 'Играть',
     'Back': 'Назад',
     'Give up': 'Сдаться',
@@ -57,18 +61,16 @@ def po_quote(value: str) -> str:
     return value.replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n')
 
 for msgid, translated in WEB_RU.items():
+    qid = po_quote(msgid)
+    # These overrides are intentionally all single-line msgids. Replace either
+    # an empty or an existing single-line translation from upstream.
     pattern = re.compile(
-        r'(?m)^msgid "' + re.escape(po_quote(msgid)) + r'"\nmsgstr ""$',
+        r'(?m)^msgid "' + re.escape(qid) + r'"\nmsgstr ".*"$',
     )
-    ru_text, count = pattern.subn(
-        'msgid "' + po_quote(msgid) + '"\nmsgstr "' + po_quote(translated) + '"',
-        ru_text,
-        count=1,
-    )
-    # Some strings may already be translated upstream; that is fine. But if
-    # the msgid is absent entirely, fail because the pinned catalog changed.
-    if count == 0 and f'msgid "{po_quote(msgid)}"' not in ru_text:
-        raise SystemExit(f'expected Russian catalog msgid missing: {msgid!r}')
+    replacement = 'msgid "' + qid + '"\nmsgstr "' + po_quote(translated) + '"'
+    ru_text, count = pattern.subn(replacement, ru_text, count=1)
+    if count != 1:
+        raise SystemExit(f'expected single-line Russian catalog entry missing: {msgid!r}')
 
 (po_dir / 'ru.po').write_text(ru_text, encoding='utf-8')
 
