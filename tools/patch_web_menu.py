@@ -61,4 +61,28 @@ if (n_start, n_editor_ctor, n_quit_ctor, n_editor_click, n_quit_click) != (1, 1,
         f'{(n_start, n_editor_ctor, n_quit_ctor, n_editor_click, n_quit_click)}'
     )
 
+# Browser players do not need desktop grab/F-key help. Keep the release clean;
+# full copyright/license text remains in COPYING/AUTHORS/README in the ZIP.
+old_help = '''  help = _("..:: Ctrl-g: mouse grab   ::   F10: fps counter   ::   F11: fullscreen   ::   F12: screenshot ::..");'''
+new_help = '''#ifdef __EMSCRIPTEN__\n  help.clear();\n#else\n  help = _("..:: Ctrl-g: mouse grab   ::   F10: fps counter   ::   F11: fullscreen   ::   F12: screenshot ::..");\n#endif'''
+if s.count(old_help) != 1:
+    raise SystemExit('web menu desktop-help anchor missing or duplicated')
+s = s.replace(old_help, new_help, 1)
+
+old_footer = '''  gc.print_left(Fonts::pingus_small, Vector2i(gc.get_width()/2 - 400 + 25, gc.get_height()-140),\n                "Pingus "VERSION" - Copyright (C) 1998-2011 Ingo Ruhnke <grumbel@gmail.com>\\n"\n                "See the file AUTHORS for a complete list of contributors.\\n"\n                "Pingus comes with ABSOLUTELY NO WARRANTY. This is free software, and you are\\n"\n                "welcome to redistribute it under certain conditions; see the file COPYING for details.\\n");\n\n  gc.draw_fillrect(Rect(0,\n                        Display::get_height () - 26,\n                        Display::get_width (),\n                        Display::get_height ()),\n                   Color(0, 0, 0, 255));\n\n  gc.print_center(Fonts::pingus_small, \n                  Vector2i(gc.get_width() / 2,\n                           gc.get_height() - Fonts::pingus_small.get_height() - 8),\n                  help);'''
+new_footer = '''#ifndef __EMSCRIPTEN__\n  gc.print_left(Fonts::pingus_small, Vector2i(gc.get_width()/2 - 400 + 25, gc.get_height()-140),\n                "Pingus "VERSION" - Copyright (C) 1998-2011 Ingo Ruhnke <grumbel@gmail.com>\\n"\n                "See the file AUTHORS for a complete list of contributors.\\n"\n                "Pingus comes with ABSOLUTELY NO WARRANTY. This is free software, and you are\\n"\n                "welcome to redistribute it under certain conditions; see the file COPYING for details.\\n");\n\n  gc.draw_fillrect(Rect(0,\n                        Display::get_height () - 26,\n                        Display::get_width (),\n                        Display::get_height ()),\n                   Color(0, 0, 0, 255));\n\n  gc.print_center(Fonts::pingus_small, \n                  Vector2i(gc.get_width() / 2,\n                           gc.get_height() - Fonts::pingus_small.get_height() - 8),\n                  help);\n#endif'''
+if s.count(old_footer) != 1:
+    raise SystemExit('web menu footer anchor missing or duplicated')
+s = s.replace(old_footer, new_footer, 1)
+
+# The removed buttons are null on Web. The original resize() still dereferenced
+# them, which could crash after a browser resize/orientation change.
+for dead_resize in [
+    '''  editor_button->set_pos(size.width/2 + 125,\n                         size.height/2 - 20);\n    \n''',
+    '''  quit_button->set_pos(size.width/2, \n                       size.height/2 + 120);\n''',
+]:
+    if s.count(dead_resize) != 1:
+        raise SystemExit('web menu dead resize anchor missing or duplicated')
+    s = s.replace(dead_resize, '', 1)
+
 p.write_text(s, encoding='utf-8')
