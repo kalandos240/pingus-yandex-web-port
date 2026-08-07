@@ -88,6 +88,14 @@ if old not in source:
     raise SystemExit('Pingus SDL key-name constness patch mismatch')
 path.write_text(source.replace(old, new, 1), encoding='utf-8')
 
+path = Path('src/pingus/components/playfield.cpp')
+source = path.read_text(encoding='utf-8')
+old = '    Uint8 *keystate = SDL_GetKeyState(NULL);'
+new = '    const Uint8 *keystate = SDL_GetKeyboardState(NULL);'
+if old not in source:
+    raise SystemExit('Pingus SDL keyboard-state patch mismatch')
+path.write_text(source.replace(old, new, 1), encoding='utf-8')
+
 path = Path('src/lisp/getters.hpp')
 source = path.read_text(encoding='utf-8')
 old = '  const Lisp* el = lisp->get_list_elem(1);'
