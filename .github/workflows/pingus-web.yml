@@ -183,6 +183,69 @@ jobs:
             exit 1
           fi
 
+      - name: Smoke-test persistent Pingus saves
+        if: steps.compile.outputs.exit_code == '0'
+        continue-on-error: true
+        working-directory: repo
+        run: |
+          set -euxo pipefail
+          browser_bin="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser || true)"
+          if [ -z "$browser_bin" ]; then
+            printf 'status=skipped\nreason=no-headless-browser\n' > persistence-smoke-status.txt
+            exit 0
+          fi
+
+          python3 tools/make_persistence_smoke.py dist/index.html dist/persistence-smoke.html
+          rm -rf .chrome-persistence-profile
+          : > persistence-http-log.txt
+          python3 -m http.server 4174 --bind 127.0.0.1 --directory dist > persistence-http-log.txt 2>&1 &
+          server_pid=$!
+          chrome_pid=''
+          cleanup() {
+            if [ -n "$chrome_pid" ]; then kill "$chrome_pid" 2>/dev/null || true; fi
+            kill "$server_pid" 2>/dev/null || true
+          }
+          trap cleanup EXIT
+          for _ in $(seq 1 50); do
+            if curl -fsS http://127.0.0.1:4174/persistence-smoke.html >/dev/null; then break; fi
+            sleep 0.1
+          done
+          curl -fsS http://127.0.0.1:4174/persistence-smoke.html >/dev/null
+
+          "$browser_bin" \
+            --headless=new --no-sandbox --disable-dev-shm-usage --disable-gpu \
+            --autoplay-policy=no-user-gesture-required \
+            --user-data-dir="$PWD/.chrome-persistence-profile" \
+            'http://127.0.0.1:4174/persistence-smoke.html?pingus-persistence-smoke=1' \
+            > persistence-smoke-stdout.txt 2> persistence-smoke-log.txt &
+          chrome_pid=$!
+
+          result='timeout'
+          for _ in $(seq 1 240); do
+            if grep -q 'GET /__pingus_persist_success__' persistence-http-log.txt; then
+              result='success'
+              break
+            fi
+            if grep -q 'GET /__pingus_persist_error__' persistence-http-log.txt; then
+              result='runtime-error'
+              break
+            fi
+            if ! kill -0 "$chrome_pid" 2>/dev/null; then
+              result='browser-exited'
+              break
+            fi
+            sleep 0.5
+          done
+
+          if [ "$result" = 'success' ]; then
+            printf 'status=success\nreason=original-stat-restored-after-reload\n' > persistence-smoke-status.txt
+          else
+            printf 'status=failure\nreason=%s\n' "$result" > persistence-smoke-status.txt
+            tail -200 persistence-smoke-log.txt || true
+            tail -120 persistence-http-log.txt || true
+            exit 1
+          fi
+
       - name: Upload Yandex ZIP artifact
         if: steps.compile.outputs.exit_code == '0'
         continue-on-error: true
@@ -211,6 +274,10 @@ jobs:
           cp browser-smoke-log.txt ci/browser-smoke-log.txt 2>/dev/null || true
           cp browser-smoke-stdout.txt ci/browser-smoke-stdout.txt 2>/dev/null || true
           cp browser-http-log.txt ci/browser-http-log.txt 2>/dev/null || true
+          cp persistence-smoke-status.txt ci/persistence-smoke-status.txt 2>/dev/null || true
+          cp persistence-smoke-log.txt ci/persistence-smoke-log.txt 2>/dev/null || true
+          cp persistence-smoke-stdout.txt ci/persistence-smoke-stdout.txt 2>/dev/null || true
+          cp persistence-http-log.txt ci/persistence-http-log.txt 2>/dev/null || true
           printf 'job_status=%s\ncompile_exit=%s\nrun_id=%s\ncommit=%s\nzip_present=%s\n' \
             "$JOB_STATUS" "${COMPILE_EXIT:-not-run}" "$GITHUB_RUN_ID" "$GITHUB_SHA" \
             "$([ -s pingus-yandex-web.zip ] && echo yes || echo no)" \
