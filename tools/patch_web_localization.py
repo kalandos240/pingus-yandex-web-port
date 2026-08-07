@@ -120,7 +120,7 @@ for msgid, msgstr in WEB_RU_CUSTOM.items():
 
 # Audit all player-facing PO entries. This intentionally excludes editor,
 # command-line/debug and screenshot diagnostics that are not reachable in the
-# Yandex build. A blank Russian translation here is a release blocker.
+# Yandex build. Blank translations and English passthrough are release blockers.
 PLAYER_REFS = (
     'src/pingus/screens/',
     'src/pingus/worldmap/',
@@ -132,7 +132,12 @@ PLAYER_REFS = (
     'data/stories/',
     'data/worldmaps/',
 )
+# Values that are intentionally language-neutral even in Russian.
+PASSTHROUGH_OK = {
+    '???', 'Pingus', 'FPS', 'OpenGL', 'SDL',
+}
 missing = []
+passthrough = []
 for block in re.split(r'\n\s*\n', ru_text):
     lines = block.splitlines()
     refs = ' '.join(line[2:].strip() for line in lines if line.startswith('#:'))
@@ -140,8 +145,13 @@ for block in re.split(r'\n\s*\n', ru_text):
         continue
     msgid = po_value(lines, 'msgid')
     msgstr = po_value(lines, 'msgstr')
-    if msgid and msgstr == '':
+    if not msgid:
+        continue
+    if msgstr == '':
         missing.append((msgid, refs))
+    elif (msgstr.strip() == msgid.strip() and msgid.strip() not in PASSTHROUGH_OK
+          and re.search(r'[A-Za-z]{2,}', msgid)):
+        passthrough.append((msgid, refs))
 
 if missing:
     print(f'UNTRANSLATED_PLAYER_FACING={len(missing)}')
@@ -150,6 +160,14 @@ if missing:
         print(f'UNTRANSLATED: {printable} || {refs}')
     raise SystemExit('player-facing Russian catalog still contains untranslated strings')
 print('UNTRANSLATED_PLAYER_FACING=0')
+
+if passthrough:
+    print(f'ENGLISH_PASSTHROUGH_PLAYER_FACING={len(passthrough)}')
+    for msgid, refs in passthrough:
+        printable = msgid.replace('\n', '\\n')
+        print(f'ENGLISH_PASSTHROUGH: {printable} || {refs}')
+    raise SystemExit('Russian catalog still passes English UI text through unchanged')
+print('ENGLISH_PASSTHROUGH_PLAYER_FACING=0')
 
 (po_dir / 'ru.po').write_text(ru_text, encoding='utf-8')
 
