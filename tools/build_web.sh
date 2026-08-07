@@ -17,6 +17,9 @@ for path in list(Path('src').rglob('*.hpp')) + list(Path('src').rglob('*.cpp')):
     patched = source.replace('<boost/signal.hpp>', '<boost/signals2/signal.hpp>')
     patched = patched.replace('<boost/signals.hpp>', '<boost/signals2.hpp>')
     patched = patched.replace('boost::signal<', 'boost::signals2::signal<')
+    patched = patched.replace('boost::signals::', 'boost::signals2::')
+    patched = re.sub(r'Uint8\s*\*\s*(\w+)\s*=\s*SDL_GetKeyState\(NULL\);',
+                     r'const Uint8* \1 = SDL_GetKeyboardState(NULL);', patched)
     if patched != source:
         path.write_text(patched, encoding='utf-8')
 
@@ -87,14 +90,6 @@ old = '    char* key_name = SDL_GetKeyName(static_cast<SDLKey>(i));'
 new = '    const char* key_name = SDL_GetKeyName(static_cast<SDLKey>(i));'
 if old not in source:
     raise SystemExit('Pingus SDL key-name constness patch mismatch')
-path.write_text(source.replace(old, new, 1), encoding='utf-8')
-
-path = Path('src/pingus/components/playfield.cpp')
-source = path.read_text(encoding='utf-8')
-old = '    Uint8 *keystate = SDL_GetKeyState(NULL);'
-new = '    const Uint8 *keystate = SDL_GetKeyboardState(NULL);'
-if old not in source:
-    raise SystemExit('Pingus SDL keyboard-state patch mismatch')
 path.write_text(source.replace(old, new, 1), encoding='utf-8')
 
 path = Path('src/lisp/getters.hpp')
