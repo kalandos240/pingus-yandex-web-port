@@ -52,7 +52,21 @@ p.write_text(s, encoding='utf-8')
 # margin on any logical viewport so translated text cannot escape the screen.
 p = Path('src/pingus/screens/start_screen.cpp')
 s = p.read_text(encoding='utf-8')
-s = s.replace('''                format_description(800 - 200));''', '''                format_description(Math::min(600, gc.get_width() - 100)));''', 1)
+s = s.replace('''                format_description(800 - 200));''', '''                format_description(gc.get_width() > 700 ? 600 : gc.get_width() - 100));''', 1)
+p.write_text(s, encoding='utf-8')
+
+# Result messages can also be much wider in Russian than in English. Wrap the
+# complete localized message before centering it on the blackboard.
+p = Path('src/pingus/screens/result_screen.cpp')
+s = p.read_text(encoding='utf-8')
+inc = '#include "pingus/screens/game_session.hpp"\n'
+if inc in s and '#include "pingus/string_format.hpp"' not in s:
+    s = s.replace(inc, inc + '#include "pingus/string_format.hpp"\n', 1)
+old = '''  gc.print_center(Fonts::chalk_normal, Vector2i(gc.get_width()/2, gc.get_height()/2 - 70), message);'''
+new = '''  message = StringFormat::break_line(message, 520, Fonts::chalk_normal);\n  gc.print_center(Fonts::chalk_normal, Vector2i(gc.get_width()/2, gc.get_height()/2 - 70), message);'''
+if s.count(old) != 1:
+    raise SystemExit('result message wrap anchor missing')
+s = s.replace(old, new, 1)
 p.write_text(s, encoding='utf-8')
 
 print('Web worldmap UX: swipe/right-drag panning + localized text wrapping enabled')
