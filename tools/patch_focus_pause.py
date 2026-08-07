@@ -11,7 +11,7 @@ shell_path = Path('../web/shell.html')
 shell = shell_path.read_text(encoding='utf-8')
 
 shell_anchor = '''      let autosaveTimer = 0;\n\n      const text = {'''
-shell_patch = '''      let autosaveTimer = 0;\n\n      // Before the first rendered frame we must not gate startup on focus: an\n      // embedded Yandex iframe may not own focus yet. After the game is ready,\n      // losing focus pauses both the native simulation and audio until focus\n      // returns. document.hidden remains an unconditional pause condition.\n      window.pingusPagePaused = () =>\n        document.hidden || (gameReadySent && !document.hasFocus());\n\n      const text = {'''
+shell_patch = '''      let autosaveTimer = 0;\n\n      // Before the first rendered frame we must not gate startup on focus: an\n      // embedded Yandex iframe may not own focus yet. After the game is ready,\n      // losing focus pauses both the native simulation and audio until focus\n      // returns. document.hidden remains an unconditional pause condition.\n      window.pingusPagePaused = () =>\n        document.hidden || (gameReadySent && !document.hasFocus());\n\n      // CI launches the real packaged page with ?pingus-smoke=1. In that mode\n      // report the first rendered frame (or a startup failure) back to its\n      // local HTTP server. Normal Yandex launches never perform these requests.\n      const pingusSmokeMode = new URLSearchParams(location.search).get('pingus-smoke') === '1';\n      const pingusSmokeSignal = (kind, detail = '') => {\n        if (!pingusSmokeMode) return;\n        const suffix = detail ? `?detail=${encodeURIComponent(String(detail).slice(0, 300))}` : '';\n        fetch(`/__pingus_${kind}__${suffix}`, { cache: 'no-store' }).catch(() => {});\n      };\n\n      const text = {'''
 if shell.count(shell_anchor) != 1:
     raise SystemExit('focus-pause shell anchor missing or duplicated')
 shell = shell.replace(shell_anchor, shell_patch, 1)
@@ -29,13 +29,13 @@ if shell.count(old_events) != 1:
 shell = shell.replace(old_events, new_events, 1)
 
 old_error = '''      const setLoadingError = (message) => {\n        loading.hidden = false;\n        status.textContent = message || text[uiLanguage].failed;\n        progress.removeAttribute('value');\n      };'''
-new_error = '''      const setLoadingError = (message) => {\n        const errorText = message || text[uiLanguage].failed;\n        document.documentElement.dataset.pingusError = errorText;\n        loading.hidden = false;\n        status.textContent = errorText;\n        progress.removeAttribute('value');\n      };'''
+new_error = '''      const setLoadingError = (message) => {\n        const errorText = message || text[uiLanguage].failed;\n        document.documentElement.dataset.pingusError = errorText;\n        pingusSmokeSignal('error', errorText);\n        loading.hidden = false;\n        status.textContent = errorText;\n        progress.removeAttribute('value');\n      };'''
 if shell.count(old_error) != 1:
     raise SystemExit('runtime error marker anchor missing or duplicated')
 shell = shell.replace(old_error, new_error, 1)
 
 old_ready = '''      window.pingusMarkReady = async () => {\n        if (gameReadySent) return;\n        gameReadySent = true;\n        fitCanvas();'''
-new_ready = '''      window.pingusMarkReady = async () => {\n        if (gameReadySent) return;\n        gameReadySent = true;\n        document.documentElement.dataset.pingusReady = '1';\n        fitCanvas();'''
+new_ready = '''      window.pingusMarkReady = async () => {\n        if (gameReadySent) return;\n        gameReadySent = true;\n        document.documentElement.dataset.pingusReady = '1';\n        pingusSmokeSignal('ready');\n        fitCanvas();'''
 if shell.count(old_ready) != 1:
     raise SystemExit('runtime ready marker anchor missing or duplicated')
 shell = shell.replace(old_ready, new_ready, 1)
