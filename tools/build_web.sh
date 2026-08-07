@@ -77,7 +77,6 @@ if 'surface->format->colorkey' in s or 'surface->format->alpha' in s:
 p.write_text(s, encoding='utf-8')
 
 # surface.cpp contains the same removed SDL_PixelFormat members in four places.
-# Replace them with helper APIs and verify that no stale member access remains.
 p = Path('src/engine/display/surface.cpp')
 s = p.read_text(encoding='utf-8')
 s, n1 = re.subn(
@@ -101,6 +100,33 @@ if (n1, n2, n3, n4) != (1, 1, 1, 1):
 if 'format->colorkey' in s or 'format->alpha' in s:
     raise SystemExit('SDL surface.cpp metadata patch incomplete')
 p.write_text(s, encoding='utf-8')
+
+# Collision mask also read SDL_PixelFormat::colorkey directly.
+p = Path('src/pingus/collision_mask.cpp')
+s = p.read_text(encoding='utf-8')
+s, n = re.subn(
+    r'if \(sdl_surface->flags & SDL_SRCCOLORKEY\)\n    \{ // surface with transparent areas\n      for\(int y = 0; y < height; \+\+y\)',
+    'if (sdl_surface->flags & SDL_SRCCOLORKEY)\n    { // surface with transparent areas\n      Uint32 surface_colorkey = 0;\n      SDL_GetColorKey(sdl_surface, &surface_colorkey);\n      for(int y = 0; y < height; ++y)',
+    s, count=1)
+s = s.replace('if (source[y*pitch + x] == sdl_surface->format->colorkey)',
+              'if (source[y*pitch + x] == surface_colorkey)')
+if n != 1 or 'format->colorkey' in s:
+    raise SystemExit(f'SDL collision mask patch mismatch {n}')
+p.write_text(s, encoding='utf-8')
+
+# Fail early if any compiled translation unit still accesses removed SDL1
+# metadata members; this is much faster than finding them one compile at a time.
+stale = []
+for p in Path('src').rglob('*'):
+    if p.suffix not in ('.cpp', '.hpp', '.h'):
+        continue
+    if '/editor/' in p.as_posix() or '/opengl/' in p.as_posix():
+        continue
+    text = p.read_text(encoding='utf-8', errors='ignore')
+    if 'format->colorkey' in text or 'format->alpha' in text:
+        stale.append(str(p))
+if stale:
+    raise SystemExit('stale SDL_PixelFormat members remain: ' + ', '.join(stale))
 
 # The SDL1 JavaScript shim keeps per-surface alpha in SDL.surfaces rather than
 # in SDL_PixelFormat. Color-keying is explicitly a no-op in Emscripten's SDL1
