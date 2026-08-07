@@ -2,7 +2,7 @@ Compiling 206 original C++ source files (desktop editor omitted)
 ports:INFO: retrieving port: zlib from https://github.com/madler/zlib/archive/refs/tags/v1.2.13.tar.gz
 ports:INFO: unpacking port: zlib
 cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libz.a... (this will be cached in "/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libz.a" for subsequent builds)
-system_libs:INFO: compiled 15 inputs in 2.06s
+system_libs:INFO: compiled 15 inputs in 2.34s
 cache:INFO:  - ok
 ports:INFO: retrieving port: ogg from https://github.com/emscripten-ports/ogg/archive/version_1.zip
 ports:INFO: unpacking port: ogg
@@ -12,12 +12,12 @@ cache:INFO:  - ok
 ports:INFO: retrieving port: vorbis from https://github.com/emscripten-ports/vorbis/archive/version_1.zip
 ports:INFO: unpacking port: vorbis
 cache:INFO: generating system library: sysroot/lib/wasm32-emscripten/libvorbis.a... (this will be cached in "/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libvorbis.a" for subsequent builds)
-system_libs:INFO: compiled 22 inputs in 3.76s
+system_libs:INFO: compiled 22 inputs in 3.85s
 cache:INFO:  - ok
 ports:INFO: retrieving port: libpng from https://storage.googleapis.com/webassembly/emscripten-ports/libpng-1.6.39.tar.gz
 ports:INFO: unpacking port: libpng
 cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libpng.a... (this will be cached in "/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libpng.a" for subsequent builds)
-system_libs:INFO: compiled 25 inputs in 4.15s
+system_libs:INFO: compiled 25 inputs in 4.38s
 cache:INFO:  - ok
 In file included from src/engine/display/surface.cpp:20:
 In file included from external/boost/format.hpp:38:
@@ -5516,24 +5516,6 @@ external/boost/signals2/detail/auto_buffer.hpp:158:51: note: in instantiation of
 external/boost/signals2/detail/slot_call_iterator.hpp:65:27: note: in instantiation of template class 'boost::signals2::detail::auto_buffer<boost::variant<boost::shared_ptr<void>, boost::signals2::detail::foreign_void_shared_ptr>, boost::signals2::detail::store_n_objects<10>>' requested here
    65 |         tracked_ptrs_type tracked_ptrs;
       |                           ^
-In file included from src/pingus/global_event.cpp:24:
-src/pingus/screens/option_menu.hpp:69:30: error: no member named 'signals' in namespace 'boost'; did you mean 'signals2'?
-   69 |   typedef std::vector<boost::signals::connection> Connections;
-      |                       ~~~~~~~^~~~~~~
-      |                              signals2
-external/boost/signals2/shared_connection_block.hpp:20:13: note: 'signals2' declared here
-   20 |   namespace signals2
-      |             ^
-src/pingus/global_event.cpp:36:21: error: use of undeclared identifier 'SDL_GetKeyState'; did you mean 'SDL_GetKeyName'?
-   36 |   Uint8* keystate = SDL_GetKeyState(NULL);
-      |                     ^~~~~~~~~~~~~~~
-      |                     SDL_GetKeyName
-/emsdk/upstream/emscripten/cache/sysroot/include/SDL/SDL_keyboard.h:134:37: note: 'SDL_GetKeyName' declared here
-  134 | extern DECLSPEC const char *SDLCALL SDL_GetKeyName(SDL_Keycode key);
-      |                                     ^
-src/pingus/global_event.cpp:36:10: error: cannot initialize a variable of type 'Uint8 *' (aka 'unsigned char *') with an rvalue of type 'const char *'
-   36 |   Uint8* keystate = SDL_GetKeyState(NULL);
-      |          ^          ~~~~~~~~~~~~~~~~~~~~~
 In file included from src/pingus/global_event.cpp:21:
 In file included from src/pingus/config_manager.hpp:20:
 In file included from external/boost/signals2/signal.hpp:18:
@@ -5619,5 +5601,9 @@ external/boost/signals2/connection.hpp:76:13: note: in instantiation of function
 external/boost/signals2/connection.hpp:68:11: note: in instantiation of function template specialization 'boost::signals2::detail::connection_body_base::nolock_disconnect<boost::signals2::detail::connection_body_base>' requested here
    68 |           nolock_disconnect(local_lock);
       |           ^
-45 warnings and 3 errors generated.
-em++: error: '/emsdk/upstream/bin/clang++ -target wasm32-unknown-emscripten -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-cxx-exceptions -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr --sysroot=/emsdk/upstream/emscripten/cache/sysroot -DEMSCRIPTEN -I/emsdk/upstream/emscripten/cache/sysroot/include/SDL -Xclang -iwithsysroot/include/compat -I. -Isrc -Iexternal -Iexternal/tinygettext -std=c++11 -O1 -fexceptions -Wno-invalid-source-encoding -DVERSION="0.7.6-web" -DHAVE_ICONV_CONST=1 -DICONV_CONST= src/pingus/global_event.cpp -c -o /tmp/emscripten_temp_c3x3sud2/global_event_105.o' failed (returned 1)
+45 warnings generated.
+src/pingus/ground_map.cpp:234:56: error: no member named 'colorkey' in 'SDL_PixelFormat'
+  234 |     Uint32 colorkey = sprovider.get_surface()->format->colorkey;
+      |                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  ^
+1 error generated.
+em++: error: '/emsdk/upstream/bin/clang++ -target wasm32-unknown-emscripten -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-cxx-exceptions -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr --sysroot=/emsdk/upstream/emscripten/cache/sysroot -DEMSCRIPTEN -I/emsdk/upstream/emscripten/cache/sysroot/include/SDL -Xclang -iwithsysroot/include/compat -I. -Isrc -Iexternal -Iexternal/tinygettext -std=c++11 -O1 -fexceptions -Wno-invalid-source-encoding -DVERSION="0.7.6-web" -DHAVE_ICONV_CONST=1 -DICONV_CONST= src/pingus/ground_map.cpp -c -o /tmp/emscripten_temp_oaiyld_y/ground_map_108.o' failed (returned 1)
