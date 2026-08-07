@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 
 # Keep GPL attribution in the distributed legal files, but do not expose
 # author names/e-mail addresses in the player-facing Yandex Games UI.
@@ -30,4 +31,18 @@ for path, (old_text, new_text) in replacements.items():
         raise SystemExit(f'author-bearing levelset label missing: {path}')
     path.write_text(text.replace(old_text, new_text, 1), encoding='utf-8')
 
+# One complete upstream translation is too wide for the original fixed 2007
+# LevelMenu row and collides with its right-side statistics. Keep the same
+# meaning in a compact Web-only form.
+po = Path('data/po/ru.po')
+text = po.read_text(encoding='utf-8')
+pattern = re.compile(
+    r'(?m)^(msgid "Merry Christmas and a Happy New Year"\nmsgstr ")[^"]*(")$'
+)
+text, count = pattern.subn(r'\1Праздничные уровни\2', text, count=1)
+if count != 1:
+    raise SystemExit('compact Xmas levelset RU translation anchor missing')
+po.write_text(text, encoding='utf-8')
+
 print('Web UI: visible author/contact metadata removed; legal attribution retained in distribution files')
+print('Web RU layout: long levelset labels compacted for fixed UI')
