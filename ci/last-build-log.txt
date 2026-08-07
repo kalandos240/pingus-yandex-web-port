@@ -1,11 +1,11 @@
 Installing ffmpeg for Pingus tracker-music conversion
 Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
 Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
-Hit:6 https://packages.microsoft.com/repos/azure-cli noble InRelease
-Hit:7 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease
 Hit:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease
 Hit:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease
 Hit:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease
+Hit:6 https://packages.microsoft.com/repos/azure-cli noble InRelease
+Hit:7 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease
 Hit:8 https://dl.google.com/linux/chrome-stable/deb stable InRelease
 Reading package lists...
 Reading package lists...
@@ -142,7 +142,7 @@ Get:85 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libxcb-shape0 amd
 Get:86 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libxv1 amd64 2:1.0.11-1.1build1 [10.7 kB]
 Get:87 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libavdevice60 amd64 7:6.1.1-3ubuntu5 [82.3 kB]
 Get:88 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 ffmpeg amd64 7:6.1.1-3ubuntu5 [1879 kB]
-Fetched 62.8 MB in 6s (10.5 MB/s)
+Fetched 62.8 MB in 6s (11.1 MB/s)
 Selecting previously unselected package libva2:amd64.
 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 220099 files and directories currently installed.)
 Preparing to unpack .../00-libva2_2.20.0-2ubuntu0.2_amd64.deb ...
@@ -532,22 +532,22 @@ Compiling 207 original C++ source files (desktop editor omitted)
 ports:INFO: retrieving port: zlib from https://github.com/madler/zlib/archive/refs/tags/v1.2.13.tar.gz
 ports:INFO: unpacking port: zlib
 cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libz.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libz.a" for subsequent builds)
-system_libs:INFO: compiled 15 inputs in 2.07s
+system_libs:INFO: compiled 15 inputs in 1.79s
 cache:INFO:  - ok
 ports:INFO: retrieving port: ogg from https://github.com/emscripten-ports/ogg/archive/version_1.zip
 ports:INFO: unpacking port: ogg
 cache:INFO: generating system library: sysroot/lib/wasm32-emscripten/libogg.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libogg.a" for subsequent builds)
-system_libs:INFO: compiled 2 inputs in 0.30s
+system_libs:INFO: compiled 2 inputs in 0.27s
 cache:INFO:  - ok
 ports:INFO: retrieving port: libpng from https://storage.googleapis.com/webassembly/emscripten-ports/libpng-1.6.39.tar.gz
 ports:INFO: unpacking port: libpng
 cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libpng.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libpng.a" for subsequent builds)
-system_libs:INFO: compiled 25 inputs in 4.07s
+system_libs:INFO: compiled 25 inputs in 3.59s
 cache:INFO:  - ok
 ports:INFO: retrieving port: vorbis from https://github.com/emscripten-ports/vorbis/archive/version_1.zip
 ports:INFO: unpacking port: vorbis
 cache:INFO: generating system library: sysroot/lib/wasm32-emscripten/libvorbis.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libvorbis.a" for subsequent builds)
-system_libs:INFO: compiled 22 inputs in 3.81s
+system_libs:INFO: compiled 22 inputs in 3.22s
 cache:INFO:  - ok
 src/pingus/actions/boarder.cpp:55:67: warning: operator '?:' has lower precedence than '+'; '+' will be evaluated first [-Wparentheses]
    55 |       pingu->set_pos(Vector3f(old_pos.x + (old_pos.x < new_pos.x) ? 1.0f : -1.0f, 
@@ -564,5 +564,5 @@ src/pingus/actions/boarder.cpp:55:67: note: place parentheses around the '?:' ex
 cache:INFO: generating system asset: symbol_lists/3dead1b20b8ee78e4449968558fc57c3bfee24ab.json... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/symbol_lists/3dead1b20b8ee78e4449968558fc57c3bfee24ab.json" for subsequent builds)
 cache:INFO:  - ok
 Self-contained browser runtime created:
-  index.html 9530 bytes
-  pingus.js 58735556 bytes
+  index.html 11111 bytes
+  pingus.js 58740553 bytes
