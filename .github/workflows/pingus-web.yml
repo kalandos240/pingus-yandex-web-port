@@ -135,34 +135,51 @@ jobs:
             exit 0
           fi
 
+          : > browser-http-log.txt
           python3 -m http.server 4173 --bind 127.0.0.1 --directory dist > browser-http-log.txt 2>&1 &
           server_pid=$!
-          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          chrome_pid=''
+          cleanup() {
+            if [ -n "$chrome_pid" ]; then kill "$chrome_pid" 2>/dev/null || true; fi
+            kill "$server_pid" 2>/dev/null || true
+          }
+          trap cleanup EXIT
           for _ in $(seq 1 50); do
             if curl -fsS http://127.0.0.1:4173/index.html >/dev/null; then break; fi
             sleep 0.1
           done
           curl -fsS http://127.0.0.1:4173/index.html >/dev/null
 
-          set +e
-          timeout 45s "$browser_bin" \
+          "$browser_bin" \
             --headless=new --no-sandbox --disable-dev-shm-usage --disable-gpu \
             --autoplay-policy=no-user-gesture-required \
-            --virtual-time-budget=20000 --dump-dom \
-            http://127.0.0.1:4173/index.html \
-            > browser-smoke-dom.txt 2> browser-smoke-log.txt
-          chrome_status=$?
-          set -e
+            'http://127.0.0.1:4173/index.html?pingus-smoke=1' \
+            > browser-smoke-stdout.txt 2> browser-smoke-log.txt &
+          chrome_pid=$!
 
-          if grep -q 'data-pingus-ready="1"' browser-smoke-dom.txt; then
-            printf 'status=success\nchrome_exit=%s\n' "$chrome_status" > browser-smoke-status.txt
+          result='timeout'
+          for _ in $(seq 1 90); do
+            if grep -q 'GET /__pingus_ready__' browser-http-log.txt; then
+              result='success'
+              break
+            fi
+            if grep -q 'GET /__pingus_error__' browser-http-log.txt; then
+              result='runtime-error'
+              break
+            fi
+            if ! kill -0 "$chrome_pid" 2>/dev/null; then
+              result='browser-exited'
+              break
+            fi
+            sleep 0.5
+          done
+
+          if [ "$result" = 'success' ]; then
+            printf 'status=success\nreason=first-frame-http-signal\n' > browser-smoke-status.txt
           else
-            printf 'status=failure\nchrome_exit=%s\n' "$chrome_status" > browser-smoke-status.txt
+            printf 'status=failure\nreason=%s\n' "$result" > browser-smoke-status.txt
             tail -200 browser-smoke-log.txt || true
-            exit 1
-          fi
-          if grep -q 'data-pingus-error=' browser-smoke-dom.txt; then
-            printf 'status=failure\nreason=runtime-error-marker\nchrome_exit=%s\n' "$chrome_status" > browser-smoke-status.txt
+            tail -100 browser-http-log.txt || true
             exit 1
           fi
 
@@ -192,7 +209,7 @@ jobs:
           cp checksum.txt ci/last-checksum.txt 2>/dev/null || true
           cp browser-smoke-status.txt ci/browser-smoke-status.txt 2>/dev/null || true
           cp browser-smoke-log.txt ci/browser-smoke-log.txt 2>/dev/null || true
-          cp browser-smoke-dom.txt ci/browser-smoke-dom.txt 2>/dev/null || true
+          cp browser-smoke-stdout.txt ci/browser-smoke-stdout.txt 2>/dev/null || true
           cp browser-http-log.txt ci/browser-http-log.txt 2>/dev/null || true
           printf 'job_status=%s\ncompile_exit=%s\nrun_id=%s\ncommit=%s\nzip_present=%s\n' \
             "$JOB_STATUS" "${COMPILE_EXIT:-not-run}" "$GITHUB_RUN_ID" "$GITHUB_SHA" \
