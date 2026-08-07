@@ -9,7 +9,19 @@ python3 ../tools/patch_browser_runtime.py
 python3 ../tools/patch_focus_pause.py
 python3 ../tools/patch_yandex_locale.py
 python3 ../tools/patch_web_localization.py
+
+# The original 16/20px Pingus bitmap atlases do not contain the complete
+# Russian alphabet. Generate a tiny Web-only Cyrillic fallback atlas during
+# the build, using a distro font only as the source rasterizer. The generated
+# PNGs themselves are embedded in the final self-contained game.
+if ! python3 -c 'from PIL import Image, ImageDraw, ImageFont' >/dev/null 2>&1 || \
+   [ ! -f /usr/share/fonts/truetype/dejavu/DejaVuSans.ttf ]; then
+  echo 'Installing Web Cyrillic font generation dependencies'
+  sudo apt-get update
+  sudo apt-get install -y --no-install-recommends fonts-dejavu-core python3-pil
+fi
 python3 ../tools/patch_web_fonts.py
+
 python3 ../tools/patch_touch_input.py
 python3 ../tools/patch_web_menu.py
 python3 ../tools/patch_web_options.py
