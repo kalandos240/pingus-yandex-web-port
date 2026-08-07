@@ -63,26 +63,37 @@ if (n_start, n_editor_ctor, n_quit_ctor, n_editor_click, n_quit_click) != (1, 1,
 
 # Browser players do not need desktop grab/F-key help. Keep the release clean;
 # full copyright/license text remains in COPYING/AUTHORS/README in the ZIP.
-old_help = '''  help = _("..:: Ctrl-g: mouse grab   ::   F10: fps counter   ::   F11: fullscreen   ::   F12: screenshot ::..");'''
-new_help = '''#ifdef __EMSCRIPTEN__\n  help.clear();\n#else\n  help = _("..:: Ctrl-g: mouse grab   ::   F10: fps counter   ::   F11: fullscreen   ::   F12: screenshot ::..");\n#endif'''
+old_help = '  help = _("..:: Ctrl-g: mouse grab   ::   F10: fps counter   ::   F11: fullscreen   ::   F12: screenshot ::..");'
+new_help = '''#ifdef __EMSCRIPTEN__
+  help.clear();
+#else
+  help = _("..:: Ctrl-g: mouse grab   ::   F10: fps counter   ::   F11: fullscreen   ::   F12: screenshot ::..");
+#endif'''
 if s.count(old_help) != 1:
     raise SystemExit('web menu desktop-help anchor missing or duplicated')
 s = s.replace(old_help, new_help, 1)
 
-old_footer = '''  gc.print_left(Fonts::pingus_small, Vector2i(gc.get_width()/2 - 400 + 25, gc.get_height()-140),\n                "Pingus "VERSION" - Copyright (C) 1998-2011 Ingo Ruhnke <grumbel@gmail.com>\\n"\n                "See the file AUTHORS for a complete list of contributors.\\n"\n                "Pingus comes with ABSOLUTELY NO WARRANTY. This is free software, and you are\\n"\n                "welcome to redistribute it under certain conditions; see the file COPYING for details.\\n");\n\n  gc.draw_fillrect(Rect(0,\n                        Display::get_height () - 26,\n                        Display::get_width (),\n                        Display::get_height ()),\n                   Color(0, 0, 0, 255));\n\n  gc.print_center(Fonts::pingus_small, \n                  Vector2i(gc.get_width() / 2,\n                           gc.get_height() - Fonts::pingus_small.get_height() - 8),\n                  help);'''
-new_footer = '''#ifndef __EMSCRIPTEN__\n  gc.print_left(Fonts::pingus_small, Vector2i(gc.get_width()/2 - 400 + 25, gc.get_height()-140),\n                "Pingus "VERSION" - Copyright (C) 1998-2011 Ingo Ruhnke <grumbel@gmail.com>\\n"\n                "See the file AUTHORS for a complete list of contributors.\\n"\n                "Pingus comes with ABSOLUTELY NO WARRANTY. This is free software, and you are\\n"\n                "welcome to redistribute it under certain conditions; see the file COPYING for details.\\n");\n\n  gc.draw_fillrect(Rect(0,\n                        Display::get_height () - 26,\n                        Display::get_width (),\n                        Display::get_height ()),\n                   Color(0, 0, 0, 255));\n\n  gc.print_center(Fonts::pingus_small, \n                  Vector2i(gc.get_width() / 2,\n                           gc.get_height() - Fonts::pingus_small.get_height() - 8),\n                  help);\n#endif'''
-if s.count(old_footer) != 1:
-    raise SystemExit('web menu footer anchor missing or duplicated')
-s = s.replace(old_footer, new_footer, 1)
+# Match the complete desktop-only legal/hotkey footer by its stable first and
+# last calls instead of exact whitespace. This source has changed indentation
+# between historic Pingus snapshots, while the semantics stayed the same.
+footer_re = re.compile(
+    r'(?P<footer>  gc\.print_left\(Fonts::pingus_small, Vector2i\(gc\.get_width\(\)/2 - 400 \+ 25, gc\.get_height\(\)-140\),.*?'
+    r'  gc\.print_center\(Fonts::pingus_small,\s*\n\s*Vector2i\(gc\.get_width\(\) / 2,\s*\n\s*gc\.get_height\(\) - Fonts::pingus_small\.get_height\(\) - 8\),\s*\n\s*help\);)',
+    re.DOTALL,
+)
+m = footer_re.search(s)
+if not m:
+    raise SystemExit('web menu footer structure not found')
+s = s[:m.start()] + '#ifndef __EMSCRIPTEN__\n' + m.group('footer') + '\n#endif' + s[m.end():]
 
 # The removed buttons are null on Web. The original resize() still dereferenced
 # them, which could crash after a browser resize/orientation change.
-for dead_resize in [
-    '''  editor_button->set_pos(size.width/2 + 125,\n                         size.height/2 - 20);\n    \n''',
-    '''  quit_button->set_pos(size.width/2, \n                       size.height/2 + 120);\n''',
+for pattern, label in [
+    (r'\n\s*editor_button->set_pos\(size\.width/2 \+ 125,\s*\n\s*size\.height/2 - 20\);\s*', 'editor'),
+    (r'\n\s*quit_button->set_pos\(size\.width/2,\s*\n\s*size\.height/2 \+ 120\);\s*', 'quit'),
 ]:
-    if s.count(dead_resize) != 1:
-        raise SystemExit('web menu dead resize anchor missing or duplicated')
-    s = s.replace(dead_resize, '', 1)
+    s, count = re.subn(pattern, '\n', s, count=1)
+    if count != 1:
+        raise SystemExit(f'web menu dead {label} resize anchor missing or duplicated')
 
 p.write_text(s, encoding='utf-8')
