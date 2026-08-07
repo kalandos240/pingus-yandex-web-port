@@ -84,8 +84,16 @@ p.write_text(s, encoding='utf-8')
 # yield zero permission bits here, creating a file that exists but cannot be
 # read back on the next launch. Use an explicit private read/write mode in the
 # browser build while preserving the original desktop behavior elsewhere.
+# Also request an IDBFS sync immediately after a successful browser write, so a
+# just-finished level is not dependent on the 15-second autosave interval.
 p = Path('src/util/system.cpp')
 s = p.read_text(encoding='utf-8')
+include_anchor = '#include "util/system.hpp"\n'
+include_replacement = '''#include "util/system.hpp"\n\n#ifdef __EMSCRIPTEN__\n#  include <emscripten.h>\n#endif\n'''
+if s.count(include_anchor) != 1:
+    raise SystemExit('browser system include anchor missing or duplicated')
+s = s.replace(include_anchor, include_replacement, 1)
+
 needle = '  if (chmod(filename.c_str(), ~old_mask & 0666) < 0)'
 replacement = r'''#ifdef __EMSCRIPTEN__
   if (chmod(filename.c_str(), S_IRUSR | S_IWUSR) < 0)
@@ -95,6 +103,36 @@ replacement = r'''#ifdef __EMSCRIPTEN__
 if s.count(needle) != 1:
     raise SystemExit('browser save-file permission patch mismatch')
 s = s.replace(needle, replacement, 1)
+
+save_tail = r'''#ifdef __EMSCRIPTEN__
+  if (chmod(filename.c_str(), S_IRUSR | S_IWUSR) < 0)
+#else
+  if (chmod(filename.c_str(), ~old_mask & 0666) < 0)
+#endif
+  {
+    raise_exception(std::runtime_error, tmpfile.get() << ": " << strerror(errno));
+  }
+#endif
+}'''
+save_tail_replacement = r'''#ifdef __EMSCRIPTEN__
+  if (chmod(filename.c_str(), S_IRUSR | S_IWUSR) < 0)
+#else
+  if (chmod(filename.c_str(), ~old_mask & 0666) < 0)
+#endif
+  {
+    raise_exception(std::runtime_error, tmpfile.get() << ": " << strerror(errno));
+  }
+#endif
+
+#ifdef __EMSCRIPTEN__
+  EM_ASM({
+    if (typeof window.pingusSaveNow === 'function') window.pingusSaveNow();
+  });
+#endif
+}'''
+if s.count(save_tail) != 1:
+    raise SystemExit('browser immediate-save anchor missing or duplicated')
+s = s.replace(save_tail, save_tail_replacement, 1)
 p.write_text(s, encoding='utf-8')
 
 # Pingus' SDL1 renderer and collision system perform frequent getImageData()
