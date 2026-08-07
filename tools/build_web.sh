@@ -25,6 +25,9 @@ for p in list(Path('src').rglob('*.hpp')) + list(Path('src').rglob('*.cpp')):
     n = n.replace('boost::signals::', 'boost::signals2::')
     n = re.sub(r'Uint8\s*\*\s*(\w+)\s*=\s*SDL_GetKeyState\(NULL\);',
                r'const Uint8* \1 = SDL_GetKeyboardState(NULL);', n)
+    # Clang C++11 rejects old adjacent string-literal/macro spelling such as
+    # "Pingus "VERSION"...". Insert the required whitespace before VERSION.
+    n = re.sub(r'"([^"\n]*)"VERSION', r'"\1" VERSION', n)
     if n != s:
         p.write_text(n, encoding='utf-8')
 
