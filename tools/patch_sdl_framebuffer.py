@@ -3,6 +3,17 @@ from pathlib import Path
 p = Path('src/engine/display/sdl_framebuffer_surface_impl.cpp')
 s = p.read_text(encoding='utf-8')
 
+include_anchor = '#include "engine/display/sdl_framebuffer_surface_impl.hpp"\n'
+include_patch = '''#include "engine/display/sdl_framebuffer_surface_impl.hpp"
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+'''
+if include_anchor not in s:
+    raise SystemExit('SDL framebuffer include patch anchor missing')
+s = s.replace(include_anchor, include_patch, 1)
+
 old = '''SDLFramebufferSurfaceImpl::SDLFramebufferSurfaceImpl(SDL_Surface* src) :
   surface()
 {
@@ -17,49 +28,41 @@ new = '''SDLFramebufferSurfaceImpl::SDLFramebufferSurfaceImpl(SDL_Surface* src) 
   surface()
 {
 #ifdef __EMSCRIPTEN__
-  // Emscripten's SDL1 SDL_DisplayFormatAlpha() path copies the backing canvas,
-  // while Pingus' dynamic GroundMap tiles are modified through their pixel
-  // buffer.  On the web target that produced transparent framebuffer copies:
-  // collision/minimap data was present, but terrain disappeared on screen.
-  // Copy the actual SDL pixel buffer and let SDL_UnlockSurface upload it to
-  // the destination canvas instead.
+  // SDL_DisplayFormatAlpha() in Emscripten can lose pixels from Pingus'
+  // dynamically assembled GroundMap tile canvases. Create an owning SDL
+  // surface and copy the browser canvas directly, which is the authoritative
+  // image after SDL_BlitSurface() composed each terrain tile.
   if (!src)
     return;
 
   Uint32 flags = SDL_SWSURFACE;
   if (src->flags & SDL_SRCALPHA)
     flags |= SDL_SRCALPHA;
-  if (src->flags & SDL_SRCCOLORKEY)
-    flags |= SDL_SRCCOLORKEY;
 
   surface = SDL_CreateRGBSurface(flags,
                                  src->w, src->h,
-                                 src->format->BitsPerPixel,
-                                 src->format->Rmask,
-                                 src->format->Gmask,
-                                 src->format->Bmask,
-                                 src->format->Amask);
+                                 32,
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+                                 0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff
+#else
+                                 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000
+#endif
+                                 );
   if (!surface)
     return;
 
-  if (src->format->palette && surface->format->palette)
-  {
-    SDL_SetPalette(surface, SDL_LOGPAL | SDL_PHYSPAL,
-                   src->format->palette->colors,
-                   0, src->format->palette->ncolors);
-  }
-
-  SDL_LockSurface(src);
-  SDL_LockSurface(surface);
-  const int bytes_per_row = src->pitch < surface->pitch ? src->pitch : surface->pitch;
-  for (int y = 0; y < src->h; ++y)
-  {
-    memcpy(static_cast<Uint8*>(surface->pixels) + y * surface->pitch,
-           static_cast<Uint8*>(src->pixels) + y * src->pitch,
-           bytes_per_row);
-  }
-  SDL_UnlockSurface(surface);
-  SDL_UnlockSurface(src);
+  EM_ASM({
+    var src = SDL.surfaces[$0];
+    var dst = SDL.surfaces[$1];
+    if (src && dst && src.canvas && dst.ctx) {
+      dst.ctx.save();
+      dst.ctx.globalAlpha = 1;
+      dst.ctx.globalCompositeOperation = 'copy';
+      dst.ctx.drawImage(src.canvas, 0, 0);
+      dst.ctx.restore();
+      dst.source = 'pingus:framebuffer-copy';
+    }
+  }, src, surface);
 #else
   if (src->format->Amask != 0 || (src->flags & SDL_SRCCOLORKEY))
     surface = SDL_DisplayFormatAlpha(src);
