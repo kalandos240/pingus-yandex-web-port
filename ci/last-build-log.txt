@@ -2,22 +2,22 @@ Compiling 206 original C++ source files (desktop editor omitted)
 ports:INFO: retrieving port: zlib from https://github.com/madler/zlib/archive/refs/tags/v1.2.13.tar.gz
 ports:INFO: unpacking port: zlib
 cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libz.a... (this will be cached in "/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libz.a" for subsequent builds)
-system_libs:INFO: compiled 15 inputs in 1.42s
+system_libs:INFO: compiled 15 inputs in 2.06s
 cache:INFO:  - ok
 ports:INFO: retrieving port: ogg from https://github.com/emscripten-ports/ogg/archive/version_1.zip
 ports:INFO: unpacking port: ogg
 cache:INFO: generating system library: sysroot/lib/wasm32-emscripten/libogg.a... (this will be cached in "/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libogg.a" for subsequent builds)
-system_libs:INFO: compiled 2 inputs in 0.20s
+system_libs:INFO: compiled 2 inputs in 0.31s
 cache:INFO:  - ok
 ports:INFO: retrieving port: vorbis from https://github.com/emscripten-ports/vorbis/archive/version_1.zip
 ports:INFO: unpacking port: vorbis
 cache:INFO: generating system library: sysroot/lib/wasm32-emscripten/libvorbis.a... (this will be cached in "/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libvorbis.a" for subsequent builds)
-system_libs:INFO: compiled 22 inputs in 2.56s
+system_libs:INFO: compiled 22 inputs in 3.76s
 cache:INFO:  - ok
 ports:INFO: retrieving port: libpng from https://storage.googleapis.com/webassembly/emscripten-ports/libpng-1.6.39.tar.gz
 ports:INFO: unpacking port: libpng
 cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libpng.a... (this will be cached in "/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libpng.a" for subsequent builds)
-system_libs:INFO: compiled 25 inputs in 2.92s
+system_libs:INFO: compiled 25 inputs in 4.15s
 cache:INFO:  - ok
 In file included from src/engine/display/surface.cpp:20:
 In file included from external/boost/format.hpp:38:
@@ -5517,8 +5517,107 @@ external/boost/signals2/detail/slot_call_iterator.hpp:65:27: note: in instantiat
    65 |         tracked_ptrs_type tracked_ptrs;
       |                           ^
 In file included from src/pingus/global_event.cpp:24:
-src/pingus/screens/option_menu.hpp:20:10: fatal error: 'boost/signals.hpp' file not found
-   20 | #include <boost/signals.hpp>
-      |          ^~~~~~~~~~~~~~~~~~~
-42 warnings and 1 error generated.
-em++: error: '/emsdk/upstream/bin/clang++ -target wasm32-unknown-emscripten -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-cxx-exceptions -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr --sysroot=/emsdk/upstream/emscripten/cache/sysroot -DEMSCRIPTEN -I/emsdk/upstream/emscripten/cache/sysroot/include/SDL -Xclang -iwithsysroot/include/compat -I. -Isrc -Iexternal -Iexternal/tinygettext -std=c++11 -O1 -fexceptions -Wno-invalid-source-encoding -DVERSION="0.7.6-web" -DHAVE_ICONV_CONST=1 -DICONV_CONST= src/pingus/global_event.cpp -c -o /tmp/emscripten_temp_mdsgz506/global_event_105.o' failed (returned 1)
+src/pingus/screens/option_menu.hpp:69:30: error: no member named 'signals' in namespace 'boost'; did you mean 'signals2'?
+   69 |   typedef std::vector<boost::signals::connection> Connections;
+      |                       ~~~~~~~^~~~~~~
+      |                              signals2
+external/boost/signals2/shared_connection_block.hpp:20:13: note: 'signals2' declared here
+   20 |   namespace signals2
+      |             ^
+src/pingus/global_event.cpp:36:21: error: use of undeclared identifier 'SDL_GetKeyState'; did you mean 'SDL_GetKeyName'?
+   36 |   Uint8* keystate = SDL_GetKeyState(NULL);
+      |                     ^~~~~~~~~~~~~~~
+      |                     SDL_GetKeyName
+/emsdk/upstream/emscripten/cache/sysroot/include/SDL/SDL_keyboard.h:134:37: note: 'SDL_GetKeyName' declared here
+  134 | extern DECLSPEC const char *SDLCALL SDL_GetKeyName(SDL_Keycode key);
+      |                                     ^
+src/pingus/global_event.cpp:36:10: error: cannot initialize a variable of type 'Uint8 *' (aka 'unsigned char *') with an rvalue of type 'const char *'
+   36 |   Uint8* keystate = SDL_GetKeyState(NULL);
+      |          ^          ~~~~~~~~~~~~~~~~~~~~~
+In file included from src/pingus/global_event.cpp:21:
+In file included from src/pingus/config_manager.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<const std::error_category *, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:687:18: note: in instantiation of template class 'boost::hash_detail::hash_base<const std::error_category *>' requested here
+  687 |         : public boost::hash_detail::hash_base<T*>
+      |                  ^
+external/boost/container_hash/hash.hpp:415:24: note: in instantiation of template class 'boost::hash<const std::error_category *>' requested here
+  415 |         boost::hash<T> hasher;
+      |                        ^
+external/boost/container_hash/hash.hpp:546:9: note: in instantiation of function template specialization 'boost::hash_combine<const std::error_category *>' requested here
+  546 |         hash_combine(seed, &v.category());
+      |         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<const std::error_category *, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/global_event.cpp:21:
+In file included from src/pingus/config_manager.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:23:
+external/boost/type_traits/has_trivial_destructor.hpp:30:86: warning: builtin __has_trivial_destructor is deprecated; use __is_trivially_destructible instead [-Wdeprecated-builtins]
+   30 | template <typename T> struct has_trivial_destructor : public integral_constant<bool, BOOST_HAS_TRIVIAL_DESTRUCTOR(T)>{};
+      |                                                                                      ^
+external/boost/type_traits/intrinsics.hpp:196:47: note: expanded from macro 'BOOST_HAS_TRIVIAL_DESTRUCTOR'
+  196 | #     define BOOST_HAS_TRIVIAL_DESTRUCTOR(T) (__has_trivial_destructor(T)  && is_destructible<T>::value)
+      |                                               ^
+external/boost/signals2/detail/auto_buffer.hpp:261:38: note: in instantiation of template class 'boost::has_trivial_destructor<boost::shared_ptr<void>>' requested here
+  261 |                 auto_buffer_destroy( boost::has_trivial_destructor<T>() );
+      |                                      ^
+external/boost/signals2/detail/auto_buffer.hpp:611:13: note: in instantiation of member function 'boost::signals2::detail::auto_buffer<boost::shared_ptr<void>, boost::signals2::detail::store_n_objects<10>>::auto_buffer_destroy' requested here
+  611 |             auto_buffer_destroy();
+      |             ^
+external/boost/signals2/connection.hpp:39:13: note: in instantiation of member function 'boost::signals2::detail::auto_buffer<boost::shared_ptr<void>, boost::signals2::detail::store_n_objects<10>>::~auto_buffer' requested here
+   39 |       class garbage_collecting_lock: public noncopyable
+      |             ^
+In file included from src/pingus/global_event.cpp:21:
+In file included from src/pingus/config_manager.hpp:20:
+In file included from external/boost/signals2/signal.hpp:22:
+In file included from external/boost/signals2/connection.hpp:21:
+In file included from external/boost/signals2/detail/auto_buffer.hpp:29:
+external/boost/type_traits/has_nothrow_copy.hpp:36:89: warning: builtin __has_nothrow_copy is deprecated; use __is_nothrow_constructible instead [-Wdeprecated-builtins]
+   36 | template <class T> struct has_nothrow_copy_constructor : public integral_constant<bool, BOOST_HAS_NOTHROW_COPY(T)>{};
+      |                                                                                         ^
+external/boost/type_traits/intrinsics.hpp:202:41: note: expanded from macro 'BOOST_HAS_NOTHROW_COPY'
+  202 | #     define BOOST_HAS_NOTHROW_COPY(T) (__has_nothrow_copy(T) && !is_volatile<T>::value && !is_reference<T>::value && is_copy_constructible<T>::value)
+      |                                         ^
+external/boost/type_traits/has_nothrow_copy.hpp:78:53: note: in instantiation of template class 'boost::has_nothrow_copy_constructor<boost::shared_ptr<void>>' requested here
+   78 | template <class T> struct has_nothrow_copy : public has_nothrow_copy_constructor<T>{};
+      |                                                     ^
+external/boost/signals2/detail/auto_buffer.hpp:315:50: note: in instantiation of template class 'boost::has_nothrow_copy<boost::shared_ptr<void>>' requested here
+  315 |                                                  boost::has_nothrow_copy<T>() );
+      |                                                  ^
+external/boost/signals2/detail/auto_buffer.hpp:801:13: note: in instantiation of member function 'boost::signals2::detail::auto_buffer<boost::shared_ptr<void>, boost::signals2::detail::store_n_objects<10>>::reserve_impl' requested here
+  801 |             reserve_impl( new_capacity_impl( n ) );
+      |             ^
+external/boost/signals2/detail/auto_buffer.hpp:826:16: note: in instantiation of member function 'boost::signals2::detail::auto_buffer<boost::shared_ptr<void>, boost::signals2::detail::store_n_objects<10>>::reserve' requested here
+  826 |                reserve( size_ + 1u );
+      |                ^
+external/boost/signals2/connection.hpp:47:19: note: in instantiation of member function 'boost::signals2::detail::auto_buffer<boost::shared_ptr<void>, boost::signals2::detail::store_n_objects<10>>::push_back' requested here
+   47 |           garbage.push_back(piece_of_trash);
+      |                   ^
+external/boost/signals2/connection.hpp:126:22: note: in instantiation of member function 'boost::signals2::detail::garbage_collecting_lock<boost::signals2::detail::connection_body_base>::add_trash' requested here
+  126 |             lock_arg.add_trash(release_slot());
+      |                      ^
+external/boost/signals2/connection.hpp:76:13: note: in instantiation of function template specialization 'boost::signals2::detail::connection_body_base::dec_slot_refcount<boost::signals2::detail::connection_body_base>' requested here
+   76 |             dec_slot_refcount(lock_arg);
+      |             ^
+external/boost/signals2/connection.hpp:68:11: note: in instantiation of function template specialization 'boost::signals2::detail::connection_body_base::nolock_disconnect<boost::signals2::detail::connection_body_base>' requested here
+   68 |           nolock_disconnect(local_lock);
+      |           ^
+45 warnings and 3 errors generated.
+em++: error: '/emsdk/upstream/bin/clang++ -target wasm32-unknown-emscripten -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-cxx-exceptions -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr --sysroot=/emsdk/upstream/emscripten/cache/sysroot -DEMSCRIPTEN -I/emsdk/upstream/emscripten/cache/sysroot/include/SDL -Xclang -iwithsysroot/include/compat -I. -Isrc -Iexternal -Iexternal/tinygettext -std=c++11 -O1 -fexceptions -Wno-invalid-source-encoding -DVERSION="0.7.6-web" -DHAVE_ICONV_CONST=1 -DICONV_CONST= src/pingus/global_event.cpp -c -o /tmp/emscripten_temp_c3x3sud2/global_event_105.o' failed (returned 1)
