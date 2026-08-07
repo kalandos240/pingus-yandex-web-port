@@ -26,9 +26,6 @@ harness = r'''  <script>
         try { return FS.readFile(statsPath, { encoding: 'utf8' }); }
         catch (_) { return ''; }
       };
-      const syncToIDB = () => new Promise((resolve, reject) => {
-        FS.syncfs(false, (error) => error ? reject(error) : resolve());
-      });
       const clickLogical = (logicalX, logicalY) => {
         const rect = canvas.getBoundingClientRect();
         const x = rect.left + logicalX * rect.width / Math.max(1, canvas.width);
@@ -83,8 +80,17 @@ harness = r'''  <script>
             return;
           }
 
+          // Production System::write_file() now requests pingusSaveNow() itself.
+          // Stay well below the normal 15-second autosave interval, then disable
+          // outbound sync during unload so the second launch can only pass if the
+          // immediate write-triggered sync already reached IndexedDB.
           sessionStorage.setItem(phaseKey, 'restore');
-          await syncToIDB();
+          await sleep(2500);
+          const nativeSyncfs = FS.syncfs.bind(FS);
+          FS.syncfs = (populate, callback) => {
+            if (populate) return nativeSyncfs(populate, callback);
+            if (typeof callback === 'function') callback(null);
+          };
           location.reload();
         } catch (error) {
           signal('error', error?.stack || error);
