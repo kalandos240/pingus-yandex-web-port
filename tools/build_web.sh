@@ -62,17 +62,17 @@ shell = shell_path.read_text(encoding='utf-8')
 marker = '{{{ SCRIPT }}}'
 if shell.count(marker) != 1:
     raise SystemExit('shell.html SCRIPT marker missing or duplicated')
+shell = shell.replace('<title>Pingus</title>', '<title>Pingus</title>\n  <link rel="icon" href="data:,">', 1)
+shell = shell.replace('      window.Module = {\n        canvas,', '      window.Module = {\n        canvas,\n        noAudioDecoding: true,', 1)
 shell = shell.replace(marker, '<script src="pingus.js"></script>')
 out_path.write_text(shell, encoding='utf-8')
 PY
 
-# Compatibility placeholders for older CI attempts. They are deliberately not
-# referenced by index.html and are removed from the final user-facing ZIP.
-printf '// unused compatibility placeholder; runtime is pingus.js\n' > ../dist/index.js
-printf 'unused\n' > ../dist/index.wasm
-printf 'unused\n' > ../dist/index.data
-
 test -s ../dist/index.html
 test -s ../dist/pingus.js
+if find ../dist -maxdepth 1 -type f \( -name '*.wasm' -o -name '*.data' \) | grep -q .; then
+  echo 'Unexpected external wasm/data payload in dist' >&2
+  exit 1
+fi
 printf 'Self-contained browser runtime created:\n'
 find ../dist -maxdepth 1 -type f -printf '  %f %s bytes\n' | sort
