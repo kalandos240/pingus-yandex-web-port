@@ -2,22 +2,22 @@ Compiling 207 original C++ source files (desktop editor omitted)
 ports:INFO: retrieving port: zlib from https://github.com/madler/zlib/archive/refs/tags/v1.2.13.tar.gz
 ports:INFO: unpacking port: zlib
 cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libz.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libz.a" for subsequent builds)
-system_libs:INFO: compiled 15 inputs in 2.23s
+system_libs:INFO: compiled 15 inputs in 2.93s
 cache:INFO:  - ok
 ports:INFO: retrieving port: ogg from https://github.com/emscripten-ports/ogg/archive/version_1.zip
 ports:INFO: unpacking port: ogg
 cache:INFO: generating system library: sysroot/lib/wasm32-emscripten/libogg.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libogg.a" for subsequent builds)
-system_libs:INFO: compiled 2 inputs in 0.32s
+system_libs:INFO: compiled 2 inputs in 0.37s
 cache:INFO:  - ok
 ports:INFO: retrieving port: vorbis from https://github.com/emscripten-ports/vorbis/archive/version_1.zip
 ports:INFO: unpacking port: vorbis
 cache:INFO: generating system library: sysroot/lib/wasm32-emscripten/libvorbis.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libvorbis.a" for subsequent builds)
-system_libs:INFO: compiled 22 inputs in 4.23s
+system_libs:INFO: compiled 22 inputs in 4.06s
 cache:INFO:  - ok
 ports:INFO: retrieving port: libpng from https://storage.googleapis.com/webassembly/emscripten-ports/libpng-1.6.39.tar.gz
 ports:INFO: unpacking port: libpng
 cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libpng.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libpng.a" for subsequent builds)
-system_libs:INFO: compiled 25 inputs in 4.58s
+system_libs:INFO: compiled 25 inputs in 4.51s
 cache:INFO:  - ok
 src/pingus/actions/boarder.cpp:55:67: warning: operator '?:' has lower precedence than '+'; '+' will be evaluated first [-Wparentheses]
    55 |       pingu->set_pos(Vector3f(old_pos.x + (old_pos.x < new_pos.x) ? 1.0f : -1.0f, 
@@ -31,5 +31,8 @@ src/pingus/actions/boarder.cpp:55:67: note: place parentheses around the '?:' ex
       |                                                                   ^             
       |                                           (                                     )
 1 warning generated.
-cache:INFO: generating system asset: symbol_lists/afc42f1f5366f387cc32816d549c4f89fb778d33.json... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/symbol_lists/afc42f1f5366f387cc32816d549c4f89fb778d33.json" for subsequent builds)
+cache:INFO: generating system asset: symbol_lists/3ce260a23fd39d514074173a295d61a109f2205d.json... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/symbol_lists/3ce260a23fd39d514074173a295d61a109f2205d.json" for subsequent builds)
 cache:INFO:  - ok
+Self-contained browser runtime created:
+  index.html 8494 bytes
+  pingus.js 38166062 bytes
