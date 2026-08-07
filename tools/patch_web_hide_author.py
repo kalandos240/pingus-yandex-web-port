@@ -31,6 +31,19 @@ for path, (old_text, new_text) in replacements.items():
         raise SystemExit(f'author-bearing levelset label missing: {path}')
     path.write_text(text.replace(old_text, new_text, 1), encoding='utf-8')
 
+# The Tutorial Island ending marks its final story as credits=true. Native
+# Pingus then replaces the story with credits/pingus.credits, exposing the full
+# contributor list. In the Yandex build return to the worldmap instead; the
+# mandatory attribution remains in AUTHORS/COPYING shipped in the ZIP.
+p = Path('src/pingus/screens/story_screen.cpp')
+s = p.read_text(encoding='utf-8')
+old = '''      if (m_credits)\n      {\n        ScreenManager::instance()->replace_screen\n          (std::make_shared<Credits>(Pathname("credits/pingus.credits", Pathname::DATA_PATH)));\n      }\n      else\n      {\n        ScreenManager::instance()->pop_screen();\n      }'''
+new = '''      if (m_credits)\n      {\n#ifdef __EMSCRIPTEN__\n        // Do not expose author/contributor credits in the player-facing Web UI.\n        // Legal attribution is retained in the distribution files.\n        ScreenManager::instance()->pop_screen();\n#else\n        ScreenManager::instance()->replace_screen\n          (std::make_shared<Credits>(Pathname("credits/pingus.credits", Pathname::DATA_PATH)));\n#endif\n      }\n      else\n      {\n        ScreenManager::instance()->pop_screen();\n      }'''
+if s.count(old) != 1:
+    raise SystemExit('story credits transition anchor missing or duplicated')
+s = s.replace(old, new, 1)
+p.write_text(s, encoding='utf-8')
+
 # One complete upstream translation is too wide for the original fixed 2007
 # LevelMenu row and collides with its right-side statistics. Keep the same
 # meaning in a compact Web-only form.
@@ -44,5 +57,6 @@ if count != 1:
     raise SystemExit('compact Xmas levelset RU translation anchor missing')
 po.write_text(text, encoding='utf-8')
 
-print('Web UI: visible author/contact metadata removed; legal attribution retained in distribution files')
+print('Web UI: visible author/contact metadata and automatic credits screen removed')
+print('Legal attribution retained in AUTHORS/COPYING distribution files')
 print('Web RU layout: long levelset labels compacted for fixed UI')
