@@ -89,22 +89,24 @@ jobs:
         run: |
           set -euxo pipefail
           test -s dist/index.html
-          test -s dist/index.js
-          test -s dist/index.wasm
-          test -s dist/index.data
+          test -s dist/pingus.js
+          test ! -e dist/index.wasm
+          test ! -e dist/index.data
           grep -q 'Pingus' dist/index.html
+          grep -q 'pingus.js' dist/index.html
           cp pingus-src/COPYING dist/COPYING
           cp pingus-src/AUTHORS dist/AUTHORS
           cat > dist/README.txt <<'EOF'
           Pingus 0.7.6 WebAssembly port for Yandex Games.
-          Extract the archive and serve its root over HTTP(S); index.html is the entry point.
+          index.html is the entry point. WebAssembly and game data are embedded in pingus.js,
+          so the game does not fetch separate .wasm or .data payloads at runtime.
           EOF
           cat > dist/SOURCE-OFFER.txt <<'EOF'
           This build contains GPL-licensed Pingus code and data.
           Port source and build scripts: https://github.com/kalandos240/pingus-yandex-web-port
           Original source: https://github.com/Pingus/pingus/tree/v0.7.6
           EOF
-          printf 'commit=%s\nrun_id=%s\nemscripten=3.1.64\n' \
+          printf 'commit=%s\nrun_id=%s\nemscripten=3.1.64\npackaging=self-contained-js\n' \
             "$GITHUB_SHA" "$GITHUB_RUN_ID" > dist/BUILD-INFO.txt
           invalid_names=$(find dist -type f -printf '%P\n' | LC_ALL=C grep -E '[[:space:]]|[^ -~]' || true)
           test -z "$invalid_names"
@@ -114,10 +116,10 @@ jobs:
           (cd dist && zip -9 -X -r ../pingus-yandex-web.zip .)
           test -s pingus-yandex-web.zip
           zipinfo -1 pingus-yandex-web.zip | grep -qx 'index.html'
-          zipinfo -1 pingus-yandex-web.zip | grep -qx 'index.js'
-          zipinfo -1 pingus-yandex-web.zip | grep -qx 'index.wasm'
-          zipinfo -1 pingus-yandex-web.zip | grep -qx 'index.data'
+          zipinfo -1 pingus-yandex-web.zip | grep -qx 'pingus.js'
+          ! zipinfo -1 pingus-yandex-web.zip | grep -Eq '\.(wasm|data)$'
           zipinfo -1 pingus-yandex-web.zip | grep -qx 'COPYING'
+          unzip -t pingus-yandex-web.zip
           sha256sum pingus-yandex-web.zip | tee checksum.txt
           du -sh dist pingus-yandex-web.zip | tee -a size-report.txt
 
