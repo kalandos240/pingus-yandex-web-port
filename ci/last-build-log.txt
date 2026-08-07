@@ -1,38 +1,119 @@
 Compiling 207 original C++ source files (desktop editor omitted)
 ports:INFO: retrieving port: zlib from https://github.com/madler/zlib/archive/refs/tags/v1.2.13.tar.gz
 ports:INFO: unpacking port: zlib
-cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libz.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libz.a" for subsequent builds)
-system_libs:INFO: compiled 15 inputs in 2.08s
+cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libz.a... (this will be cached in "/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libz.a" for subsequent builds)
+system_libs:INFO: compiled 15 inputs in 2.01s
 cache:INFO:  - ok
 ports:INFO: retrieving port: ogg from https://github.com/emscripten-ports/ogg/archive/version_1.zip
 ports:INFO: unpacking port: ogg
-cache:INFO: generating system library: sysroot/lib/wasm32-emscripten/libogg.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libogg.a" for subsequent builds)
+cache:INFO: generating system library: sysroot/lib/wasm32-emscripten/libogg.a... (this will be cached in "/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libogg.a" for subsequent builds)
 system_libs:INFO: compiled 2 inputs in 0.31s
 cache:INFO:  - ok
 ports:INFO: retrieving port: vorbis from https://github.com/emscripten-ports/vorbis/archive/version_1.zip
 ports:INFO: unpacking port: vorbis
-cache:INFO: generating system library: sysroot/lib/wasm32-emscripten/libvorbis.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libvorbis.a" for subsequent builds)
-system_libs:INFO: compiled 22 inputs in 3.72s
+cache:INFO: generating system library: sysroot/lib/wasm32-emscripten/libvorbis.a... (this will be cached in "/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libvorbis.a" for subsequent builds)
+system_libs:INFO: compiled 22 inputs in 3.65s
 cache:INFO:  - ok
 ports:INFO: retrieving port: libpng from https://storage.googleapis.com/webassembly/emscripten-ports/libpng-1.6.39.tar.gz
 ports:INFO: unpacking port: libpng
-cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libpng.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libpng.a" for subsequent builds)
-system_libs:INFO: compiled 25 inputs in 4.17s
+cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libpng.a... (this will be cached in "/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libpng.a" for subsequent builds)
+system_libs:INFO: compiled 25 inputs in 4.39s
 cache:INFO:  - ok
-src/engine/display/blitter.cpp:50:29: error: no member named 'colorkey' in 'SDL_PixelFormat'
-   50 |     ckey = surface->format->colorkey;
-      |            ~~~~~~~~~~~~~~~  ^
-src/engine/display/blitter.cpp:230:38: error: use of undeclared identifier 'surface_alpha'
-  230 |     SDL_GetSurfaceAlphaMod(surface, &surface_alpha);
-      |                                      ^
-src/engine/display/blitter.cpp:231:45: error: use of undeclared identifier 'surface_alpha'
-  231 |     SDL_SetAlpha(new_surface, SDL_SRCALPHA, surface_alpha);
+In file included from src/engine/display/surface.cpp:20:
+In file included from external/boost/format.hpp:38:
+In file included from external/boost/format/internals.hpp:21:
+In file included from external/boost/optional.hpp:15:
+In file included from external/boost/optional/optional.hpp:38:
+external/boost/type_traits/has_nothrow_constructor.hpp:27:84: warning: builtin __has_nothrow_constructor is deprecated; use __is_nothrow_constructible instead [-Wdeprecated-builtins]
+   27 | template <class T> struct has_nothrow_constructor : public integral_constant<bool, BOOST_HAS_NOTHROW_CONSTRUCTOR(T)>{};
+      |                                                                                    ^
+external/boost/type_traits/intrinsics.hpp:199:48: note: expanded from macro 'BOOST_HAS_NOTHROW_CONSTRUCTOR'
+  199 | #     define BOOST_HAS_NOTHROW_CONSTRUCTOR(T) (__has_nothrow_constructor(T) && is_default_constructible<T>::value)
+      |                                                ^
+In file included from src/engine/display/surface.cpp:20:
+In file included from external/boost/format.hpp:38:
+In file included from external/boost/format/internals.hpp:21:
+In file included from external/boost/optional.hpp:15:
+In file included from external/boost/optional/optional.hpp:47:
+In file included from external/boost/type_traits/is_nothrow_move_assignable.hpp:16:
+external/boost/type_traits/has_nothrow_assign.hpp:65:7: warning: builtin __has_nothrow_assign is deprecated; use __is_nothrow_assignable instead [-Wdeprecated-builtins]
+   65 |       BOOST_HAS_NOTHROW_ASSIGN(T)
+      |       ^
+external/boost/type_traits/intrinsics.hpp:205:43: note: expanded from macro 'BOOST_HAS_NOTHROW_ASSIGN'
+  205 | #     define BOOST_HAS_NOTHROW_ASSIGN(T) (__has_nothrow_assign(T) && !is_volatile<T>::value && is_assignable<T&, const T&>::value)
+      |                                           ^
+In file included from src/engine/display/surface.cpp:20:
+In file included from external/boost/format.hpp:38:
+In file included from external/boost/format/internals.hpp:21:
+In file included from external/boost/optional.hpp:15:
+In file included from external/boost/optional/optional.hpp:53:
+In file included from external/boost/move/utility.hpp:30:
+In file included from external/boost/move/traits.hpp:31:
+external/boost/move/detail/type_traits.hpp:805:30: warning: builtin __has_trivial_destructor is deprecated; use __is_trivially_destructible instead [-Wdeprecated-builtins]
+  805 | {  static const bool value = BOOST_MOVE_IS_TRIVIALLY_DESTRUCTIBLE(T); };
+      |                              ^
+external/boost/move/detail/type_traits.hpp:272:54: note: expanded from macro 'BOOST_MOVE_IS_TRIVIALLY_DESTRUCTIBLE'
+  272 |    #define BOOST_MOVE_IS_TRIVIALLY_DESTRUCTIBLE(T)   BOOST_MOVE_HAS_TRIVIAL_DESTRUCTOR(T)
+      |                                                      ^
+external/boost/move/detail/type_traits.hpp:128:51: note: expanded from macro 'BOOST_MOVE_HAS_TRIVIAL_DESTRUCTOR'
+  128 | #     define BOOST_MOVE_HAS_TRIVIAL_DESTRUCTOR(T) __has_trivial_destructor(T)
+      |                                                   ^
+external/boost/move/detail/type_traits.hpp:812:30: warning: builtin __has_trivial_constructor is deprecated; use __is_trivially_constructible instead [-Wdeprecated-builtins]
+  812 | {  static const bool value = BOOST_MOVE_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE(T); };
+      |                              ^
+external/boost/move/detail/type_traits.hpp:246:62: note: expanded from macro 'BOOST_MOVE_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE'
+  246 |    #define BOOST_MOVE_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE(T)  BOOST_MOVE_HAS_TRIVIAL_CONSTRUCTOR(T)
+      |                                                              ^
+external/boost/move/detail/type_traits.hpp:119:52: note: expanded from macro 'BOOST_MOVE_HAS_TRIVIAL_CONSTRUCTOR'
+  119 | #     define BOOST_MOVE_HAS_TRIVIAL_CONSTRUCTOR(T) __has_trivial_constructor(T)
+      |                                                    ^
+external/boost/move/detail/type_traits.hpp:822:30: warning: builtin __has_trivial_copy is deprecated; use __is_trivially_copyable instead [-Wdeprecated-builtins]
+  822 |    static const bool value = BOOST_MOVE_IS_TRIVIALLY_COPY_CONSTRUCTIBLE(T);
+      |                              ^
+external/boost/move/detail/type_traits.hpp:240:60: note: expanded from macro 'BOOST_MOVE_IS_TRIVIALLY_COPY_CONSTRUCTIBLE'
+  240 |                                                            BOOST_MOVE_HAS_TRIVIAL_COPY(T))
+      |                                                            ^
+external/boost/move/detail/type_traits.hpp:122:45: note: expanded from macro 'BOOST_MOVE_HAS_TRIVIAL_COPY'
+  122 | #     define BOOST_MOVE_HAS_TRIVIAL_COPY(T) __has_trivial_copy(T)
       |                                             ^
-src/engine/display/blitter.cpp:239:35: error: use of undeclared identifier 'surface_colorkey'
-  239 |     if (SDL_GetColorKey(surface, &surface_colorkey) == 0)
-      |                                   ^
-src/engine/display/blitter.cpp:240:53: error: use of undeclared identifier 'surface_colorkey'
-  240 |       SDL_SetColorKey(new_surface, SDL_SRCCOLORKEY, surface_colorkey);
-      |                                                     ^
-5 errors generated.
-em++: error: '/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/bin/clang++ -target wasm32-unknown-emscripten -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-cxx-exceptions -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr --sysroot=/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot -DEMSCRIPTEN -I/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/include/SDL -Xclang -iwithsysroot/include/compat -I. -Isrc -Iexternal -Iexternal/tinygettext -std=c++11 -O1 -fexceptions -Wno-invalid-source-encoding -DVERSION="0.7.6-web" -DHAVE_ICONV_CONST=1 -DICONV_CONST= src/engine/display/blitter.cpp -c -o /tmp/emscripten_temp_npd_q2y6/blitter_9.o' failed (returned 1)
+external/boost/move/detail/type_traits.hpp:840:30: warning: builtin __has_trivial_assign is deprecated; use __is_trivially_assignable instead [-Wdeprecated-builtins]
+  840 |    static const bool value = BOOST_MOVE_IS_TRIVIALLY_COPY_ASSIGNABLE(T);
+      |                              ^
+external/boost/move/detail/type_traits.hpp:260:58: note: expanded from macro 'BOOST_MOVE_IS_TRIVIALLY_COPY_ASSIGNABLE'
+  260 |                                                          BOOST_MOVE_HAS_TRIVIAL_ASSIGN(T))
+      |                                                          ^
+external/boost/move/detail/type_traits.hpp:125:48: note: expanded from macro 'BOOST_MOVE_HAS_TRIVIAL_ASSIGN'
+  125 | #     define BOOST_MOVE_HAS_TRIVIAL_ASSIGN(T) (__has_trivial_assign(T) )
+      |                                                ^
+external/boost/move/detail/type_traits.hpp:856:30: warning: builtin __has_nothrow_constructor is deprecated; use __is_nothrow_constructible instead [-Wdeprecated-builtins]
+  856 | {  static const bool value = BOOST_MOVE_IS_NOTHROW_DEFAULT_CONSTRUCTIBLE(T);  };
+      |                              ^
+external/boost/move/detail/type_traits.hpp:278:60: note: expanded from macro 'BOOST_MOVE_IS_NOTHROW_DEFAULT_CONSTRUCTIBLE'
+  278 |    #define BOOST_MOVE_IS_NOTHROW_DEFAULT_CONSTRUCTIBLE(T)  BOOST_MOVE_HAS_NOTHROW_CONSTRUCTOR(T)
+      |                                                            ^
+external/boost/move/detail/type_traits.hpp:131:52: note: expanded from macro 'BOOST_MOVE_HAS_NOTHROW_CONSTRUCTOR'
+  131 | #     define BOOST_MOVE_HAS_NOTHROW_CONSTRUCTOR(T) __has_nothrow_constructor(T)
+      |                                                    ^
+external/boost/move/detail/type_traits.hpp:863:30: warning: builtin __has_nothrow_copy is deprecated; use __is_nothrow_constructible instead [-Wdeprecated-builtins]
+  863 | {  static const bool value = BOOST_MOVE_IS_NOTHROW_COPY_CONSTRUCTIBLE(T);  };
+      |                              ^
+external/boost/move/detail/type_traits.hpp:284:58: note: expanded from macro 'BOOST_MOVE_IS_NOTHROW_COPY_CONSTRUCTIBLE'
+  284 |    #define BOOST_MOVE_IS_NOTHROW_COPY_CONSTRUCTIBLE(T)   BOOST_MOVE_HAS_NOTHROW_COPY(T)
+      |                                                          ^
+external/boost/move/detail/type_traits.hpp:134:46: note: expanded from macro 'BOOST_MOVE_HAS_NOTHROW_COPY'
+  134 | #     define BOOST_MOVE_HAS_NOTHROW_COPY(T) (__has_nothrow_copy(T))
+      |                                              ^
+src/engine/display/surface.cpp:216:47: error: no member named 'colorkey' in 'SDL_PixelFormat'
+  216 |               pixel == impl->surface->format->colorkey)
+      |                        ~~~~~~~~~~~~~~~~~~~~~  ^
+src/engine/display/surface.cpp:299:42: error: no member named 'alpha' in 'SDL_PixelFormat'
+  299 |     Uint8 alpha = impl->surface->format->alpha;
+      |                   ~~~~~~~~~~~~~~~~~~~~~  ^
+src/engine/display/surface.cpp:448:68: error: no member named 'colorkey' in 'SDL_PixelFormat'
+  448 |     out << "Colorkey: " << static_cast<int>(impl->surface->format->colorkey) << std::endl;
+      |                                             ~~~~~~~~~~~~~~~~~~~~~  ^
+src/engine/display/surface.cpp:451:65: error: no member named 'alpha' in 'SDL_PixelFormat'
+  451 |     out << "Alpha: " << static_cast<int>(impl->surface->format->alpha) << std::endl;
+      |                                          ~~~~~~~~~~~~~~~~~~~~~  ^
+8 warnings and 4 errors generated.
+em++: error: '/emsdk/upstream/bin/clang++ -target wasm32-unknown-emscripten -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-cxx-exceptions -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr --sysroot=/emsdk/upstream/emscripten/cache/sysroot -DEMSCRIPTEN -I/emsdk/upstream/emscripten/cache/sysroot/include/SDL -Xclang -iwithsysroot/include/compat -I. -Isrc -Iexternal -Iexternal/tinygettext -std=c++11 -O1 -fexceptions -Wno-invalid-source-encoding -DVERSION="0.7.6-web" -DHAVE_ICONV_CONST=1 -DICONV_CONST= src/engine/display/surface.cpp -c -o /tmp/emscripten_temp_zzg50no0/surface_29.o' failed (returned 1)
