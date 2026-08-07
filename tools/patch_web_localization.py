@@ -1,4 +1,5 @@
 from pathlib import Path
+import ast
 import re
 import urllib.request
 
@@ -62,15 +63,61 @@ def po_quote(value: str) -> str:
 
 for msgid, translated in WEB_RU.items():
     qid = po_quote(msgid)
-    # These overrides are intentionally all single-line msgids. Replace either
-    # an empty or an existing single-line translation from upstream.
-    pattern = re.compile(
-        r'(?m)^msgid "' + re.escape(qid) + r'"\nmsgstr ".*"$',
-    )
+    pattern = re.compile(r'(?m)^msgid "' + re.escape(qid) + r'"\nmsgstr ".*"$')
     replacement = 'msgid "' + qid + '"\nmsgstr "' + po_quote(translated) + '"'
     ru_text, count = pattern.subn(replacement, ru_text, count=1)
     if count != 1:
         raise SystemExit(f'expected single-line Russian catalog entry missing: {msgid!r}')
+
+# Audit all player-facing PO entries. This intentionally excludes editor,
+# command-line/debug and screenshot diagnostics that are not reachable in the
+# Yandex build. A blank Russian translation here is a release blocker.
+PLAYER_REFS = (
+    'src/pingus/screens/',
+    'src/pingus/worldmap/',
+    'src/pingus/action_name.cpp',
+    'src/pingus/components/',
+    'src/pingus/game_time.cpp',
+    'data/levels/',
+    'data/levelsets/',
+    'data/stories/',
+    'data/worldmaps/',
+)
+
+def po_value(lines, key):
+    for i, line in enumerate(lines):
+        if line.startswith(key + ' '):
+            parts = [line[len(key) + 1:]]
+            j = i + 1
+            while j < len(lines) and lines[j].startswith('"'):
+                parts.append(lines[j])
+                j += 1
+            value = ''
+            for part in parts:
+                try:
+                    value += ast.literal_eval(part)
+                except Exception:
+                    return None
+            return value
+    return None
+
+missing = []
+for block in re.split(r'\n\s*\n', ru_text):
+    lines = block.splitlines()
+    refs = ' '.join(line[2:].strip() for line in lines if line.startswith('#:'))
+    if not refs or not any(prefix in refs for prefix in PLAYER_REFS):
+        continue
+    msgid = po_value(lines, 'msgid')
+    msgstr = po_value(lines, 'msgstr')
+    if msgid and msgstr == '':
+        missing.append((msgid, refs))
+
+if missing:
+    print(f'UNTRANSLATED_PLAYER_FACING={len(missing)}')
+    for msgid, refs in missing:
+        printable = msgid.replace('\n', '\\n')
+        print(f'UNTRANSLATED: {printable} || {refs}')
+    raise SystemExit('player-facing Russian catalog still contains untranslated strings')
 
 (po_dir / 'ru.po').write_text(ru_text, encoding='utf-8')
 
