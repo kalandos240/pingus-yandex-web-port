@@ -2,7 +2,7 @@ from pathlib import Path
 import re
 
 # Emscripten's SDL1 compatibility layer does not expose desktop SDL key names
-# consistently through SDL_GetKeyName().  Avoid probing the whole legacy key
+# consistently through SDL_GetKeyName(). Avoid probing the whole legacy key
 # table in the browser and bind exactly the names used by Pingus' default
 # controller file to the canonical SDL key constants.
 p = Path('src/engine/input/sdl_driver.cpp')
@@ -56,7 +56,7 @@ if count != 1:
 p.write_text(s, encoding='utf-8')
 
 # Browser audio APIs cannot decode Impulse Tracker / XM / S3M / MOD files.
-# The build converts tracker modules to OGG while preserving the music.  Point
+# The build converts tracker modules to OGG while preserving the music. Point
 # the original play_music calls at the converted file only in Emscripten builds.
 p = Path('src/engine/sound/sound.cpp')
 s = p.read_text(encoding='utf-8')
@@ -76,5 +76,23 @@ replacement = r'''#ifdef __EMSCRIPTEN__
 #endif'''
 if s.count(needle) != 1:
     raise SystemExit('browser music redirect patch mismatch')
+s = s.replace(needle, replacement, 1)
+p.write_text(s, encoding='utf-8')
+
+# Pingus writes save/stat files atomically through mkstemp() and then chmods
+# them using a mode derived from umask(). Emscripten's umask compatibility can
+# yield zero permission bits here, creating a file that exists but cannot be
+# read back on the next launch. Use an explicit private read/write mode in the
+# browser build while preserving the original desktop behavior elsewhere.
+p = Path('src/util/system.cpp')
+s = p.read_text(encoding='utf-8')
+needle = '  if (chmod(filename.c_str(), ~old_mask & 0666) < 0)'
+replacement = r'''#ifdef __EMSCRIPTEN__
+  if (chmod(filename.c_str(), S_IRUSR | S_IWUSR) < 0)
+#else
+  if (chmod(filename.c_str(), ~old_mask & 0666) < 0)
+#endif'''
+if s.count(needle) != 1:
+    raise SystemExit('browser save-file permission patch mismatch')
 s = s.replace(needle, replacement, 1)
 p.write_text(s, encoding='utf-8')
