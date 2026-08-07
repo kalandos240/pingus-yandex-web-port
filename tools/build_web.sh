@@ -9,6 +9,7 @@ python3 ../tools/patch_browser_runtime.py
 python3 ../tools/patch_focus_pause.py
 python3 ../tools/patch_yandex_locale.py
 python3 ../tools/patch_web_localization.py
+python3 ../tools/patch_release_ru_data.py
 python3 ../tools/patch_web_hide_author.py
 python3 ../tools/audit_web_localization_sources.py
 python3 ../tools/patch_web_performance.py
@@ -29,6 +30,7 @@ python3 ../tools/patch_web_fonts.py
 python3 ../tools/patch_touch_input.py
 python3 ../tools/patch_web_menu.py
 python3 ../tools/patch_web_options.py
+python3 ../tools/patch_web_audio_channels.py
 python3 ../tools/patch_sdl_framebuffer.py
 python3 ../tools/patch_groundmap_erase.py
 
@@ -95,7 +97,13 @@ shell = shell.replace(marker, '<script src="pingus.js"></script>')
 out_path.write_text(shell, encoding='utf-8')
 PY
 
+# Yandex hosts archive games behind a nonce-based Content-Security-Policy.
+# Externalize the generated bootstrap/style and remove inline event handlers.
+python3 ../tools/postprocess_csp.py
+
 test -s ../dist/index.html
+test -s ../dist/bootstrap.js
+test -s ../dist/pingus.css
 test -s ../dist/pingus.js
 if find ../dist -maxdepth 1 -type f \( -name '*.wasm' -o -name '*.data' \) | grep -q .; then
   echo 'Unexpected external wasm/data payload in dist' >&2
