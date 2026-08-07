@@ -1,0 +1,207 @@
+from pathlib import Path
+import re
+
+# Broad source compatibility for modern Boost / Emscripten SDL1.
+for p in list(Path('src').rglob('*.hpp')) + list(Path('src').rglob('*.cpp')):
+    s = p.read_text(encoding='utf-8')
+    n = s.replace('<boost/signal.hpp>', '<boost/signals2/signal.hpp>')
+    n = n.replace('<boost/signals.hpp>', '<boost/signals2.hpp>')
+    n = n.replace('boost::signal<', 'boost::signals2::signal<')
+    n = n.replace('boost::signals::', 'boost::signals2::')
+    n = re.sub(r'Uint8\s*\*\s*(\w+)\s*=\s*SDL_GetKeyState\(NULL\);',
+               r'const Uint8* \1 = SDL_GetKeyboardState(NULL);', n)
+    n = re.sub(r'"([^"\n]*)"VERSION', r'"\1" VERSION', n)
+    if n != s:
+        p.write_text(n, encoding='utf-8')
+
+# Omit desktop level editor code from the browser executable.
+p = Path('src/pingus/pingus_main.cpp')
+s = p.read_text(encoding='utf-8')
+s = s.replace('#include "editor/editor_level.hpp"\n#include "editor/editor_screen.hpp"\n', '')
+s, a = re.subn(r'\n  argp\.add_group\("Editor Options:"\);\n  argp\.add_option\(\'e\', "editor", "",\n                  _\("Loads the level editor"\)\);\n', '\n', s, count=1)
+s, b = re.subn(r"\n      case 'e': // -e, --editor\n        cmd_options\.editor\.set\(true\);\n        break;\n", '\n', s, count=1)
+s, c = re.subn(r'  if \(cmd_options\.editor\.is_set\(\) && cmd_options\.editor\.get\(\)\)\n  \{ // Editor\n.*?  \}\n  else if \(cmd_options\.rest\.is_set\(\)', '  if (cmd_options.rest.is_set())', s, count=1, flags=re.DOTALL)
+if (a, b, c) != (1, 1, 1):
+    raise SystemExit(f'editor main patch mismatch {(a,b,c)}')
+s = s.replace('if (cmd_options.rest.is_set()))', 'if (cmd_options.rest.is_set())')
+p.write_text(s, encoding='utf-8')
+
+p = Path('src/pingus/screens/pingus_menu.cpp')
+s = p.read_text(encoding='utf-8').replace('#include "editor/editor_screen.hpp"\n', '')
+s, n = re.subn(r'void PingusMenu::do_edit\(\)\n\{.*?\n\}',
+               'void PingusMenu::do_edit()\n{\n  // Level editor is unavailable in the browser build.\n}',
+               s, count=1, flags=re.DOTALL)
+if n != 1:
+    raise SystemExit('editor menu patch mismatch')
+p.write_text(s, encoding='utf-8')
+
+# Old source relied on transitive declaration of raise_error/raise_exception.
+for p in Path('src').rglob('*.cpp'):
+    s = p.read_text(encoding='utf-8')
+    if ('raise_exception(' in s or 'raise_error(' in s) and 'util/raise_exception.hpp' not in s:
+        m = re.search(r'^#include ', s, flags=re.MULTILINE)
+        if not m:
+            raise SystemExit(f'no include anchor in {p}')
+        p.write_text(s[:m.start()] + '#include "util/raise_exception.hpp"\n\n' + s[m.start():], encoding='utf-8')
+
+def replace(path, old, new, required=True):
+    p = Path(path)
+    s = p.read_text(encoding='utf-8')
+    count = s.count(old)
+    if required and count == 0:
+        raise SystemExit(f'patch anchor missing in {path}: {old[:60]!r}')
+    p.write_text(s.replace(old, new), encoding='utf-8')
+
+replace('src/engine/input/event.hpp', '  SDL_keysym keysym;', '  SDL_Keysym keysym;')
+replace('src/engine/input/sdl_driver.cpp', '    char* key_name = SDL_GetKeyName(static_cast<SDLKey>(i));', '    const char* key_name = SDL_GetKeyName(static_cast<SDLKey>(i));')
+replace('src/lisp/getters.hpp', '  const Lisp* el = lisp->get_list_elem(1);', '  const Lisp* el = lisp->get_list_elem(1).get();')
+
+# blitter.cpp: SDL_PixelFormat no longer exposes alpha/colorkey fields.
+p = Path('src/engine/display/blitter.cpp')
+s = p.read_text(encoding='utf-8')
+s = s.replace('    ckey = surface->format->colorkey;', '    if (SDL_GetColorKey(surface, &ckey) != 0) ckey = 0;')
+s = s.replace('  if (surface->flags & SDL_SRCALPHA)\n    SDL_SetAlpha(new_surface, SDL_SRCALPHA, surface->format->alpha);',
+'''  if (surface->flags & SDL_SRCALPHA)
+  {
+    Uint8 surface_alpha = 255;
+    SDL_GetSurfaceAlphaMod(surface, &surface_alpha);
+    SDL_SetAlpha(new_surface, SDL_SRCALPHA, surface_alpha);
+  }''')
+s = s.replace('  if (surface->flags & SDL_SRCCOLORKEY)\n    SDL_SetColorKey(new_surface, SDL_SRCCOLORKEY, surface->format->colorkey);',
+'''  if (surface->flags & SDL_SRCCOLORKEY)
+  {
+    Uint32 surface_colorkey = 0;
+    if (SDL_GetColorKey(surface, &surface_colorkey) == 0)
+      SDL_SetColorKey(new_surface, SDL_SRCCOLORKEY, surface_colorkey);
+  }''')
+p.write_text(s, encoding='utf-8')
+
+# surface.cpp: four direct metadata reads.
+p = Path('src/engine/display/surface.cpp')
+s = p.read_text(encoding='utf-8')
+s, n1 = re.subn(r'if\s*\(impl->surface->flags\s*&\s*SDL_SRCCOLORKEY\s*&&\s*pixel\s*==\s*impl->surface->format->colorkey\)',
+'''Uint32 surface_colorkey = 0;
+          if (SDL_GetColorKey(impl->surface, &surface_colorkey) == 0 &&
+              pixel == surface_colorkey)''', s, count=1)
+s, n2 = re.subn(r'Uint8\s+alpha\s*=\s*impl->surface->format->alpha\s*;',
+                'Uint8 alpha = 255;\n    SDL_GetSurfaceAlphaMod(impl->surface, &alpha);', s, count=1)
+s, n3 = re.subn(r'out\s*<<\s*"Colorkey: "\s*<<\s*static_cast<int>\(impl->surface->format->colorkey\)\s*<<\s*std::endl\s*;',
+                '{ Uint32 k = 0; SDL_GetColorKey(impl->surface, &k); out << "Colorkey: " << static_cast<int>(k) << std::endl; }', s, count=1)
+s, n4 = re.subn(r'out\s*<<\s*"Alpha: "\s*<<\s*static_cast<int>\(impl->surface->format->alpha\)\s*<<\s*std::endl\s*;',
+                '{ Uint8 a = 255; SDL_GetSurfaceAlphaMod(impl->surface, &a); out << "Alpha: " << static_cast<int>(a) << std::endl; }', s, count=1)
+if (n1, n2, n3, n4) != (1, 1, 1, 1):
+    raise SystemExit(f'surface.cpp patch mismatch {(n1,n2,n3,n4)}')
+p.write_text(s, encoding='utf-8')
+
+# collision_mask.cpp: use SDL_GetColorKey once before iterating palette pixels.
+p = Path('src/pingus/collision_mask.cpp')
+s = p.read_text(encoding='utf-8')
+s, nc = re.subn(r'if \(sdl_surface->flags & SDL_SRCCOLORKEY\)\n    \{ // surface with transparent areas\n      for\(int y = 0; y < height; \+\+y\)',
+'''if (sdl_surface->flags & SDL_SRCCOLORKEY)
+    { // surface with transparent areas
+      Uint32 surface_colorkey = 0;
+      SDL_GetColorKey(sdl_surface, &surface_colorkey);
+      for(int y = 0; y < height; ++y)''', s, count=1)
+s = s.replace('if (source[y*pitch + x] == sdl_surface->format->colorkey)', 'if (source[y*pitch + x] == surface_colorkey)')
+if nc != 1:
+    raise SystemExit('collision mask patch mismatch')
+p.write_text(s, encoding='utf-8')
+
+# ground_map.cpp: same metadata access while erasing terrain.
+p = Path('src/pingus/ground_map.cpp')
+s = p.read_text(encoding='utf-8')
+s = s.replace('    Uint32 colorkey = sprovider.get_surface()->format->colorkey;',
+'''    Uint32 colorkey = 0;
+    SDL_GetColorKey(sprovider.get_surface(), &colorkey);''')
+p.write_text(s, encoding='utf-8')
+
+# Catch every remaining removed member before compilation.
+stale = []
+for p in Path('src').rglob('*'):
+    if p.suffix not in ('.cpp', '.hpp', '.h'):
+        continue
+    path = p.as_posix()
+    if '/editor/' in path or '/opengl/' in path:
+        continue
+    text = p.read_text(encoding='utf-8', errors='ignore')
+    if 'format->colorkey' in text or 'format->alpha' in text:
+        stale.append(path)
+if stale:
+    raise SystemExit('stale SDL_PixelFormat members remain: ' + ', '.join(stale))
+
+# Emscripten SDL1 compatibility helpers.
+Path('src/web_sdl_compat.cpp').write_text(r'''#include <SDL.h>
+#include <emscripten.h>
+extern "C" int SDL_GetColorKey(SDL_Surface* surface, Uint32* key)
+{
+  if (!surface || !key) return -1;
+  *key = 0;
+  return -1;
+}
+extern "C" int SDL_GetSurfaceAlphaMod(SDL_Surface* surface, Uint8* alpha)
+{
+  if (!surface || !alpha) return -1;
+  int value = EM_ASM_INT({
+    var s = SDL.surfaces[$0];
+    return s && typeof s.alpha === 'number' ? s.alpha : 255;
+  }, surface);
+  *alpha = static_cast<Uint8>(value);
+  return 0;
+}
+extern "C" SDL_Surface* SDL_DisplayFormat(SDL_Surface* surface)
+{
+  if (!surface) return 0;
+  return SDL_ConvertSurface(surface, surface->format, surface->flags);
+}
+''', encoding='utf-8')
+
+# Browser lifecycle: yield each frame so the browser/Yandex event loop stays live,
+# yield longer while hidden, signal Yandex after first drawn frame, and sync saves.
+p = Path('src/engine/screen/screen_manager.cpp')
+s = p.read_text(encoding='utf-8')
+if '#include <emscripten.h>' not in s:
+    s = s.replace('#include <iostream>\n', '#include <iostream>\n\n#ifdef __EMSCRIPTEN__\n#include <emscripten.h>\n#endif\n', 1)
+s = s.replace('  while (!screens.empty())\n  {\n    events.clear();', '''  while (!screens.empty())
+  {
+#ifdef __EMSCRIPTEN__
+    if (EM_ASM_INT({ return document.hidden ? 1 : 0; }))
+    {
+      emscripten_sleep(100);
+      last_ticks = SDL_GetTicks();
+      continue;
+    }
+#endif
+    events.clear();''', 1)
+# SDL_Delay in the legacy loop is not sufficient to guarantee a browser task yield.
+s, ny = re.subn(r'(\n    \}\n)(  \}\n\}\n\s*\nvoid\nScreenManager::update)',
+'''\n    }
+#ifdef __EMSCRIPTEN__
+    emscripten_sleep(0);
+#endif
+  }
+}
+ 
+void
+ScreenManager::update''', s, count=1)
+if ny != 1:
+    raise SystemExit('browser frame-yield patch mismatch')
+s = s.replace('  Display::flip_display();\n}', '''  Display::flip_display();
+#ifdef __EMSCRIPTEN__
+  static bool game_ready_sent = false;
+  if (!game_ready_sent)
+  {
+    game_ready_sent = true;
+    EM_ASM({ if (typeof window.pingusMarkReady === 'function') window.pingusMarkReady(); });
+  }
+#endif
+}''', 1)
+# Save hook when display loop exits.
+s = s.replace('  }\n}\n \nvoid\nScreenManager::update', '''  }
+#ifdef __EMSCRIPTEN__
+  EM_ASM({ if (typeof window.pingusSaveNow === 'function') window.pingusSaveNow(); });
+#endif
+}
+ 
+void
+ScreenManager::update''', 1)
+p.write_text(s, encoding='utf-8')
