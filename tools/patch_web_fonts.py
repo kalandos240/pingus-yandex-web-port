@@ -1,6 +1,5 @@
 from collections import Counter
 from pathlib import Path
-import math
 import re
 
 from PIL import Image, ImageDraw, ImageFont
@@ -50,8 +49,6 @@ def source_color(font_file: Path, pingus_green: bool):
     if not pixels:
         return (126, 205, 76, 255) if pingus_green else (238, 238, 238, 255)
 
-    # Pick from common opaque colors. For chalk prefer the brightest common
-    # shade; for the outlined green font prefer the greenest common shade.
     common = Counter(pixels).most_common(40)
     if pingus_green:
         rgb = max((c for c, _ in common), key=lambda c: (c[1] - max(c[0], c[2]), c[1]))
@@ -118,8 +115,6 @@ def append_fallback(name: str, size: int, pingus_green: bool):
     atlas = Image.new('RGBA', (max_width, atlas_h), (0, 0, 0, 0))
     draw = ImageDraw.Draw(atlas)
     for g in glyphs:
-        # bbox is relative to the left-baseline anchor. Move that anchor so the
-        # exact glyph bitmap lands at the packed rectangle's top-left corner.
         anchor_x = g['x'] - g['left']
         anchor_y = g['y'] - g['top']
         kwargs = dict(font=pil_font, fill=fill, anchor='ls')
@@ -146,11 +141,20 @@ def append_fallback(name: str, size: int, pingus_green: bool):
     lines += ['    ))']
     block = '\n'.join(lines) + '\n'
 
-    marker = '  ))\n;; EOF ;;'
-    if text.count(marker) != 1:
-        raise SystemExit(f'{name}: font images closing marker mismatch')
-    text = text.replace(marker, block + marker, 1)
+    # Original font files differ only in whitespace before the EOF comment.
+    # Insert the new image immediately before the final close of (images ...),
+    # accepting either one or multiple blank lines.
+    closing = re.compile(r'(?P<close>  \)\)\n\s*;; EOF ;;\s*)$')
+    match = closing.search(text)
+    if not match:
+        raise SystemExit(f'{name}: font images closing structure not found')
+    text = text[:match.start()] + block + match.group('close')
     font_file.write_text(text, encoding='utf-8')
+
+    final_codes = {int(x) for x in re.findall(r'\(unicode\s+(\d+)\)', text)}
+    still_missing = [cp for cp in RUSSIAN if cp not in final_codes]
+    if still_missing:
+        raise SystemExit(f'{name}: Cyrillic glyph validation failed: {still_missing}')
     print(f'{name}: appended {len(glyphs)} Russian fallback glyphs -> {atlas_name}')
 
 
