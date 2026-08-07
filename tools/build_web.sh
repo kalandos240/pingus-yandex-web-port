@@ -56,6 +56,14 @@ for old, new in replacements.items():
     source = source.replace(old, new, 1)
 path.write_text(source, encoding='utf-8')
 
+path = Path('src/pingus/collision_mask.cpp')
+source = path.read_text(encoding='utf-8')
+old = '          if (source[y*pitch + x] == sdl_surface->format->colorkey)'
+new = '          Uint32 color_key = 0;\n          SDL_GetColorKey(sdl_surface, &color_key);\n          if (source[y*pitch + x] == color_key)'
+if old not in source:
+    raise SystemExit('Pingus collision-mask color-key patch mismatch')
+path.write_text(source.replace(old, new, 1), encoding='utf-8')
+
 path = Path('src/engine/input/event.hpp')
 source = path.read_text(encoding='utf-8')
 old = '  SDL_keysym keysym;'
