@@ -1,18 +1,33 @@
 from pathlib import Path
 
-# Keep browser gameplay pause state aligned with the existing audio pause.
+# Keep browser gameplay pause state aligned with audio pause.
 # Pingus' web loop already stops while document.hidden, but a Yandex overlay,
 # browser focus change, or window switch can blur the game while the document
-# remains visible. In that case audio paused but the simulation kept running.
-# Expose one browser-side predicate and make the C++ frame loop use it.
+# remains visible. In that case the native simulation used to keep running.
+# Emscripten SDL_mixer can also use HTMLAudioElement objects independently of
+# its AudioContext, so pausing only the context is not sufficient.
 
 shell_path = Path('../web/shell.html')
 shell = shell_path.read_text(encoding='utf-8')
+
 shell_anchor = '''      let autosaveTimer = 0;\n\n      const text = {'''
 shell_patch = '''      let autosaveTimer = 0;\n\n      // Before the first rendered frame we must not gate startup on focus: an\n      // embedded Yandex iframe may not own focus yet. After the game is ready,\n      // losing focus pauses both the native simulation and audio until focus\n      // returns. document.hidden remains an unconditional pause condition.\n      window.pingusPagePaused = () =>\n        document.hidden || (gameReadySent && !document.hasFocus());\n\n      const text = {'''
 if shell.count(shell_anchor) != 1:
     raise SystemExit('focus-pause shell anchor missing or duplicated')
 shell = shell.replace(shell_anchor, shell_patch, 1)
+
+old_audio = '''      const setAudioPaused = (paused) => {\n        const audioContext = getAudioContext();\n        if (!audioContext) return;\n        const action = paused ? audioContext.suspend?.() : audioContext.resume?.();\n        action?.catch?.(() => {});\n      };'''
+new_audio = '''      const setAudioPaused = (paused) => {\n        const audioContext = getAudioContext();\n        if (audioContext) {\n          const action = paused ? audioContext.suspend?.() : audioContext.resume?.();\n          action?.catch?.(() => {});\n        }\n\n        // SDL1_mixer in Emscripten may play OGG music/channels through regular\n        // HTMLAudioElement objects, not through the AudioContext above. Pause\n        // only media that was actually playing, then resume exactly those.\n        const media = [];\n        const music = window.SDL?.music?.audio;\n        if (music) media.push(music);\n        const channels = window.SDL?.channels;\n        if (Array.isArray(channels)) {\n          for (const channel of channels) {\n            if (channel?.audio) media.push(channel.audio);\n          }\n        }\n        for (const audio of new Set(media)) {\n          if (paused) {\n            if (!audio.paused) {\n              audio.__pingusResumeAfterPause = true;\n              audio.pause();\n            }\n          } else if (audio.__pingusResumeAfterPause) {\n            audio.__pingusResumeAfterPause = false;\n            const play = audio.play?.();\n            play?.catch?.(() => {});\n          }\n        }\n      };'''
+if shell.count(old_audio) != 1:
+    raise SystemExit('SDL mixer audio-pause anchor missing or duplicated')
+shell = shell.replace(old_audio, new_audio, 1)
+
+old_events = '''      document.addEventListener('visibilitychange', () => {\n        const paused = document.hidden;\n        setAudioPaused(paused);\n        if (paused) window.pingusSaveNow();\n      });\n      window.addEventListener('blur', () => setAudioPaused(true));\n      window.addEventListener('focus', () => setAudioPaused(false));'''
+new_events = '''      const syncPagePause = () => {\n        const paused = window.pingusPagePaused();\n        setAudioPaused(paused);\n        if (paused) window.pingusSaveNow();\n      };\n      document.addEventListener('visibilitychange', syncPagePause);\n      window.addEventListener('blur', syncPagePause);\n      window.addEventListener('focus', syncPagePause);'''
+if shell.count(old_events) != 1:
+    raise SystemExit('focus-pause event anchor missing or duplicated')
+shell = shell.replace(old_events, new_events, 1)
+
 shell_path.write_text(shell, encoding='utf-8')
 
 screen_path = Path('src/engine/screen/screen_manager.cpp')
