@@ -15,6 +15,7 @@ import re
 for path in list(Path('src').rglob('*.hpp')) + list(Path('src').rglob('*.cpp')):
     source = path.read_text(encoding='utf-8')
     patched = source.replace('<boost/signal.hpp>', '<boost/signals2/signal.hpp>')
+    patched = patched.replace('<boost/signals.hpp>', '<boost/signals2.hpp>')
     patched = patched.replace('boost::signal<', 'boost::signals2::signal<')
     if patched != source:
         path.write_text(patched, encoding='utf-8')
