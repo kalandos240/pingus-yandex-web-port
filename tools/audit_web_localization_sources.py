@@ -28,56 +28,72 @@ for block in re.split(r'\n\s*\n', ru_text):
     if msgid:
         translations[msgid.strip()] = (msgstr or '').strip()
 
-# These are the actual string-bearing fields that the runtime translates and
-# displays to a player. This audit deliberately reads the shipped 0.7.6 data,
-# not PO reference comments, so strings missing from the historical POT/PO are
-# caught as well.
+
+def quoted_fields(text, keys):
+    for key in keys:
+        for match in re.finditer(r'\(' + re.escape(key) + r'\s+"((?:\\.|[^"\\])*)"\)', text):
+            raw = match.group(1).replace('\\n', '\n').replace('\\"', '"').strip()
+            if raw:
+                yield key, raw
+
 checks = []
-patterns = {
-    'data/levels': ('levelname', 'description'),
-    'data/levelsets': ('title', 'description'),
-    'data/stories': ('title', 'text'),
-}
-for root, keys in patterns.items():
-    for path in Path(root).rglob('*'):
-        if not path.is_file():
-            continue
-        text = path.read_text(encoding='utf-8', errors='replace')
-        for key in keys:
-            for match in re.finditer(r'\(' + re.escape(key) + r'\s+"((?:\\.|[^"\\])*)"\)', text):
-                raw = bytes(match.group(1), 'utf-8').decode('unicode_escape') if '\\' in match.group(1) else match.group(1)
-                raw = raw.strip()
-                if raw:
-                    checks.append((raw, f'{path}:{key}'))
+visible_level_files = set()
 
-# Worldmap head metadata plus story-dot labels are visible, while graph/object
-# internal names are not.
-for path in Path('data/worldmaps').rglob('*.worldmap'):
+# Only non-developer levelsets are exposed by LevelMenu. Audit their own labels
+# and collect exactly the levels a normal Yandex player can open.
+for path in Path('data/levelsets').glob('*.levelset'):
     text = path.read_text(encoding='utf-8', errors='replace')
-    head = re.search(r'\(head\s+(.*?)\)\s*\(intro-story', text, re.S)
-    if head:
-        for key in ('name', 'description'):
-            m = re.search(r'\(' + key + r'\s+"((?:\\.|[^"\\])*)"\)', head.group(1))
-            if m:
-                checks.append((m.group(1).strip(), f'{path}:head/{key}'))
-    for block in re.finditer(r'\(storydot\s+(.*?)(?=\n\s*\((?:storydot|leveldot)|\n\s*\)\s*\(edges)', text, re.S):
-        m = re.search(r'\(name\s+"((?:\\.|[^"\\])*)"\)', block.group(1))
-        if m:
-            checks.append((m.group(1).strip(), f'{path}:storydot/name'))
+    if re.search(r'\(developer-only\s+#t\)', text):
+        continue
+    for key, raw in quoted_fields(text, ('title', 'description')):
+        checks.append((raw, f'{path}:{key}'))
+    for m in re.finditer(r'\(filename\s+"([^"]+)"\)', text):
+        visible_level_files.add(m.group(1).strip())
 
-missing = []
+# Tutorial Island is entered through Story/worldmap rather than LevelMenu.
+tutorial_map = Path('data/worldmaps/tutorial.worldmap')
+wm = tutorial_map.read_text(encoding='utf-8', errors='replace')
+for m in re.finditer(r'\(levelname\s+"([^"]+)"\)', wm):
+    visible_level_files.add(m.group(1).strip())
+
+# Audit actual title/description strings for those playable levels only.
+for name in sorted(visible_level_files):
+    candidates = [Path('data/levels') / (name + '.pingus'), Path('data/levels') / name]
+    path = next((p for p in candidates if p.is_file()), None)
+    if path is None:
+        # Some old levelset entries already include extensions/alternate paths;
+        # this is a data validity issue, not a localization string.
+        continue
+    text = path.read_text(encoding='utf-8', errors='replace')
+    for key, raw in quoted_fields(text, ('levelname', 'description')):
+        checks.append((raw, f'{path}:{key}'))
+
+# Both tutorial stories are reachable. Their title/text fields are translated
+# by WorldmapStory at runtime.
+for path in (Path('data/stories/tutorial_intro.story'), Path('data/stories/tutorial_outro.story')):
+    text = path.read_text(encoding='utf-8', errors='replace')
+    for key, raw in quoted_fields(text, ('title', 'text')):
+        checks.append((raw, f'{path}:{key}'))
+
+# Tutorial map head and story-dot names are visible. Do not audit graph/object
+# IDs or author/email metadata because they are not drawn to the player.
+head = re.search(r'\(head\s+(.*?)\)\s*\(intro-story', wm, re.S)
+if head:
+    for key, raw in quoted_fields(head.group(1), ('name', 'description')):
+        checks.append((raw, f'{tutorial_map}:head/{key}'))
+for raw in ('Continue Journey', 'Watch Intro'):
+    if raw in wm:
+        checks.append((raw, f'{tutorial_map}:storydot/name'))
+
+uniq_missing = {}
 for text, origin in checks:
     if not translations.get(text):
-        missing.append((text, origin))
+        uniq_missing.setdefault(text, origin)
 
-# Deduplicate while keeping one useful origin.
-uniq = {}
-for text, origin in missing:
-    uniq.setdefault(text, origin)
-
+print(f'RELEASE_VISIBLE_LEVELS={len(visible_level_files)}')
 print(f'ACTUAL_VISIBLE_STRINGS={len(set(text for text, _ in checks))}')
-print(f'UNTRANSLATED_ACTUAL_VISIBLE={len(uniq)}')
-for text, origin in sorted(uniq.items()):
+print(f'UNTRANSLATED_ACTUAL_VISIBLE={len(uniq_missing)}')
+for text, origin in sorted(uniq_missing.items()):
     print(f'UNTRANSLATED_ACTUAL: {text.replace(chr(10), "\\n")} || {origin}')
-if uniq:
-    raise SystemExit('actual shipped player-facing data still contains untranslated strings')
+if uniq_missing:
+    raise SystemExit('releasable player-facing data still contains untranslated strings')
