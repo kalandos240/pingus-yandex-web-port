@@ -12,6 +12,7 @@ python3 ../tools/patch_web_localization.py
 python3 ../tools/patch_web_hide_author.py
 python3 ../tools/audit_web_localization_sources.py
 python3 ../tools/patch_web_performance.py
+python3 ../tools/patch_web_many_pingus.py
 python3 ../tools/patch_web_worldmap_ux.py
 
 # The original 16/20px Pingus bitmap atlases do not contain the complete
