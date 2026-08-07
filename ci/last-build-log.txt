@@ -1,44 +1,32 @@
-Compiling 206 original C++ source files (desktop editor omitted)
+Compiling 207 original C++ source files (desktop editor omitted)
 ports:INFO: retrieving port: zlib from https://github.com/madler/zlib/archive/refs/tags/v1.2.13.tar.gz
 ports:INFO: unpacking port: zlib
-cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libz.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libz.a" for subsequent builds)
-system_libs:INFO: compiled 15 inputs in 2.20s
+cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libz.a... (this will be cached in "/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libz.a" for subsequent builds)
+system_libs:INFO: compiled 15 inputs in 2.06s
 cache:INFO:  - ok
 ports:INFO: retrieving port: ogg from https://github.com/emscripten-ports/ogg/archive/version_1.zip
 ports:INFO: unpacking port: ogg
-cache:INFO: generating system library: sysroot/lib/wasm32-emscripten/libogg.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libogg.a" for subsequent builds)
-system_libs:INFO: compiled 2 inputs in 0.32s
+cache:INFO: generating system library: sysroot/lib/wasm32-emscripten/libogg.a... (this will be cached in "/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libogg.a" for subsequent builds)
+system_libs:INFO: compiled 2 inputs in 0.31s
 cache:INFO:  - ok
 ports:INFO: retrieving port: vorbis from https://github.com/emscripten-ports/vorbis/archive/version_1.zip
 ports:INFO: unpacking port: vorbis
-cache:INFO: generating system library: sysroot/lib/wasm32-emscripten/libvorbis.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libvorbis.a" for subsequent builds)
-system_libs:INFO: compiled 22 inputs in 3.92s
+cache:INFO: generating system library: sysroot/lib/wasm32-emscripten/libvorbis.a... (this will be cached in "/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libvorbis.a" for subsequent builds)
+system_libs:INFO: compiled 22 inputs in 3.91s
 cache:INFO:  - ok
 ports:INFO: retrieving port: libpng from https://storage.googleapis.com/webassembly/emscripten-ports/libpng-1.6.39.tar.gz
 ports:INFO: unpacking port: libpng
-cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libpng.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libpng.a" for subsequent builds)
-system_libs:INFO: compiled 25 inputs in 4.48s
+cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libpng.a... (this will be cached in "/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libpng.a" for subsequent builds)
+system_libs:INFO: compiled 25 inputs in 4.11s
 cache:INFO:  - ok
-src/pingus/actions/boarder.cpp:55:67: warning: operator '?:' has lower precedence than '+'; '+' will be evaluated first [-Wparentheses]
-   55 |       pingu->set_pos(Vector3f(old_pos.x + (old_pos.x < new_pos.x) ? 1.0f : -1.0f, 
-      |                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^
-src/pingus/actions/boarder.cpp:55:67: note: place parentheses around the '+' expression to silence this warning
-   55 |       pingu->set_pos(Vector3f(old_pos.x + (old_pos.x < new_pos.x) ? 1.0f : -1.0f, 
-      |                                                                   ^
-      |                               (                                  )
-src/pingus/actions/boarder.cpp:55:67: note: place parentheses around the '?:' expression to evaluate it first
-   55 |       pingu->set_pos(Vector3f(old_pos.x + (old_pos.x < new_pos.x) ? 1.0f : -1.0f, 
-      |                                                                   ^             
-      |                                           (                                     )
-1 warning generated.
-cache:INFO: generating system asset: symbol_lists/afc42f1f5366f387cc32816d549c4f89fb778d33.json... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/symbol_lists/afc42f1f5366f387cc32816d549c4f89fb778d33.json" for subsequent builds)
-cache:INFO:  - ok
-wasm-ld: error: /tmp/emscripten_temp_3n7q5m_e/blitter_9.o: undefined symbol: SDL_GetColorKey
-wasm-ld: error: /tmp/emscripten_temp_3n7q5m_e/blitter_9.o: undefined symbol: SDL_GetSurfaceAlphaMod
-wasm-ld: error: /tmp/emscripten_temp_3n7q5m_e/blitter_9.o: undefined symbol: SDL_GetColorKey
-wasm-ld: error: /tmp/emscripten_temp_3n7q5m_e/sdl_framebuffer_surface_impl_25.o: undefined symbol: SDL_DisplayFormat
-wasm-ld: error: /tmp/emscripten_temp_3n7q5m_e/surface_29.o: undefined symbol: SDL_GetSurfaceAlphaMod
-wasm-ld: error: /tmp/emscripten_temp_3n7q5m_e/collision_mask_87.o: undefined symbol: SDL_GetColorKey
-wasm-ld: error: /tmp/emscripten_temp_3n7q5m_e/ground_map_108.o: undefined symbol: SDL_GetColorKey
-wasm-ld: error: /tmp/emscripten_temp_3n7q5m_e/pingus_menu_140.o: undefined symbol: Editor::EditorScreen::EditorScreen()
-em++: error: '/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/bin/wasm-ld @/tmp/emscripten_8asizuz1.rsp.utf-8' failed (returned 1)
+src/engine/display/blitter.cpp:50:29: error: no member named 'colorkey' in 'SDL_PixelFormat'
+   50 |     ckey = surface->format->colorkey;
+      |            ~~~~~~~~~~~~~~~  ^
+src/engine/display/blitter.cpp:229:62: error: no member named 'alpha' in 'SDL_PixelFormat'
+  229 |     SDL_SetAlpha(new_surface, SDL_SRCALPHA, surface->format->alpha);
+      |                                             ~~~~~~~~~~~~~~~  ^
+src/engine/display/blitter.cpp:236:68: error: no member named 'colorkey' in 'SDL_PixelFormat'
+  236 |     SDL_SetColorKey(new_surface, SDL_SRCCOLORKEY, surface->format->colorkey);
+      |                                                   ~~~~~~~~~~~~~~~  ^
+3 errors generated.
+em++: error: '/emsdk/upstream/bin/clang++ -target wasm32-unknown-emscripten -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-cxx-exceptions -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr --sysroot=/emsdk/upstream/emscripten/cache/sysroot -DEMSCRIPTEN -I/emsdk/upstream/emscripten/cache/sysroot/include/SDL -Xclang -iwithsysroot/include/compat -I. -Isrc -Iexternal -Iexternal/tinygettext -std=c++11 -O1 -fexceptions -Wno-invalid-source-encoding -DVERSION="0.7.6-web" -DHAVE_ICONV_CONST=1 -DICONV_CONST= src/engine/display/blitter.cpp -c -o /tmp/emscripten_temp_6op2lkbl/blitter_9.o' failed (returned 1)
