@@ -9,6 +9,7 @@ python3 ../tools/patch_browser_runtime.py
 python3 ../tools/patch_focus_pause.py
 python3 ../tools/patch_yandex_ads.py
 python3 ../tools/patch_yandex_gameplay.py
+python3 ../tools/patch_web_backdrop.py
 python3 ../tools/patch_yandex_locale.py
 python3 ../tools/patch_web_localization.py
 python3 ../tools/patch_web_hide_author.py
@@ -110,6 +111,8 @@ test -s ../dist/pingus.css
 test -s ../dist/pingus.js
 grep -q 'GameplayAPI' ../dist/bootstrap.js
 grep -q 'pingusSetGameplayActive' ../dist/pingus.js
+grep -q 'id="backdrop"' ../dist/index.html
+grep -q 'drawBackdrop' ../dist/bootstrap.js
 if find ../dist -maxdepth 1 -type f \( -name '*.wasm' -o -name '*.data' \) | grep -q .; then
   echo 'Unexpected external wasm/data payload in dist' >&2
   exit 1
