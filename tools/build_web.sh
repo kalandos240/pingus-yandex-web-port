@@ -10,6 +10,15 @@ python3 - <<'PY'
 from pathlib import Path
 import re
 
+# Boost.Signals was removed from modern Boost releases. Pingus 0.7.6 only
+# uses the signal type API that is source-compatible with Boost.Signals2.
+for path in list(Path('src').rglob('*.hpp')) + list(Path('src').rglob('*.cpp')):
+    source = path.read_text(encoding='utf-8')
+    patched = source.replace('<boost/signal.hpp>', '<boost/signals2/signal.hpp>')
+    patched = patched.replace('boost::signal<', 'boost::signals2::signal<')
+    if patched != source:
+        path.write_text(patched, encoding='utf-8')
+
 path = Path('src/pingus/pingus_main.cpp')
 source = path.read_text(encoding='utf-8')
 source = source.replace('#include "editor/editor_level.hpp"\n#include "editor/editor_screen.hpp"\n', '')
