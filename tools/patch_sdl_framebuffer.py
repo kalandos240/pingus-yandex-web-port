@@ -74,5 +74,67 @@ new = '''SDLFramebufferSurfaceImpl::SDLFramebufferSurfaceImpl(SDL_Surface* src) 
 
 if old not in s:
     raise SystemExit('SDL framebuffer constructor patch anchor missing')
-
 p.write_text(s.replace(old, new, 1), encoding='utf-8')
+
+# Desktop SDL ignores dstrect.w/h for SDL_BlitSurface(), so Pingus 0.7.6
+# leaves them at zero. Emscripten's SDL1 compatibility layer incorrectly uses
+# those fields when a clip rect is active. SceneContext always enables a clip
+# rect, which made every terrain/world sprite blit intersect as a 0x0 rect.
+p = Path('src/engine/display/sdl_framebuffer.cpp')
+s = p.read_text(encoding='utf-8')
+
+old_full = '''  dstrect.x = static_cast<Sint16>(pos.x);
+  dstrect.y = static_cast<Sint16>(pos.y);
+  dstrect.w = 0;
+  dstrect.h = 0;  
+
+  SDL_BlitSurface(src, NULL, screen, &dstrect);'''
+new_full = '''  dstrect.x = static_cast<Sint16>(pos.x);
+  dstrect.y = static_cast<Sint16>(pos.y);
+#ifdef __EMSCRIPTEN__
+  dstrect.w = static_cast<Uint16>(src->w);
+  dstrect.h = static_cast<Uint16>(src->h);
+#else
+  dstrect.w = 0;
+  dstrect.h = 0;
+#endif
+
+  SDL_BlitSurface(src, NULL, screen, &dstrect);'''
+if s.count(old_full) != 1:
+    raise SystemExit('full SDL blit patch anchor missing')
+s = s.replace(old_full, new_full, 1)
+
+old_crop = '''  dstrect.x = static_cast<Sint16>(pos.x);
+  dstrect.y = static_cast<Sint16>(pos.y);
+  dstrect.w = 0;
+  dstrect.h = 0;  
+
+  SDL_Rect sdlsrcrect;
+  sdlsrcrect.x = static_cast<Sint16>(srcrect.left);
+  sdlsrcrect.y = static_cast<Sint16>(srcrect.top);
+  sdlsrcrect.w = static_cast<Uint16>(srcrect.get_width());
+  sdlsrcrect.h = static_cast<Uint16>(srcrect.get_height());
+
+  SDL_BlitSurface(src, &sdlsrcrect, screen, &dstrect);'''
+new_crop = '''  dstrect.x = static_cast<Sint16>(pos.x);
+  dstrect.y = static_cast<Sint16>(pos.y);
+
+  SDL_Rect sdlsrcrect;
+  sdlsrcrect.x = static_cast<Sint16>(srcrect.left);
+  sdlsrcrect.y = static_cast<Sint16>(srcrect.top);
+  sdlsrcrect.w = static_cast<Uint16>(srcrect.get_width());
+  sdlsrcrect.h = static_cast<Uint16>(srcrect.get_height());
+#ifdef __EMSCRIPTEN__
+  dstrect.w = sdlsrcrect.w;
+  dstrect.h = sdlsrcrect.h;
+#else
+  dstrect.w = 0;
+  dstrect.h = 0;
+#endif
+
+  SDL_BlitSurface(src, &sdlsrcrect, screen, &dstrect);'''
+if s.count(old_crop) != 1:
+    raise SystemExit('cropped SDL blit patch anchor missing')
+s = s.replace(old_crop, new_crop, 1)
+
+p.write_text(s, encoding='utf-8')
