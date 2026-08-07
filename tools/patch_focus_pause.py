@@ -28,6 +28,18 @@ if shell.count(old_events) != 1:
     raise SystemExit('focus-pause event anchor missing or duplicated')
 shell = shell.replace(old_events, new_events, 1)
 
+old_error = '''      const setLoadingError = (message) => {\n        loading.hidden = false;\n        status.textContent = message || text[uiLanguage].failed;\n        progress.removeAttribute('value');\n      };'''
+new_error = '''      const setLoadingError = (message) => {\n        const errorText = message || text[uiLanguage].failed;\n        document.documentElement.dataset.pingusError = errorText;\n        loading.hidden = false;\n        status.textContent = errorText;\n        progress.removeAttribute('value');\n      };'''
+if shell.count(old_error) != 1:
+    raise SystemExit('runtime error marker anchor missing or duplicated')
+shell = shell.replace(old_error, new_error, 1)
+
+old_ready = '''      window.pingusMarkReady = async () => {\n        if (gameReadySent) return;\n        gameReadySent = true;\n        fitCanvas();'''
+new_ready = '''      window.pingusMarkReady = async () => {\n        if (gameReadySent) return;\n        gameReadySent = true;\n        document.documentElement.dataset.pingusReady = '1';\n        fitCanvas();'''
+if shell.count(old_ready) != 1:
+    raise SystemExit('runtime ready marker anchor missing or duplicated')
+shell = shell.replace(old_ready, new_ready, 1)
+
 shell_path.write_text(shell, encoding='utf-8')
 
 screen_path = Path('src/engine/screen/screen_manager.cpp')
