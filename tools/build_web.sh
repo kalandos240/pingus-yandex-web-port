@@ -7,6 +7,7 @@ cp -a /usr/include/boost external/boost
 python3 ../tools/patch_pingus.py
 python3 ../tools/patch_browser_runtime.py
 python3 ../tools/patch_web_menu.py
+python3 ../tools/patch_sdl_framebuffer.py
 
 # Browser SDL_mixer cannot decode Pingus' original tracker modules (.it/.xm/
 # .s3m/.mod). Preserve the original music by rendering those modules to OGG
