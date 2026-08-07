@@ -73,7 +73,33 @@ s = s.replace('  if (surface->flags & SDL_SRCALPHA)\n    SDL_SetAlpha(new_surfac
 s = s.replace('  if (surface->flags & SDL_SRCCOLORKEY)\n    SDL_SetColorKey(new_surface, SDL_SRCCOLORKEY, surface->format->colorkey);',
               '  if (surface->flags & SDL_SRCCOLORKEY)\n  {\n    Uint32 surface_colorkey = 0;\n    if (SDL_GetColorKey(surface, &surface_colorkey) == 0)\n      SDL_SetColorKey(new_surface, SDL_SRCCOLORKEY, surface_colorkey);\n  }')
 if 'surface->format->colorkey' in s or 'surface->format->alpha' in s:
-    raise SystemExit('SDL surface metadata patch incomplete')
+    raise SystemExit('SDL blitter metadata patch incomplete')
+p.write_text(s, encoding='utf-8')
+
+# surface.cpp contains the same removed SDL_PixelFormat members in four places.
+# Replace them with helper APIs and verify that no stale member access remains.
+p = Path('src/engine/display/surface.cpp')
+s = p.read_text(encoding='utf-8')
+s, n1 = re.subn(
+    r'if\s*\(impl->surface->flags\s*&\s*SDL_SRCCOLORKEY\s*&&\s*pixel\s*==\s*impl->surface->format->colorkey\)',
+    'Uint32 surface_colorkey = 0;\n          if (SDL_GetColorKey(impl->surface, &surface_colorkey) == 0 &&\n              pixel == surface_colorkey)',
+    s, count=1, flags=re.MULTILINE)
+s, n2 = re.subn(
+    r'Uint8\s+alpha\s*=\s*impl->surface->format->alpha\s*;',
+    'Uint8 alpha = 255;\n    SDL_GetSurfaceAlphaMod(impl->surface, &alpha);',
+    s, count=1)
+s, n3 = re.subn(
+    r'out\s*<<\s*"Colorkey: "\s*<<\s*static_cast<int>\(impl->surface->format->colorkey\)\s*<<\s*std::endl\s*;',
+    '{ Uint32 surface_colorkey = 0; SDL_GetColorKey(impl->surface, &surface_colorkey); out << "Colorkey: " << static_cast<int>(surface_colorkey) << std::endl; }',
+    s, count=1)
+s, n4 = re.subn(
+    r'out\s*<<\s*"Alpha: "\s*<<\s*static_cast<int>\(impl->surface->format->alpha\)\s*<<\s*std::endl\s*;',
+    '{ Uint8 surface_alpha = 255; SDL_GetSurfaceAlphaMod(impl->surface, &surface_alpha); out << "Alpha: " << static_cast<int>(surface_alpha) << std::endl; }',
+    s, count=1)
+if (n1, n2, n3, n4) != (1, 1, 1, 1):
+    raise SystemExit(f'SDL surface.cpp patch mismatch {(n1,n2,n3,n4)}')
+if 'format->colorkey' in s or 'format->alpha' in s:
+    raise SystemExit('SDL surface.cpp metadata patch incomplete')
 p.write_text(s, encoding='utf-8')
 
 # The SDL1 JavaScript shim keeps per-surface alpha in SDL.surfaces rather than
