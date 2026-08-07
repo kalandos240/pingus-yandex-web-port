@@ -6,6 +6,7 @@ rm -rf ../dist/* external/boost
 cp -a /usr/include/boost external/boost
 python3 ../tools/patch_pingus.py
 python3 ../tools/patch_browser_runtime.py
+python3 ../tools/patch_web_menu.py
 
 # Browser SDL_mixer cannot decode Pingus' original tracker modules (.it/.xm/
 # .s3m/.mod). Preserve the original music by rendering those modules to OGG
@@ -64,6 +65,11 @@ if shell.count(marker) != 1:
     raise SystemExit('shell.html SCRIPT marker missing or duplicated')
 shell = shell.replace('<title>Pingus</title>', '<title>Pingus</title>\n  <link rel="icon" href="data:,">', 1)
 shell = shell.replace('      window.Module = {\n        canvas,', '      window.Module = {\n        canvas,\n        noAudioDecoding: true,', 1)
+prerun = """        preRun: [() => {\n          try { FS.mkdir('/home'); } catch (_) {}"""
+prerun_guard = """        preRun: [() => {\n          // Guard legacy Pingus saves against Emscripten chmod(..., 0).\n          if (!FS.__pingusChmodPatched) {\n            const nativeChmod = FS.chmod.bind(FS);\n            FS.chmod = (path, mode) => {\n              const name = String(path || '');\n              if (name.startsWith('/home/web_user/') && (mode & 0o777) === 0) mode = 0o600;\n              return nativeChmod(path, mode);\n            };\n            FS.__pingusChmodPatched = true;\n          }\n          try { FS.mkdir('/home'); } catch (_) {}"""
+if prerun not in shell:
+    raise SystemExit('shell preRun anchor missing')
+shell = shell.replace(prerun, prerun_guard, 1)
 shell = shell.replace(marker, '<script src="pingus.js"></script>')
 out_path.write_text(shell, encoding='utf-8')
 PY
