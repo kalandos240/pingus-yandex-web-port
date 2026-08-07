@@ -63,16 +63,17 @@ rw('src/engine/input/event.hpp', '  SDL_keysym keysym;', '  SDL_Keysym keysym;')
 rw('src/engine/input/sdl_driver.cpp', '    char* key_name = SDL_GetKeyName(static_cast<SDLKey>(i));', '    const char* key_name = SDL_GetKeyName(static_cast<SDLKey>(i));')
 rw('src/lisp/getters.hpp', '  const Lisp* el = lisp->get_list_elem(1);', '  const Lisp* el = lisp->get_list_elem(1).get();')
 
-# Emscripten's SDL1 shim uses an SDL2-era public SDL_PixelFormat structure, so
-# old Pingus cannot read format->colorkey/alpha directly. Use getter helpers.
+# Emscripten's SDL1 shim exposes SDL surface metadata through helper functions.
 p = Path('src/engine/display/blitter.cpp')
 s = p.read_text(encoding='utf-8')
-s = s.replace('    ckey = surface->format->colorkey;\n    useckey = surface->flags & SDL_SRCCOLORKEY;',
-              '    useckey = SDL_GetColorKey(surface, &ckey) == 0;')
-s = s.replace('    SDL_SetAlpha(new_surface, SDL_SRCALPHA, surface->format->alpha);',
-              '    Uint8 surface_alpha = 255;\n    SDL_GetSurfaceAlphaMod(surface, &surface_alpha);\n    SDL_SetAlpha(new_surface, SDL_SRCALPHA, surface_alpha);')
-s = s.replace('    SDL_SetColorKey(new_surface, SDL_SRCCOLORKEY, surface->format->colorkey);',
-              '    Uint32 surface_colorkey = 0;\n    if (SDL_GetColorKey(surface, &surface_colorkey) == 0)\n      SDL_SetColorKey(new_surface, SDL_SRCCOLORKEY, surface_colorkey);')
+s = s.replace('    ckey = surface->format->colorkey;',
+              '    if (SDL_GetColorKey(surface, &ckey) != 0) ckey = 0;')
+s = s.replace('  if (surface->flags & SDL_SRCALPHA)\n    SDL_SetAlpha(new_surface, SDL_SRCALPHA, surface->format->alpha);',
+              '  if (surface->flags & SDL_SRCALPHA)\n  {\n    Uint8 surface_alpha = 255;\n    SDL_GetSurfaceAlphaMod(surface, &surface_alpha);\n    SDL_SetAlpha(new_surface, SDL_SRCALPHA, surface_alpha);\n  }')
+s = s.replace('  if (surface->flags & SDL_SRCCOLORKEY)\n    SDL_SetColorKey(new_surface, SDL_SRCCOLORKEY, surface->format->colorkey);',
+              '  if (surface->flags & SDL_SRCCOLORKEY)\n  {\n    Uint32 surface_colorkey = 0;\n    if (SDL_GetColorKey(surface, &surface_colorkey) == 0)\n      SDL_SetColorKey(new_surface, SDL_SRCCOLORKEY, surface_colorkey);\n  }')
+if 'surface->format->colorkey' in s or 'surface->format->alpha' in s:
+    raise SystemExit('SDL surface metadata patch incomplete')
 p.write_text(s, encoding='utf-8')
 
 # The SDL1 JavaScript shim keeps per-surface alpha in SDL.surfaces rather than
