@@ -9,7 +9,7 @@ python3 ../tools/patch_browser_runtime.py
 python3 ../tools/patch_focus_pause.py
 python3 ../tools/patch_yandex_ads.py
 python3 ../tools/patch_yandex_gameplay.py
-python3 ../tools/patch_web_backdrop.py
+python3 ../tools/patch_yandex_content.py
 python3 ../tools/patch_yandex_locale.py
 python3 ../tools/patch_web_localization.py
 python3 ../tools/patch_web_hide_author.py
@@ -37,6 +37,9 @@ python3 ../tools/patch_web_options.py
 python3 ../tools/patch_web_audio_channels.py
 python3 ../tools/patch_sdl_framebuffer.py
 python3 ../tools/patch_groundmap_erase.py
+# Apply the decorative widescreen fill last: several earlier Web patches use
+# the original canvas markup as an anchor. Keeping it last avoids interference.
+python3 ../tools/patch_web_backdrop.py
 
 # Browser SDL_mixer cannot decode Pingus' original tracker modules (.it/.xm/
 # .s3m/.mod). Preserve the original music by rendering those modules to OGG
