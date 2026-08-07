@@ -2,7 +2,7 @@ Compiling 206 original C++ source files (desktop editor omitted)
 ports:INFO: retrieving port: zlib from https://github.com/madler/zlib/archive/refs/tags/v1.2.13.tar.gz
 ports:INFO: unpacking port: zlib
 cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libz.a... (this will be cached in "/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libz.a" for subsequent builds)
-system_libs:INFO: compiled 15 inputs in 2.11s
+system_libs:INFO: compiled 15 inputs in 2.16s
 cache:INFO:  - ok
 ports:INFO: retrieving port: ogg from https://github.com/emscripten-ports/ogg/archive/version_1.zip
 ports:INFO: unpacking port: ogg
@@ -12,12 +12,12 @@ cache:INFO:  - ok
 ports:INFO: retrieving port: vorbis from https://github.com/emscripten-ports/vorbis/archive/version_1.zip
 ports:INFO: unpacking port: vorbis
 cache:INFO: generating system library: sysroot/lib/wasm32-emscripten/libvorbis.a... (this will be cached in "/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libvorbis.a" for subsequent builds)
-system_libs:INFO: compiled 22 inputs in 3.65s
+system_libs:INFO: compiled 22 inputs in 4.29s
 cache:INFO:  - ok
 ports:INFO: retrieving port: libpng from https://storage.googleapis.com/webassembly/emscripten-ports/libpng-1.6.39.tar.gz
 ports:INFO: unpacking port: libpng
 cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libpng.a... (this will be cached in "/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libpng.a" for subsequent builds)
-system_libs:INFO: compiled 25 inputs in 3.99s
+system_libs:INFO: compiled 25 inputs in 4.41s
 cache:INFO:  - ok
 In file included from src/engine/display/surface.cpp:20:
 In file included from external/boost/format.hpp:38:
@@ -202,8 +202,2204 @@ external/boost/move/detail/type_traits.hpp:134:46: note: expanded from macro 'BO
       |                                              ^
 8 warnings generated.
 In file included from src/pingus/components/check_box.cpp:17:
-src/pingus/components/check_box.hpp:20:10: fatal error: 'boost/signal.hpp' file not found
-   20 | #include <boost/signal.hpp>
-      |          ^~~~~~~~~~~~~~~~~~
-1 error generated.
-em++: error: '/emsdk/upstream/bin/clang++ -target wasm32-unknown-emscripten -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-cxx-exceptions -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr --sysroot=/emsdk/upstream/emscripten/cache/sysroot -DEMSCRIPTEN -I/emsdk/upstream/emscripten/cache/sysroot/include/SDL -Xclang -iwithsysroot/include/compat -I. -Isrc -Iexternal -Iexternal/tinygettext -std=c++11 -O1 -fexceptions -Wno-invalid-source-encoding -DVERSION="0.7.6-web" -DHAVE_ICONV_CONST=1 -DICONV_CONST= src/pingus/components/check_box.cpp -c -o /tmp/emscripten_temp_36uzwfks/check_box_90.o' failed (returned 1)
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<bool, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:604:5: note: in instantiation of template class 'boost::hash_detail::hash_base<bool>' requested here
+  604 |     BOOST_HASH_SPECIALIZE(bool)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<bool, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<char, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:605:5: note: in instantiation of template class 'boost::hash_detail::hash_base<char>' requested here
+  605 |     BOOST_HASH_SPECIALIZE(char)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<char, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<signed char, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:606:5: note: in instantiation of template class 'boost::hash_detail::hash_base<signed char>' requested here
+  606 |     BOOST_HASH_SPECIALIZE(signed char)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<signed char, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<unsigned char, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:607:5: note: in instantiation of template class 'boost::hash_detail::hash_base<unsigned char>' requested here
+  607 |     BOOST_HASH_SPECIALIZE(unsigned char)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<unsigned char, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<wchar_t, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:609:5: note: in instantiation of template class 'boost::hash_detail::hash_base<wchar_t>' requested here
+  609 |     BOOST_HASH_SPECIALIZE(wchar_t)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<wchar_t, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<char16_t, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:612:5: note: in instantiation of template class 'boost::hash_detail::hash_base<char16_t>' requested here
+  612 |     BOOST_HASH_SPECIALIZE(char16_t)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<char16_t, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<char32_t, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:615:5: note: in instantiation of template class 'boost::hash_detail::hash_base<char32_t>' requested here
+  615 |     BOOST_HASH_SPECIALIZE(char32_t)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<char32_t, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<short, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:617:5: note: in instantiation of template class 'boost::hash_detail::hash_base<short>' requested here
+  617 |     BOOST_HASH_SPECIALIZE(short)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<short, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<unsigned short, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:618:5: note: in instantiation of template class 'boost::hash_detail::hash_base<unsigned short>' requested here
+  618 |     BOOST_HASH_SPECIALIZE(unsigned short)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<unsigned short, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<int, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:619:5: note: in instantiation of template class 'boost::hash_detail::hash_base<int>' requested here
+  619 |     BOOST_HASH_SPECIALIZE(int)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<int, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<unsigned int, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:620:5: note: in instantiation of template class 'boost::hash_detail::hash_base<unsigned int>' requested here
+  620 |     BOOST_HASH_SPECIALIZE(unsigned int)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<unsigned int, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<long, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:621:5: note: in instantiation of template class 'boost::hash_detail::hash_base<long>' requested here
+  621 |     BOOST_HASH_SPECIALIZE(long)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<long, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<unsigned long, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:622:5: note: in instantiation of template class 'boost::hash_detail::hash_base<unsigned long>' requested here
+  622 |     BOOST_HASH_SPECIALIZE(unsigned long)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<unsigned long, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<float, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:624:5: note: in instantiation of template class 'boost::hash_detail::hash_base<float>' requested here
+  624 |     BOOST_HASH_SPECIALIZE(float)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<float, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<double, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:625:5: note: in instantiation of template class 'boost::hash_detail::hash_base<double>' requested here
+  625 |     BOOST_HASH_SPECIALIZE(double)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<double, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<long double, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:626:5: note: in instantiation of template class 'boost::hash_detail::hash_base<long double>' requested here
+  626 |     BOOST_HASH_SPECIALIZE(long double)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<long double, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<std::string, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:628:5: note: in instantiation of template class 'boost::hash_detail::hash_base<std::string>' requested here
+  628 |     BOOST_HASH_SPECIALIZE_REF(std::string)
+      |     ^
+external/boost/container_hash/hash.hpp:586:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE_REF'
+  586 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<std::string, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<std::wstring, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:630:5: note: in instantiation of template class 'boost::hash_detail::hash_base<std::wstring>' requested here
+  630 |     BOOST_HASH_SPECIALIZE_REF(std::wstring)
+      |     ^
+external/boost/container_hash/hash.hpp:586:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE_REF'
+  586 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<std::wstring, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<std::u16string, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:633:5: note: in instantiation of template class 'boost::hash_detail::hash_base<std::u16string>' requested here
+  633 |     BOOST_HASH_SPECIALIZE_REF(std::basic_string<char16_t>)
+      |     ^
+external/boost/container_hash/hash.hpp:586:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE_REF'
+  586 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<std::u16string, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<std::u32string, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:636:5: note: in instantiation of template class 'boost::hash_detail::hash_base<std::u32string>' requested here
+  636 |     BOOST_HASH_SPECIALIZE_REF(std::basic_string<char32_t>)
+      |     ^
+external/boost/container_hash/hash.hpp:586:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE_REF'
+  586 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<std::u32string, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<long long, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:653:5: note: in instantiation of template class 'boost::hash_detail::hash_base<long long>' requested here
+  653 |     BOOST_HASH_SPECIALIZE(boost::long_long_type)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<long long, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<unsigned long long, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:654:5: note: in instantiation of template class 'boost::hash_detail::hash_base<unsigned long long>' requested here
+  654 |     BOOST_HASH_SPECIALIZE(boost::ulong_long_type)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<unsigned long long, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<__int128, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:658:5: note: in instantiation of template class 'boost::hash_detail::hash_base<__int128>' requested here
+  658 |     BOOST_HASH_SPECIALIZE(boost::int128_type)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<__int128, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<unsigned __int128, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:659:5: note: in instantiation of template class 'boost::hash_detail::hash_base<unsigned __int128>' requested here
+  659 |     BOOST_HASH_SPECIALIZE(boost::uint128_type)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<unsigned __int128, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<std::type_index, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:674:5: note: in instantiation of template class 'boost::hash_detail::hash_base<std::type_index>' requested here
+  674 |     BOOST_HASH_SPECIALIZE(std::type_index)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<std::type_index, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:22:
+external/boost/type_traits/has_trivial_copy.hpp:34:4: warning: builtin __has_trivial_copy is deprecated; use __is_trivially_copyable instead [-Wdeprecated-builtins]
+   34 |    BOOST_HAS_TRIVIAL_COPY(T) BOOST_TT_TRIVIAL_CONSTRUCT_FIX
+      |    ^
+external/boost/type_traits/intrinsics.hpp:190:41: note: expanded from macro 'BOOST_HAS_TRIVIAL_COPY'
+  190 | #     define BOOST_HAS_TRIVIAL_COPY(T) (__has_trivial_copy(T) && !is_reference<T>::value)
+      |                                         ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:23:
+external/boost/type_traits/has_trivial_destructor.hpp:30:86: warning: builtin __has_trivial_destructor is deprecated; use __is_trivially_destructible instead [-Wdeprecated-builtins]
+   30 | template <typename T> struct has_trivial_destructor : public integral_constant<bool, BOOST_HAS_TRIVIAL_DESTRUCTOR(T)>{};
+      |                                                                                      ^
+external/boost/type_traits/intrinsics.hpp:196:47: note: expanded from macro 'BOOST_HAS_TRIVIAL_DESTRUCTOR'
+  196 | #     define BOOST_HAS_TRIVIAL_DESTRUCTOR(T) (__has_trivial_destructor(T)  && is_destructible<T>::value)
+      |                                               ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:22:
+In file included from external/boost/signals2/connection.hpp:21:
+In file included from external/boost/signals2/detail/auto_buffer.hpp:29:
+external/boost/type_traits/has_nothrow_copy.hpp:36:89: warning: builtin __has_nothrow_copy is deprecated; use __is_nothrow_constructible instead [-Wdeprecated-builtins]
+   36 | template <class T> struct has_nothrow_copy_constructor : public integral_constant<bool, BOOST_HAS_NOTHROW_COPY(T)>{};
+      |                                                                                         ^
+external/boost/type_traits/intrinsics.hpp:202:41: note: expanded from macro 'BOOST_HAS_NOTHROW_COPY'
+  202 | #     define BOOST_HAS_NOTHROW_COPY(T) (__has_nothrow_copy(T) && !is_volatile<T>::value && !is_reference<T>::value && is_copy_constructible<T>::value)
+      |                                         ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:22:
+In file included from external/boost/signals2/connection.hpp:21:
+In file included from external/boost/signals2/detail/auto_buffer.hpp:30:
+external/boost/type_traits/has_nothrow_assign.hpp:65:7: warning: builtin __has_nothrow_assign is deprecated; use __is_nothrow_assignable instead [-Wdeprecated-builtins]
+   65 |       BOOST_HAS_NOTHROW_ASSIGN(T)
+      |       ^
+external/boost/type_traits/intrinsics.hpp:205:43: note: expanded from macro 'BOOST_HAS_NOTHROW_ASSIGN'
+  205 | #     define BOOST_HAS_NOTHROW_ASSIGN(T) (__has_nothrow_assign(T) && !is_volatile<T>::value && is_assignable<T&, const T&>::value)
+      |                                           ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:22:
+In file included from external/boost/signals2/connection.hpp:21:
+In file included from external/boost/signals2/detail/auto_buffer.hpp:31:
+external/boost/type_traits/has_trivial_assign.hpp:29:7: warning: builtin __has_trivial_assign is deprecated; use __is_trivially_assignable instead [-Wdeprecated-builtins]
+   29 |       BOOST_HAS_TRIVIAL_ASSIGN(T)
+      |       ^
+external/boost/type_traits/intrinsics.hpp:193:43: note: expanded from macro 'BOOST_HAS_TRIVIAL_ASSIGN'
+  193 | #     define BOOST_HAS_TRIVIAL_ASSIGN(T) (__has_trivial_assign(T) && !is_volatile<T>::value && is_assignable<T&, const T&>::value)
+      |                                           ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:22:
+In file included from external/boost/signals2/connection.hpp:21:
+In file included from external/boost/signals2/detail/auto_buffer.hpp:32:
+external/boost/type_traits/has_trivial_constructor.hpp:41:69: warning: builtin __has_trivial_constructor is deprecated; use __is_trivially_constructible instead [-Wdeprecated-builtins]
+   41 |    : public integral_constant <bool, ((::boost::is_pod<T>::value || BOOST_HAS_TRIVIAL_CONSTRUCTOR(T)) BOOST_TT_TRIVIAL_CONSTRUCT_FIX)>{};
+      |                                                                     ^
+external/boost/type_traits/intrinsics.hpp:187:47: note: expanded from macro 'BOOST_HAS_TRIVIAL_CONSTRUCTOR'
+  187 | #     define BOOST_HAS_TRIVIAL_CONSTRUCTOR(T) __has_trivial_constructor(T)
+      |                                               ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:22:
+In file included from external/boost/signals2/connection.hpp:24:
+In file included from external/boost/signals2/slot.hpp:22:
+In file included from external/boost/signals2/detail/tracked_objects_visitor.hpp:18:
+In file included from external/boost/signals2/slot_base.hpp:21:
+In file included from external/boost/variant/apply_visitor.hpp:16:
+In file included from external/boost/variant/detail/apply_visitor_unary.hpp:17:
+In file included from external/boost/move/utility.hpp:30:
+In file included from external/boost/move/traits.hpp:31:
+external/boost/move/detail/type_traits.hpp:805:30: warning: builtin __has_trivial_destructor is deprecated; use __is_trivially_destructible instead [-Wdeprecated-builtins]
+  805 | {  static const bool value = BOOST_MOVE_IS_TRIVIALLY_DESTRUCTIBLE(T); };
+      |                              ^
+external/boost/move/detail/type_traits.hpp:272:54: note: expanded from macro 'BOOST_MOVE_IS_TRIVIALLY_DESTRUCTIBLE'
+  272 |    #define BOOST_MOVE_IS_TRIVIALLY_DESTRUCTIBLE(T)   BOOST_MOVE_HAS_TRIVIAL_DESTRUCTOR(T)
+      |                                                      ^
+external/boost/move/detail/type_traits.hpp:128:51: note: expanded from macro 'BOOST_MOVE_HAS_TRIVIAL_DESTRUCTOR'
+  128 | #     define BOOST_MOVE_HAS_TRIVIAL_DESTRUCTOR(T) __has_trivial_destructor(T)
+      |                                                   ^
+external/boost/move/detail/type_traits.hpp:812:30: warning: builtin __has_trivial_constructor is deprecated; use __is_trivially_constructible instead [-Wdeprecated-builtins]
+  812 | {  static const bool value = BOOST_MOVE_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE(T); };
+      |                              ^
+external/boost/move/detail/type_traits.hpp:246:62: note: expanded from macro 'BOOST_MOVE_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE'
+  246 |    #define BOOST_MOVE_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE(T)  BOOST_MOVE_HAS_TRIVIAL_CONSTRUCTOR(T)
+      |                                                              ^
+external/boost/move/detail/type_traits.hpp:119:52: note: expanded from macro 'BOOST_MOVE_HAS_TRIVIAL_CONSTRUCTOR'
+  119 | #     define BOOST_MOVE_HAS_TRIVIAL_CONSTRUCTOR(T) __has_trivial_constructor(T)
+      |                                                    ^
+external/boost/move/detail/type_traits.hpp:822:30: warning: builtin __has_trivial_copy is deprecated; use __is_trivially_copyable instead [-Wdeprecated-builtins]
+  822 |    static const bool value = BOOST_MOVE_IS_TRIVIALLY_COPY_CONSTRUCTIBLE(T);
+      |                              ^
+external/boost/move/detail/type_traits.hpp:240:60: note: expanded from macro 'BOOST_MOVE_IS_TRIVIALLY_COPY_CONSTRUCTIBLE'
+  240 |                                                            BOOST_MOVE_HAS_TRIVIAL_COPY(T))
+      |                                                            ^
+external/boost/move/detail/type_traits.hpp:122:45: note: expanded from macro 'BOOST_MOVE_HAS_TRIVIAL_COPY'
+  122 | #     define BOOST_MOVE_HAS_TRIVIAL_COPY(T) __has_trivial_copy(T)
+      |                                             ^
+external/boost/move/detail/type_traits.hpp:840:30: warning: builtin __has_trivial_assign is deprecated; use __is_trivially_assignable instead [-Wdeprecated-builtins]
+  840 |    static const bool value = BOOST_MOVE_IS_TRIVIALLY_COPY_ASSIGNABLE(T);
+      |                              ^
+external/boost/move/detail/type_traits.hpp:260:58: note: expanded from macro 'BOOST_MOVE_IS_TRIVIALLY_COPY_ASSIGNABLE'
+  260 |                                                          BOOST_MOVE_HAS_TRIVIAL_ASSIGN(T))
+      |                                                          ^
+external/boost/move/detail/type_traits.hpp:125:48: note: expanded from macro 'BOOST_MOVE_HAS_TRIVIAL_ASSIGN'
+  125 | #     define BOOST_MOVE_HAS_TRIVIAL_ASSIGN(T) (__has_trivial_assign(T) )
+      |                                                ^
+external/boost/move/detail/type_traits.hpp:856:30: warning: builtin __has_nothrow_constructor is deprecated; use __is_nothrow_constructible instead [-Wdeprecated-builtins]
+  856 | {  static const bool value = BOOST_MOVE_IS_NOTHROW_DEFAULT_CONSTRUCTIBLE(T);  };
+      |                              ^
+external/boost/move/detail/type_traits.hpp:278:60: note: expanded from macro 'BOOST_MOVE_IS_NOTHROW_DEFAULT_CONSTRUCTIBLE'
+  278 |    #define BOOST_MOVE_IS_NOTHROW_DEFAULT_CONSTRUCTIBLE(T)  BOOST_MOVE_HAS_NOTHROW_CONSTRUCTOR(T)
+      |                                                            ^
+external/boost/move/detail/type_traits.hpp:131:52: note: expanded from macro 'BOOST_MOVE_HAS_NOTHROW_CONSTRUCTOR'
+  131 | #     define BOOST_MOVE_HAS_NOTHROW_CONSTRUCTOR(T) __has_nothrow_constructor(T)
+      |                                                    ^
+external/boost/move/detail/type_traits.hpp:863:30: warning: builtin __has_nothrow_copy is deprecated; use __is_nothrow_constructible instead [-Wdeprecated-builtins]
+  863 | {  static const bool value = BOOST_MOVE_IS_NOTHROW_COPY_CONSTRUCTIBLE(T);  };
+      |                              ^
+external/boost/move/detail/type_traits.hpp:284:58: note: expanded from macro 'BOOST_MOVE_IS_NOTHROW_COPY_CONSTRUCTIBLE'
+  284 |    #define BOOST_MOVE_IS_NOTHROW_COPY_CONSTRUCTIBLE(T)   BOOST_MOVE_HAS_NOTHROW_COPY(T)
+      |                                                          ^
+external/boost/move/detail/type_traits.hpp:134:46: note: expanded from macro 'BOOST_MOVE_HAS_NOTHROW_COPY'
+  134 | #     define BOOST_MOVE_HAS_NOTHROW_COPY(T) (__has_nothrow_copy(T))
+      |                                              ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:22:
+In file included from external/boost/signals2/connection.hpp:24:
+In file included from external/boost/signals2/slot.hpp:22:
+In file included from external/boost/signals2/detail/tracked_objects_visitor.hpp:18:
+In file included from external/boost/signals2/slot_base.hpp:22:
+In file included from external/boost/variant/variant.hpp:48:
+external/boost/type_traits/has_nothrow_constructor.hpp:27:84: warning: builtin __has_nothrow_constructor is deprecated; use __is_nothrow_constructible instead [-Wdeprecated-builtins]
+   27 | template <class T> struct has_nothrow_constructor : public integral_constant<bool, BOOST_HAS_NOTHROW_CONSTRUCTOR(T)>{};
+      |                                                                                    ^
+external/boost/type_traits/intrinsics.hpp:199:48: note: expanded from macro 'BOOST_HAS_NOTHROW_CONSTRUCTOR'
+  199 | #     define BOOST_HAS_NOTHROW_CONSTRUCTOR(T) (__has_nothrow_constructor(T) && is_default_constructible<T>::value)
+      |                                                ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:22:
+In file included from external/boost/signals2/connection.hpp:24:
+In file included from external/boost/signals2/slot.hpp:22:
+In file included from external/boost/signals2/detail/tracked_objects_visitor.hpp:18:
+In file included from external/boost/signals2/slot_base.hpp:22:
+In file included from external/boost/variant/variant.hpp:48:
+external/boost/type_traits/has_nothrow_constructor.hpp:27:84: warning: builtin __has_nothrow_constructor is deprecated; use __is_nothrow_constructible instead [-Wdeprecated-builtins]
+external/boost/type_traits/intrinsics.hpp:199:48: note: expanded from macro 'BOOST_HAS_NOTHROW_CONSTRUCTOR'
+  199 | #     define BOOST_HAS_NOTHROW_CONSTRUCTOR(T) (__has_nothrow_constructor(T) && is_default_constructible<T>::value)
+      |                                                ^
+external/boost/mpl/aux_/nested_type_wknd.hpp:27:7: note: in instantiation of template class 'boost::has_nothrow_constructor<boost::shared_ptr<void>>' requested here
+   27 |     : T::type
+      |       ^
+external/boost/mpl/not.hpp:41:11: note: in instantiation of template class 'boost::mpl::aux::nested_type_wknd<boost::has_nothrow_constructor<boost::shared_ptr<void>>>' requested here
+   41 |           BOOST_MPL_AUX_NESTED_TYPE_WKND(T)::value
+      |           ^
+external/boost/mpl/aux_/nested_type_wknd.hpp:38:24: note: expanded from macro 'BOOST_MPL_AUX_NESTED_TYPE_WKND'
+   38 |     ::boost::mpl::aux::nested_type_wknd<T> \
+      |                        ^
+external/boost/mpl/aux_/nested_type_wknd.hpp:27:7: note: in instantiation of template class 'boost::mpl::not_<boost::has_nothrow_constructor<boost::shared_ptr<void>>>' requested here
+   27 |     : T::type
+      |       ^
+external/boost/mpl/aux_/preprocessed/gcc/and.hpp:25:11: note: in instantiation of template class 'boost::mpl::aux::nested_type_wknd<boost::mpl::apply1<boost::mpl::protect<boost::detail::variant::find_fallback_type_pred>, boost::mpl::l_iter<boost::mpl::l_item<mpl_::long_<2>, boost::shared_ptr<void>, boost::mpl::l_item<mpl_::long_<1>, boost::signals2::detail::foreign_void_shared_ptr, boost::mpl::l_end>>>>>' requested here
+   25 |           BOOST_MPL_AUX_NESTED_TYPE_WKND(T1)::value
+      |           ^
+external/boost/mpl/aux_/nested_type_wknd.hpp:38:24: note: expanded from macro 'BOOST_MPL_AUX_NESTED_TYPE_WKND'
+   38 |     ::boost::mpl::aux::nested_type_wknd<T> \
+      |                        ^
+external/boost/mpl/aux_/preprocessed/gcc/and.hpp:50:7: note: in instantiation of template class 'boost::mpl::aux::and_impl<true, boost::mpl::apply1<boost::mpl::protect<boost::detail::variant::find_fallback_type_pred>, boost::mpl::l_iter<boost::mpl::l_item<mpl_::long_<2>, boost::shared_ptr<void>, boost::mpl::l_item<mpl_::long_<1>, boost::signals2::detail::foreign_void_shared_ptr, boost::mpl::l_end>>>>, mpl_::bool_<true>, mpl_::bool_<true>, mpl_::bool_<true>>' requested here
+   50 |     : aux::and_impl<
+      |       ^
+external/boost/mpl/iter_fold_if.hpp:42:11: note: (skipping 5 contexts in backtrace; use -ftemplate-backtrace-limit=0 to see all)
+   42 |         : and_<
+      |           ^
+external/boost/mpl/iter_fold_if.hpp:85:9: note: in instantiation of template class 'boost::mpl::aux::iter_fold_if_impl<boost::mpl::l_iter<boost::mpl::l_item<mpl_::long_<2>, boost::shared_ptr<void>, boost::mpl::l_item<mpl_::long_<1>, boost::signals2::detail::foreign_void_shared_ptr, boost::mpl::l_end>>>, mpl_::int_<0>, boost::mpl::protect<boost::mpl::next<na>>, boost::mpl::protect<boost::mpl::aux::iter_fold_if_pred<boost::mpl::protect<boost::detail::variant::find_fallback_type_pred>, boost::mpl::l_iter<l_end>>>, mpl_::na, boost::mpl::always<mpl_::bool_<false>>>' requested here
+   85 |         aux::iter_fold_if_impl<
+      |         ^
+external/boost/mpl/iter_fold_if.hpp:102:20: note: in instantiation of member class 'boost::mpl::iter_fold_if<boost::mpl::l_item<mpl_::long_<2>, boost::shared_ptr<void>, boost::mpl::l_item<mpl_::long_<1>, boost::signals2::detail::foreign_void_shared_ptr, boost::mpl::l_end>>, mpl_::int_<0>, boost::mpl::protect<boost::mpl::next<na>>, boost::mpl::protect<boost::detail::variant::find_fallback_type_pred>>::result_' requested here
+  102 |           typename result_::state
+      |                    ^
+external/boost/variant/variant.hpp:190:27: note: in instantiation of template class 'boost::mpl::iter_fold_if<boost::mpl::l_item<mpl_::long_<2>, boost::shared_ptr<void>, boost::mpl::l_item<mpl_::long_<1>, boost::signals2::detail::foreign_void_shared_ptr, boost::mpl::l_end>>, mpl_::int_<0>, boost::mpl::protect<boost::mpl::next<na>>, boost::mpl::protect<boost::detail::variant::find_fallback_type_pred>>' requested here
+  190 |     typedef typename mpl::iter_fold_if<
+      |                           ^
+external/boost/variant/variant.hpp:1250:39: note: in instantiation of template class 'boost::detail::variant::find_fallback_type<boost::mpl::l_item<mpl_::long_<2>, boost::shared_ptr<void>, boost::mpl::l_item<mpl_::long_<1>, boost::signals2::detail::foreign_void_shared_ptr, boost::mpl::l_end>>>' requested here
+ 1250 |     typedef typename detail::variant::find_fallback_type<
+      |                                       ^
+external/boost/signals2/slot_base.hpp:41:21: note: in instantiation of template class 'boost::variant<boost::shared_ptr<void>, boost::signals2::detail::foreign_void_shared_ptr>' requested here
+   41 |         result_type operator()(const WeakPtr &wp) const
+      |                     ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:22:
+In file included from external/boost/signals2/connection.hpp:24:
+In file included from external/boost/signals2/slot.hpp:22:
+In file included from external/boost/signals2/detail/tracked_objects_visitor.hpp:18:
+In file included from external/boost/signals2/slot_base.hpp:22:
+In file included from external/boost/variant/variant.hpp:48:
+external/boost/type_traits/has_nothrow_constructor.hpp:27:84: warning: builtin __has_nothrow_constructor is deprecated; use __is_nothrow_constructible instead [-Wdeprecated-builtins]
+   27 | template <class T> struct has_nothrow_constructor : public integral_constant<bool, BOOST_HAS_NOTHROW_CONSTRUCTOR(T)>{};
+      |                                                                                    ^
+external/boost/type_traits/intrinsics.hpp:199:48: note: expanded from macro 'BOOST_HAS_NOTHROW_CONSTRUCTOR'
+  199 | #     define BOOST_HAS_NOTHROW_CONSTRUCTOR(T) (__has_nothrow_constructor(T) && is_default_constructible<T>::value)
+      |                                                ^
+external/boost/mpl/aux_/nested_type_wknd.hpp:27:7: note: in instantiation of template class 'boost::has_nothrow_constructor<boost::weak_ptr<boost::signals2::detail::trackable_pointee>>' requested here
+   27 |     : T::type
+      |       ^
+external/boost/mpl/not.hpp:41:11: note: in instantiation of template class 'boost::mpl::aux::nested_type_wknd<boost::has_nothrow_constructor<boost::weak_ptr<boost::signals2::detail::trackable_pointee>>>' requested here
+   41 |           BOOST_MPL_AUX_NESTED_TYPE_WKND(T)::value
+      |           ^
+external/boost/mpl/aux_/nested_type_wknd.hpp:38:24: note: expanded from macro 'BOOST_MPL_AUX_NESTED_TYPE_WKND'
+   38 |     ::boost::mpl::aux::nested_type_wknd<T> \
+      |                        ^
+external/boost/mpl/aux_/nested_type_wknd.hpp:27:7: note: in instantiation of template class 'boost::mpl::not_<boost::has_nothrow_constructor<boost::weak_ptr<boost::signals2::detail::trackable_pointee>>>' requested here
+   27 |     : T::type
+      |       ^
+external/boost/mpl/aux_/preprocessed/gcc/and.hpp:25:11: note: in instantiation of template class 'boost::mpl::aux::nested_type_wknd<boost::mpl::apply1<boost::mpl::protect<boost::detail::variant::find_fallback_type_pred>, boost::mpl::l_iter<boost::mpl::l_item<mpl_::long_<3>, boost::weak_ptr<boost::signals2::detail::trackable_pointee>, boost::mpl::l_item<mpl_::long_<2>, boost::weak_ptr<void>, boost::mpl::l_item<mpl_::long_<1>, boost::signals2::detail::foreign_void_weak_ptr, boost::mpl::l_end>>>>>>' requested here
+   25 |           BOOST_MPL_AUX_NESTED_TYPE_WKND(T1)::value
+      |           ^
+external/boost/mpl/aux_/nested_type_wknd.hpp:38:24: note: expanded from macro 'BOOST_MPL_AUX_NESTED_TYPE_WKND'
+   38 |     ::boost::mpl::aux::nested_type_wknd<T> \
+      |                        ^
+external/boost/mpl/aux_/preprocessed/gcc/and.hpp:50:7: note: in instantiation of template class 'boost::mpl::aux::and_impl<true, boost::mpl::apply1<boost::mpl::protect<boost::detail::variant::find_fallback_type_pred>, boost::mpl::l_iter<boost::mpl::l_item<mpl_::long_<3>, boost::weak_ptr<boost::signals2::detail::trackable_pointee>, boost::mpl::l_item<mpl_::long_<2>, boost::weak_ptr<void>, boost::mpl::l_item<mpl_::long_<1>, boost::signals2::detail::foreign_void_weak_ptr, boost::mpl::l_end>>>>>, mpl_::bool_<true>, mpl_::bool_<true>, mpl_::bool_<true>>' requested here
+   50 |     : aux::and_impl<
+      |       ^
+external/boost/mpl/iter_fold_if.hpp:42:11: note: (skipping 5 contexts in backtrace; use -ftemplate-backtrace-limit=0 to see all)
+   42 |         : and_<
+      |           ^
+external/boost/mpl/iter_fold_if.hpp:85:9: note: in instantiation of template class 'boost::mpl::aux::iter_fold_if_impl<boost::mpl::l_iter<boost::mpl::l_item<mpl_::long_<3>, boost::weak_ptr<boost::signals2::detail::trackable_pointee>, boost::mpl::l_item<mpl_::long_<2>, boost::weak_ptr<void>, boost::mpl::l_item<mpl_::long_<1>, boost::signals2::detail::foreign_void_weak_ptr, boost::mpl::l_end>>>>, mpl_::int_<0>, boost::mpl::protect<boost::mpl::next<na>>, boost::mpl::protect<boost::mpl::aux::iter_fold_if_pred<boost::mpl::protect<boost::detail::variant::find_fallback_type_pred>, boost::mpl::l_iter<l_end>>>, mpl_::na, boost::mpl::always<mpl_::bool_<false>>>' requested here
+   85 |         aux::iter_fold_if_impl<
+      |         ^
+external/boost/mpl/iter_fold_if.hpp:102:20: note: in instantiation of member class 'boost::mpl::iter_fold_if<boost::mpl::l_item<mpl_::long_<3>, boost::weak_ptr<boost::signals2::detail::trackable_pointee>, boost::mpl::l_item<mpl_::long_<2>, boost::weak_ptr<void>, boost::mpl::l_item<mpl_::long_<1>, boost::signals2::detail::foreign_void_weak_ptr, boost::mpl::l_end>>>, mpl_::int_<0>, boost::mpl::protect<boost::mpl::next<na>>, boost::mpl::protect<boost::detail::variant::find_fallback_type_pred>>::result_' requested here
+  102 |           typename result_::state
+      |                    ^
+external/boost/variant/variant.hpp:190:27: note: in instantiation of template class 'boost::mpl::iter_fold_if<boost::mpl::l_item<mpl_::long_<3>, boost::weak_ptr<boost::signals2::detail::trackable_pointee>, boost::mpl::l_item<mpl_::long_<2>, boost::weak_ptr<void>, boost::mpl::l_item<mpl_::long_<1>, boost::signals2::detail::foreign_void_weak_ptr, boost::mpl::l_end>>>, mpl_::int_<0>, boost::mpl::protect<boost::mpl::next<na>>, boost::mpl::protect<boost::detail::variant::find_fallback_type_pred>>' requested here
+  190 |     typedef typename mpl::iter_fold_if<
+      |                           ^
+external/boost/variant/variant.hpp:1250:39: note: in instantiation of template class 'boost::detail::variant::find_fallback_type<boost::mpl::l_item<mpl_::long_<3>, boost::weak_ptr<boost::signals2::detail::trackable_pointee>, boost::mpl::l_item<mpl_::long_<2>, boost::weak_ptr<void>, boost::mpl::l_item<mpl_::long_<1>, boost::signals2::detail::foreign_void_weak_ptr, boost::mpl::l_end>>>>' requested here
+ 1250 |     typedef typename detail::variant::find_fallback_type<
+      |                                       ^
+external/boost/signals2/slot_base.hpp:75:48: note: in instantiation of template class 'boost::variant<boost::weak_ptr<boost::signals2::detail::trackable_pointee>, boost::weak_ptr<void>, boost::signals2::detail::foreign_void_weak_ptr>' requested here
+   75 |         for(it = tracked_objects().begin(); it != tracked_objects().end(); ++it)
+      |                                                ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:22:
+In file included from external/boost/signals2/connection.hpp:21:
+In file included from external/boost/signals2/detail/auto_buffer.hpp:31:
+external/boost/type_traits/has_trivial_assign.hpp:29:7: warning: builtin __has_trivial_assign is deprecated; use __is_trivially_assignable instead [-Wdeprecated-builtins]
+   29 |       BOOST_HAS_TRIVIAL_ASSIGN(T)
+      |       ^
+external/boost/type_traits/intrinsics.hpp:193:43: note: expanded from macro 'BOOST_HAS_TRIVIAL_ASSIGN'
+  193 | #     define BOOST_HAS_TRIVIAL_ASSIGN(T) (__has_trivial_assign(T) && !is_volatile<T>::value && is_assignable<T&, const T&>::value)
+      |                                           ^
+external/boost/signals2/detail/auto_buffer.hpp:158:51: note: in instantiation of template class 'boost::has_trivial_assign<boost::shared_ptr<void>>' requested here
+  158 |         typedef typename boost::mpl::if_c< boost::has_trivial_assign<T>::value
+      |                                                   ^
+external/boost/signals2/connection.hpp:53:61: note: in instantiation of template class 'boost::signals2::detail::auto_buffer<boost::shared_ptr<void>, boost::signals2::detail::store_n_objects<10>>' requested here
+   53 |         auto_buffer<shared_ptr<void>, store_n_objects<10> > garbage;
+      |                                                             ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:22:
+In file included from external/boost/signals2/connection.hpp:21:
+In file included from external/boost/signals2/detail/auto_buffer.hpp:31:
+external/boost/type_traits/has_trivial_assign.hpp:29:7: warning: builtin __has_trivial_assign is deprecated; use __is_trivially_assignable instead [-Wdeprecated-builtins]
+   29 |       BOOST_HAS_TRIVIAL_ASSIGN(T)
+      |       ^
+external/boost/type_traits/intrinsics.hpp:193:43: note: expanded from macro 'BOOST_HAS_TRIVIAL_ASSIGN'
+  193 | #     define BOOST_HAS_TRIVIAL_ASSIGN(T) (__has_trivial_assign(T) && !is_volatile<T>::value && is_assignable<T&, const T&>::value)
+      |                                           ^
+external/boost/signals2/detail/auto_buffer.hpp:158:51: note: in instantiation of template class 'boost::has_trivial_assign<boost::variant<boost::shared_ptr<void>, boost::signals2::detail::foreign_void_shared_ptr>>' requested here
+  158 |         typedef typename boost::mpl::if_c< boost::has_trivial_assign<T>::value
+      |                                                   ^
+external/boost/signals2/detail/slot_call_iterator.hpp:65:27: note: in instantiation of template class 'boost::signals2::detail::auto_buffer<boost::variant<boost::shared_ptr<void>, boost::signals2::detail::foreign_void_shared_ptr>, boost::signals2::detail::store_n_objects<10>>' requested here
+   65 |         tracked_ptrs_type tracked_ptrs;
+      |                           ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<const std::error_category *, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:687:18: note: in instantiation of template class 'boost::hash_detail::hash_base<const std::error_category *>' requested here
+  687 |         : public boost::hash_detail::hash_base<T*>
+      |                  ^
+external/boost/container_hash/hash.hpp:415:24: note: in instantiation of template class 'boost::hash<const std::error_category *>' requested here
+  415 |         boost::hash<T> hasher;
+      |                        ^
+external/boost/container_hash/hash.hpp:546:9: note: in instantiation of function template specialization 'boost::hash_combine<const std::error_category *>' requested here
+  546 |         hash_combine(seed, &v.category());
+      |         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<const std::error_category *, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:23:
+external/boost/type_traits/has_trivial_destructor.hpp:30:86: warning: builtin __has_trivial_destructor is deprecated; use __is_trivially_destructible instead [-Wdeprecated-builtins]
+   30 | template <typename T> struct has_trivial_destructor : public integral_constant<bool, BOOST_HAS_TRIVIAL_DESTRUCTOR(T)>{};
+      |                                                                                      ^
+external/boost/type_traits/intrinsics.hpp:196:47: note: expanded from macro 'BOOST_HAS_TRIVIAL_DESTRUCTOR'
+  196 | #     define BOOST_HAS_TRIVIAL_DESTRUCTOR(T) (__has_trivial_destructor(T)  && is_destructible<T>::value)
+      |                                               ^
+external/boost/signals2/detail/auto_buffer.hpp:261:38: note: in instantiation of template class 'boost::has_trivial_destructor<boost::shared_ptr<void>>' requested here
+  261 |                 auto_buffer_destroy( boost::has_trivial_destructor<T>() );
+      |                                      ^
+external/boost/signals2/detail/auto_buffer.hpp:611:13: note: in instantiation of member function 'boost::signals2::detail::auto_buffer<boost::shared_ptr<void>, boost::signals2::detail::store_n_objects<10>>::auto_buffer_destroy' requested here
+  611 |             auto_buffer_destroy();
+      |             ^
+external/boost/signals2/connection.hpp:39:13: note: in instantiation of member function 'boost::signals2::detail::auto_buffer<boost::shared_ptr<void>, boost::signals2::detail::store_n_objects<10>>::~auto_buffer' requested here
+   39 |       class garbage_collecting_lock: public noncopyable
+      |             ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:22:
+In file included from external/boost/signals2/connection.hpp:21:
+In file included from external/boost/signals2/detail/auto_buffer.hpp:29:
+external/boost/type_traits/has_nothrow_copy.hpp:36:89: warning: builtin __has_nothrow_copy is deprecated; use __is_nothrow_constructible instead [-Wdeprecated-builtins]
+   36 | template <class T> struct has_nothrow_copy_constructor : public integral_constant<bool, BOOST_HAS_NOTHROW_COPY(T)>{};
+      |                                                                                         ^
+external/boost/type_traits/intrinsics.hpp:202:41: note: expanded from macro 'BOOST_HAS_NOTHROW_COPY'
+  202 | #     define BOOST_HAS_NOTHROW_COPY(T) (__has_nothrow_copy(T) && !is_volatile<T>::value && !is_reference<T>::value && is_copy_constructible<T>::value)
+      |                                         ^
+external/boost/type_traits/has_nothrow_copy.hpp:78:53: note: in instantiation of template class 'boost::has_nothrow_copy_constructor<boost::shared_ptr<void>>' requested here
+   78 | template <class T> struct has_nothrow_copy : public has_nothrow_copy_constructor<T>{};
+      |                                                     ^
+external/boost/signals2/detail/auto_buffer.hpp:315:50: note: in instantiation of template class 'boost::has_nothrow_copy<boost::shared_ptr<void>>' requested here
+  315 |                                                  boost::has_nothrow_copy<T>() );
+      |                                                  ^
+external/boost/signals2/detail/auto_buffer.hpp:801:13: note: in instantiation of member function 'boost::signals2::detail::auto_buffer<boost::shared_ptr<void>, boost::signals2::detail::store_n_objects<10>>::reserve_impl' requested here
+  801 |             reserve_impl( new_capacity_impl( n ) );
+      |             ^
+external/boost/signals2/detail/auto_buffer.hpp:826:16: note: in instantiation of member function 'boost::signals2::detail::auto_buffer<boost::shared_ptr<void>, boost::signals2::detail::store_n_objects<10>>::reserve' requested here
+  826 |                reserve( size_ + 1u );
+      |                ^
+external/boost/signals2/connection.hpp:47:19: note: in instantiation of member function 'boost::signals2::detail::auto_buffer<boost::shared_ptr<void>, boost::signals2::detail::store_n_objects<10>>::push_back' requested here
+   47 |           garbage.push_back(piece_of_trash);
+      |                   ^
+external/boost/signals2/connection.hpp:126:22: note: in instantiation of member function 'boost::signals2::detail::garbage_collecting_lock<boost::signals2::detail::connection_body_base>::add_trash' requested here
+  126 |             lock_arg.add_trash(release_slot());
+      |                      ^
+external/boost/signals2/connection.hpp:76:13: note: in instantiation of function template specialization 'boost::signals2::detail::connection_body_base::dec_slot_refcount<boost::signals2::detail::connection_body_base>' requested here
+   76 |             dec_slot_refcount(lock_arg);
+      |             ^
+external/boost/signals2/connection.hpp:68:11: note: in instantiation of function template specialization 'boost::signals2::detail::connection_body_base::nolock_disconnect<boost::signals2::detail::connection_body_base>' requested here
+   68 |           nolock_disconnect(local_lock);
+      |           ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:23:
+external/boost/type_traits/has_trivial_destructor.hpp:30:86: warning: builtin __has_trivial_destructor is deprecated; use __is_trivially_destructible instead [-Wdeprecated-builtins]
+   30 | template <typename T> struct has_trivial_destructor : public integral_constant<bool, BOOST_HAS_TRIVIAL_DESTRUCTOR(T)>{};
+      |                                                                                      ^
+external/boost/type_traits/intrinsics.hpp:196:47: note: expanded from macro 'BOOST_HAS_TRIVIAL_DESTRUCTOR'
+  196 | #     define BOOST_HAS_TRIVIAL_DESTRUCTOR(T) (__has_trivial_destructor(T)  && is_destructible<T>::value)
+      |                                               ^
+external/boost/signals2/detail/auto_buffer.hpp:261:38: note: in instantiation of template class 'boost::has_trivial_destructor<boost::variant<boost::shared_ptr<void>, boost::signals2::detail::foreign_void_shared_ptr>>' requested here
+  261 |                 auto_buffer_destroy( boost::has_trivial_destructor<T>() );
+      |                                      ^
+external/boost/signals2/detail/auto_buffer.hpp:611:13: note: in instantiation of member function 'boost::signals2::detail::auto_buffer<boost::variant<boost::shared_ptr<void>, boost::signals2::detail::foreign_void_shared_ptr>, boost::signals2::detail::store_n_objects<10>>::auto_buffer_destroy' requested here
+  611 |             auto_buffer_destroy();
+      |             ^
+external/boost/signals2/detail/slot_call_iterator.hpp:36:9: note: in instantiation of member function 'boost::signals2::detail::auto_buffer<boost::variant<boost::shared_ptr<void>, boost::signals2::detail::foreign_void_shared_ptr>, boost::signals2::detail::store_n_objects<10>>::~auto_buffer' requested here
+   36 |         slot_call_iterator_cache(const Function &f_arg):
+      |         ^
+external/boost/signals2/detail/signal_template.hpp:240:41: note: in instantiation of member function 'boost::signals2::detail::slot_call_iterator_cache<boost::signals2::detail::void_type, boost::signals2::detail::variadic_slot_invoker<boost::signals2::detail::void_type, bool>>::slot_call_iterator_cache' requested here
+  240 |           slot_call_iterator_cache_type cache(invoker);
+      |                                         ^
+external/boost/signals2/detail/signal_template.hpp:722:16: note: in instantiation of member function 'boost::signals2::detail::signal_impl<void (bool), boost::signals2::optional_last_value<void>, int, std::less<int>, boost::function<void (bool)>, boost::function<void (const boost::signals2::connection &, bool)>, boost::signals2::mutex>::operator()' requested here
+  722 |         return (*_pimpl)(BOOST_SIGNALS2_SIGNATURE_ARG_NAMES(BOOST_SIGNALS2_NUM_ARGS));
+      |                ^
+src/pingus/components/check_box.cpp:36:12: note: in instantiation of member function 'boost::signals2::signal<void (bool)>::operator()' requested here
+   36 |   on_change(state);
+      |            ^
+In file included from src/pingus/components/check_box.cpp:17:
+In file included from src/pingus/components/check_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:22:
+In file included from external/boost/signals2/connection.hpp:21:
+In file included from external/boost/signals2/detail/auto_buffer.hpp:29:
+external/boost/type_traits/has_nothrow_copy.hpp:36:89: warning: builtin __has_nothrow_copy is deprecated; use __is_nothrow_constructible instead [-Wdeprecated-builtins]
+   36 | template <class T> struct has_nothrow_copy_constructor : public integral_constant<bool, BOOST_HAS_NOTHROW_COPY(T)>{};
+      |                                                                                         ^
+external/boost/type_traits/intrinsics.hpp:202:41: note: expanded from macro 'BOOST_HAS_NOTHROW_COPY'
+  202 | #     define BOOST_HAS_NOTHROW_COPY(T) (__has_nothrow_copy(T) && !is_volatile<T>::value && !is_reference<T>::value && is_copy_constructible<T>::value)
+      |                                         ^
+external/boost/type_traits/has_nothrow_copy.hpp:78:53: note: in instantiation of template class 'boost::has_nothrow_copy_constructor<boost::variant<boost::shared_ptr<void>, boost::signals2::detail::foreign_void_shared_ptr>>' requested here
+   78 | template <class T> struct has_nothrow_copy : public has_nothrow_copy_constructor<T>{};
+      |                                                     ^
+external/boost/signals2/detail/auto_buffer.hpp:315:50: note: in instantiation of template class 'boost::has_nothrow_copy<boost::variant<boost::shared_ptr<void>, boost::signals2::detail::foreign_void_shared_ptr>>' requested here
+  315 |                                                  boost::has_nothrow_copy<T>() );
+      |                                                  ^
+external/boost/signals2/detail/auto_buffer.hpp:801:13: note: in instantiation of member function 'boost::signals2::detail::auto_buffer<boost::variant<boost::shared_ptr<void>, boost::signals2::detail::foreign_void_shared_ptr>, boost::signals2::detail::store_n_objects<10>>::reserve_impl' requested here
+  801 |             reserve_impl( new_capacity_impl( n ) );
+      |             ^
+external/boost/signals2/detail/auto_buffer.hpp:826:16: note: in instantiation of member function 'boost::signals2::detail::auto_buffer<boost::variant<boost::shared_ptr<void>, boost::signals2::detail::foreign_void_shared_ptr>, boost::signals2::detail::store_n_objects<10>>::reserve' requested here
+  826 |                reserve( size_ + 1u );
+      |                ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__iterator/back_insert_iterator.h:57:16: note: in instantiation of member function 'boost::signals2::detail::auto_buffer<boost::variant<boost::shared_ptr<void>, boost::signals2::detail::foreign_void_shared_ptr>, boost::signals2::detail::store_n_objects<10>>::push_back' requested here
+   57 |     container->push_back(__value);
+      |                ^
+external/boost/signals2/connection.hpp:190:25: note: (skipping 1 context in backtrace; use -ftemplate-backtrace-limit=0 to see all)
+  190 |             *inserter++ = locked_object;
+      |                         ^
+external/boost/signals2/detail/slot_call_iterator.hpp:157:22: note: in instantiation of function template specialization 'boost::signals2::detail::connection_body<std::pair<boost::signals2::detail::slot_meta_group, boost::optional<int>>, boost::signals2::slot<void (bool)>, boost::signals2::mutex>::nolock_grab_tracked_objects<boost::signals2::detail::connection_body_base, std::back_insert_iterator<boost::signals2::detail::auto_buffer<boost::variant<boost::shared_ptr<void>, boost::signals2::detail::foreign_void_shared_ptr>, boost::signals2::detail::store_n_objects<10>>>>' requested here
+  157 |             (*iter)->nolock_grab_tracked_objects(lock, std::back_inserter(cache->tracked_ptrs));
+      |                      ^
+external/boost/signals2/detail/slot_call_iterator.hpp:101:11: note: in instantiation of member function 'boost::signals2::detail::slot_call_iterator_t<boost::signals2::detail::variadic_slot_invoker<boost::signals2::detail::void_type, bool>, std::__list_iterator<boost::shared_ptr<boost::signals2::detail::connection_body<std::pair<boost::signals2::detail::slot_meta_group, boost::optional<int>>, boost::signals2::slot<void (bool)>, boost::signals2::mutex>>, void *>, boost::signals2::detail::connection_body<std::pair<boost::signals2::detail::slot_meta_group, boost::optional<int>>, boost::signals2::slot<void (bool)>, boost::signals2::mutex>>::lock_next_callable' requested here
+  101 |           lock_next_callable();
+      |           ^
+external/boost/signals2/detail/signal_template.hpp:245:15: note: in instantiation of member function 'boost::signals2::detail::slot_call_iterator_t<boost::signals2::detail::variadic_slot_invoker<boost::signals2::detail::void_type, bool>, std::__list_iterator<boost::shared_ptr<boost::signals2::detail::connection_body<std::pair<boost::signals2::detail::slot_meta_group, boost::optional<int>>, boost::signals2::slot<void (bool)>, boost::signals2::mutex>>, void *>, boost::signals2::detail::connection_body<std::pair<boost::signals2::detail::slot_meta_group, boost::optional<int>>, boost::signals2::slot<void (bool)>, boost::signals2::mutex>>::slot_call_iterator_t' requested here
+  245 |               slot_call_iterator(local_state->connection_bodies().begin(), local_state->connection_bodies().end(), cache),
+      |               ^
+external/boost/signals2/detail/signal_template.hpp:722:16: note: in instantiation of member function 'boost::signals2::detail::signal_impl<void (bool), boost::signals2::optional_last_value<void>, int, std::less<int>, boost::function<void (bool)>, boost::function<void (const boost::signals2::connection &, bool)>, boost::signals2::mutex>::operator()' requested here
+  722 |         return (*_pimpl)(BOOST_SIGNALS2_SIGNATURE_ARG_NAMES(BOOST_SIGNALS2_NUM_ARGS));
+      |                ^
+src/pingus/components/check_box.cpp:36:12: note: in instantiation of member function 'boost::signals2::signal<void (bool)>::operator()' requested here
+   36 |   on_change(state);
+      |            ^
+47 warnings generated.
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<bool, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:604:5: note: in instantiation of template class 'boost::hash_detail::hash_base<bool>' requested here
+  604 |     BOOST_HASH_SPECIALIZE(bool)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<bool, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<char, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:605:5: note: in instantiation of template class 'boost::hash_detail::hash_base<char>' requested here
+  605 |     BOOST_HASH_SPECIALIZE(char)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<char, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<signed char, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:606:5: note: in instantiation of template class 'boost::hash_detail::hash_base<signed char>' requested here
+  606 |     BOOST_HASH_SPECIALIZE(signed char)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<signed char, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<unsigned char, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:607:5: note: in instantiation of template class 'boost::hash_detail::hash_base<unsigned char>' requested here
+  607 |     BOOST_HASH_SPECIALIZE(unsigned char)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<unsigned char, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<wchar_t, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:609:5: note: in instantiation of template class 'boost::hash_detail::hash_base<wchar_t>' requested here
+  609 |     BOOST_HASH_SPECIALIZE(wchar_t)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<wchar_t, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<char16_t, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:612:5: note: in instantiation of template class 'boost::hash_detail::hash_base<char16_t>' requested here
+  612 |     BOOST_HASH_SPECIALIZE(char16_t)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<char16_t, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<char32_t, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:615:5: note: in instantiation of template class 'boost::hash_detail::hash_base<char32_t>' requested here
+  615 |     BOOST_HASH_SPECIALIZE(char32_t)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<char32_t, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<short, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:617:5: note: in instantiation of template class 'boost::hash_detail::hash_base<short>' requested here
+  617 |     BOOST_HASH_SPECIALIZE(short)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<short, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<unsigned short, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:618:5: note: in instantiation of template class 'boost::hash_detail::hash_base<unsigned short>' requested here
+  618 |     BOOST_HASH_SPECIALIZE(unsigned short)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<unsigned short, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<int, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:619:5: note: in instantiation of template class 'boost::hash_detail::hash_base<int>' requested here
+  619 |     BOOST_HASH_SPECIALIZE(int)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<int, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<unsigned int, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:620:5: note: in instantiation of template class 'boost::hash_detail::hash_base<unsigned int>' requested here
+  620 |     BOOST_HASH_SPECIALIZE(unsigned int)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<unsigned int, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<long, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:621:5: note: in instantiation of template class 'boost::hash_detail::hash_base<long>' requested here
+  621 |     BOOST_HASH_SPECIALIZE(long)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<long, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<unsigned long, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:622:5: note: in instantiation of template class 'boost::hash_detail::hash_base<unsigned long>' requested here
+  622 |     BOOST_HASH_SPECIALIZE(unsigned long)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<unsigned long, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<float, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:624:5: note: in instantiation of template class 'boost::hash_detail::hash_base<float>' requested here
+  624 |     BOOST_HASH_SPECIALIZE(float)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<float, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<double, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:625:5: note: in instantiation of template class 'boost::hash_detail::hash_base<double>' requested here
+  625 |     BOOST_HASH_SPECIALIZE(double)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<double, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<long double, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:626:5: note: in instantiation of template class 'boost::hash_detail::hash_base<long double>' requested here
+  626 |     BOOST_HASH_SPECIALIZE(long double)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<long double, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<std::string, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:628:5: note: in instantiation of template class 'boost::hash_detail::hash_base<std::string>' requested here
+  628 |     BOOST_HASH_SPECIALIZE_REF(std::string)
+      |     ^
+external/boost/container_hash/hash.hpp:586:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE_REF'
+  586 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<std::string, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<std::wstring, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:630:5: note: in instantiation of template class 'boost::hash_detail::hash_base<std::wstring>' requested here
+  630 |     BOOST_HASH_SPECIALIZE_REF(std::wstring)
+      |     ^
+external/boost/container_hash/hash.hpp:586:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE_REF'
+  586 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<std::wstring, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<std::u16string, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:633:5: note: in instantiation of template class 'boost::hash_detail::hash_base<std::u16string>' requested here
+  633 |     BOOST_HASH_SPECIALIZE_REF(std::basic_string<char16_t>)
+      |     ^
+external/boost/container_hash/hash.hpp:586:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE_REF'
+  586 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<std::u16string, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<std::u32string, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:636:5: note: in instantiation of template class 'boost::hash_detail::hash_base<std::u32string>' requested here
+  636 |     BOOST_HASH_SPECIALIZE_REF(std::basic_string<char32_t>)
+      |     ^
+external/boost/container_hash/hash.hpp:586:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE_REF'
+  586 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<std::u32string, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<long long, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:653:5: note: in instantiation of template class 'boost::hash_detail::hash_base<long long>' requested here
+  653 |     BOOST_HASH_SPECIALIZE(boost::long_long_type)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<long long, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<unsigned long long, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:654:5: note: in instantiation of template class 'boost::hash_detail::hash_base<unsigned long long>' requested here
+  654 |     BOOST_HASH_SPECIALIZE(boost::ulong_long_type)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<unsigned long long, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<__int128, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:658:5: note: in instantiation of template class 'boost::hash_detail::hash_base<__int128>' requested here
+  658 |     BOOST_HASH_SPECIALIZE(boost::int128_type)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<__int128, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<unsigned __int128, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:659:5: note: in instantiation of template class 'boost::hash_detail::hash_base<unsigned __int128>' requested here
+  659 |     BOOST_HASH_SPECIALIZE(boost::uint128_type)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<unsigned __int128, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<std::type_index, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:674:5: note: in instantiation of template class 'boost::hash_detail::hash_base<std::type_index>' requested here
+  674 |     BOOST_HASH_SPECIALIZE(std::type_index)
+      |     ^
+external/boost/container_hash/hash.hpp:576:19: note: expanded from macro 'BOOST_HASH_SPECIALIZE'
+  576 |          : public boost::hash_detail::hash_base<type> \
+      |                   ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<std::type_index, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:22:
+external/boost/type_traits/has_trivial_copy.hpp:34:4: warning: builtin __has_trivial_copy is deprecated; use __is_trivially_copyable instead [-Wdeprecated-builtins]
+   34 |    BOOST_HAS_TRIVIAL_COPY(T) BOOST_TT_TRIVIAL_CONSTRUCT_FIX
+      |    ^
+external/boost/type_traits/intrinsics.hpp:190:41: note: expanded from macro 'BOOST_HAS_TRIVIAL_COPY'
+  190 | #     define BOOST_HAS_TRIVIAL_COPY(T) (__has_trivial_copy(T) && !is_reference<T>::value)
+      |                                         ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:23:
+external/boost/type_traits/has_trivial_destructor.hpp:30:86: warning: builtin __has_trivial_destructor is deprecated; use __is_trivially_destructible instead [-Wdeprecated-builtins]
+   30 | template <typename T> struct has_trivial_destructor : public integral_constant<bool, BOOST_HAS_TRIVIAL_DESTRUCTOR(T)>{};
+      |                                                                                      ^
+external/boost/type_traits/intrinsics.hpp:196:47: note: expanded from macro 'BOOST_HAS_TRIVIAL_DESTRUCTOR'
+  196 | #     define BOOST_HAS_TRIVIAL_DESTRUCTOR(T) (__has_trivial_destructor(T)  && is_destructible<T>::value)
+      |                                               ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:22:
+In file included from external/boost/signals2/connection.hpp:21:
+In file included from external/boost/signals2/detail/auto_buffer.hpp:29:
+external/boost/type_traits/has_nothrow_copy.hpp:36:89: warning: builtin __has_nothrow_copy is deprecated; use __is_nothrow_constructible instead [-Wdeprecated-builtins]
+   36 | template <class T> struct has_nothrow_copy_constructor : public integral_constant<bool, BOOST_HAS_NOTHROW_COPY(T)>{};
+      |                                                                                         ^
+external/boost/type_traits/intrinsics.hpp:202:41: note: expanded from macro 'BOOST_HAS_NOTHROW_COPY'
+  202 | #     define BOOST_HAS_NOTHROW_COPY(T) (__has_nothrow_copy(T) && !is_volatile<T>::value && !is_reference<T>::value && is_copy_constructible<T>::value)
+      |                                         ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:22:
+In file included from external/boost/signals2/connection.hpp:21:
+In file included from external/boost/signals2/detail/auto_buffer.hpp:30:
+external/boost/type_traits/has_nothrow_assign.hpp:65:7: warning: builtin __has_nothrow_assign is deprecated; use __is_nothrow_assignable instead [-Wdeprecated-builtins]
+   65 |       BOOST_HAS_NOTHROW_ASSIGN(T)
+      |       ^
+external/boost/type_traits/intrinsics.hpp:205:43: note: expanded from macro 'BOOST_HAS_NOTHROW_ASSIGN'
+  205 | #     define BOOST_HAS_NOTHROW_ASSIGN(T) (__has_nothrow_assign(T) && !is_volatile<T>::value && is_assignable<T&, const T&>::value)
+      |                                           ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:22:
+In file included from external/boost/signals2/connection.hpp:21:
+In file included from external/boost/signals2/detail/auto_buffer.hpp:31:
+external/boost/type_traits/has_trivial_assign.hpp:29:7: warning: builtin __has_trivial_assign is deprecated; use __is_trivially_assignable instead [-Wdeprecated-builtins]
+   29 |       BOOST_HAS_TRIVIAL_ASSIGN(T)
+      |       ^
+external/boost/type_traits/intrinsics.hpp:193:43: note: expanded from macro 'BOOST_HAS_TRIVIAL_ASSIGN'
+  193 | #     define BOOST_HAS_TRIVIAL_ASSIGN(T) (__has_trivial_assign(T) && !is_volatile<T>::value && is_assignable<T&, const T&>::value)
+      |                                           ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:22:
+In file included from external/boost/signals2/connection.hpp:21:
+In file included from external/boost/signals2/detail/auto_buffer.hpp:32:
+external/boost/type_traits/has_trivial_constructor.hpp:41:69: warning: builtin __has_trivial_constructor is deprecated; use __is_trivially_constructible instead [-Wdeprecated-builtins]
+   41 |    : public integral_constant <bool, ((::boost::is_pod<T>::value || BOOST_HAS_TRIVIAL_CONSTRUCTOR(T)) BOOST_TT_TRIVIAL_CONSTRUCT_FIX)>{};
+      |                                                                     ^
+external/boost/type_traits/intrinsics.hpp:187:47: note: expanded from macro 'BOOST_HAS_TRIVIAL_CONSTRUCTOR'
+  187 | #     define BOOST_HAS_TRIVIAL_CONSTRUCTOR(T) __has_trivial_constructor(T)
+      |                                               ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:22:
+In file included from external/boost/signals2/connection.hpp:24:
+In file included from external/boost/signals2/slot.hpp:22:
+In file included from external/boost/signals2/detail/tracked_objects_visitor.hpp:18:
+In file included from external/boost/signals2/slot_base.hpp:21:
+In file included from external/boost/variant/apply_visitor.hpp:16:
+In file included from external/boost/variant/detail/apply_visitor_unary.hpp:17:
+In file included from external/boost/move/utility.hpp:30:
+In file included from external/boost/move/traits.hpp:31:
+external/boost/move/detail/type_traits.hpp:805:30: warning: builtin __has_trivial_destructor is deprecated; use __is_trivially_destructible instead [-Wdeprecated-builtins]
+  805 | {  static const bool value = BOOST_MOVE_IS_TRIVIALLY_DESTRUCTIBLE(T); };
+      |                              ^
+external/boost/move/detail/type_traits.hpp:272:54: note: expanded from macro 'BOOST_MOVE_IS_TRIVIALLY_DESTRUCTIBLE'
+  272 |    #define BOOST_MOVE_IS_TRIVIALLY_DESTRUCTIBLE(T)   BOOST_MOVE_HAS_TRIVIAL_DESTRUCTOR(T)
+      |                                                      ^
+external/boost/move/detail/type_traits.hpp:128:51: note: expanded from macro 'BOOST_MOVE_HAS_TRIVIAL_DESTRUCTOR'
+  128 | #     define BOOST_MOVE_HAS_TRIVIAL_DESTRUCTOR(T) __has_trivial_destructor(T)
+      |                                                   ^
+external/boost/move/detail/type_traits.hpp:812:30: warning: builtin __has_trivial_constructor is deprecated; use __is_trivially_constructible instead [-Wdeprecated-builtins]
+  812 | {  static const bool value = BOOST_MOVE_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE(T); };
+      |                              ^
+external/boost/move/detail/type_traits.hpp:246:62: note: expanded from macro 'BOOST_MOVE_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE'
+  246 |    #define BOOST_MOVE_IS_TRIVIALLY_DEFAULT_CONSTRUCTIBLE(T)  BOOST_MOVE_HAS_TRIVIAL_CONSTRUCTOR(T)
+      |                                                              ^
+external/boost/move/detail/type_traits.hpp:119:52: note: expanded from macro 'BOOST_MOVE_HAS_TRIVIAL_CONSTRUCTOR'
+  119 | #     define BOOST_MOVE_HAS_TRIVIAL_CONSTRUCTOR(T) __has_trivial_constructor(T)
+      |                                                    ^
+external/boost/move/detail/type_traits.hpp:822:30: warning: builtin __has_trivial_copy is deprecated; use __is_trivially_copyable instead [-Wdeprecated-builtins]
+  822 |    static const bool value = BOOST_MOVE_IS_TRIVIALLY_COPY_CONSTRUCTIBLE(T);
+      |                              ^
+external/boost/move/detail/type_traits.hpp:240:60: note: expanded from macro 'BOOST_MOVE_IS_TRIVIALLY_COPY_CONSTRUCTIBLE'
+  240 |                                                            BOOST_MOVE_HAS_TRIVIAL_COPY(T))
+      |                                                            ^
+external/boost/move/detail/type_traits.hpp:122:45: note: expanded from macro 'BOOST_MOVE_HAS_TRIVIAL_COPY'
+  122 | #     define BOOST_MOVE_HAS_TRIVIAL_COPY(T) __has_trivial_copy(T)
+      |                                             ^
+external/boost/move/detail/type_traits.hpp:840:30: warning: builtin __has_trivial_assign is deprecated; use __is_trivially_assignable instead [-Wdeprecated-builtins]
+  840 |    static const bool value = BOOST_MOVE_IS_TRIVIALLY_COPY_ASSIGNABLE(T);
+      |                              ^
+external/boost/move/detail/type_traits.hpp:260:58: note: expanded from macro 'BOOST_MOVE_IS_TRIVIALLY_COPY_ASSIGNABLE'
+  260 |                                                          BOOST_MOVE_HAS_TRIVIAL_ASSIGN(T))
+      |                                                          ^
+external/boost/move/detail/type_traits.hpp:125:48: note: expanded from macro 'BOOST_MOVE_HAS_TRIVIAL_ASSIGN'
+  125 | #     define BOOST_MOVE_HAS_TRIVIAL_ASSIGN(T) (__has_trivial_assign(T) )
+      |                                                ^
+external/boost/move/detail/type_traits.hpp:856:30: warning: builtin __has_nothrow_constructor is deprecated; use __is_nothrow_constructible instead [-Wdeprecated-builtins]
+  856 | {  static const bool value = BOOST_MOVE_IS_NOTHROW_DEFAULT_CONSTRUCTIBLE(T);  };
+      |                              ^
+external/boost/move/detail/type_traits.hpp:278:60: note: expanded from macro 'BOOST_MOVE_IS_NOTHROW_DEFAULT_CONSTRUCTIBLE'
+  278 |    #define BOOST_MOVE_IS_NOTHROW_DEFAULT_CONSTRUCTIBLE(T)  BOOST_MOVE_HAS_NOTHROW_CONSTRUCTOR(T)
+      |                                                            ^
+external/boost/move/detail/type_traits.hpp:131:52: note: expanded from macro 'BOOST_MOVE_HAS_NOTHROW_CONSTRUCTOR'
+  131 | #     define BOOST_MOVE_HAS_NOTHROW_CONSTRUCTOR(T) __has_nothrow_constructor(T)
+      |                                                    ^
+external/boost/move/detail/type_traits.hpp:863:30: warning: builtin __has_nothrow_copy is deprecated; use __is_nothrow_constructible instead [-Wdeprecated-builtins]
+  863 | {  static const bool value = BOOST_MOVE_IS_NOTHROW_COPY_CONSTRUCTIBLE(T);  };
+      |                              ^
+external/boost/move/detail/type_traits.hpp:284:58: note: expanded from macro 'BOOST_MOVE_IS_NOTHROW_COPY_CONSTRUCTIBLE'
+  284 |    #define BOOST_MOVE_IS_NOTHROW_COPY_CONSTRUCTIBLE(T)   BOOST_MOVE_HAS_NOTHROW_COPY(T)
+      |                                                          ^
+external/boost/move/detail/type_traits.hpp:134:46: note: expanded from macro 'BOOST_MOVE_HAS_NOTHROW_COPY'
+  134 | #     define BOOST_MOVE_HAS_NOTHROW_COPY(T) (__has_nothrow_copy(T))
+      |                                              ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:22:
+In file included from external/boost/signals2/connection.hpp:24:
+In file included from external/boost/signals2/slot.hpp:22:
+In file included from external/boost/signals2/detail/tracked_objects_visitor.hpp:18:
+In file included from external/boost/signals2/slot_base.hpp:22:
+In file included from external/boost/variant/variant.hpp:48:
+external/boost/type_traits/has_nothrow_constructor.hpp:27:84: warning: builtin __has_nothrow_constructor is deprecated; use __is_nothrow_constructible instead [-Wdeprecated-builtins]
+   27 | template <class T> struct has_nothrow_constructor : public integral_constant<bool, BOOST_HAS_NOTHROW_CONSTRUCTOR(T)>{};
+      |                                                                                    ^
+external/boost/type_traits/intrinsics.hpp:199:48: note: expanded from macro 'BOOST_HAS_NOTHROW_CONSTRUCTOR'
+  199 | #     define BOOST_HAS_NOTHROW_CONSTRUCTOR(T) (__has_nothrow_constructor(T) && is_default_constructible<T>::value)
+      |                                                ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:22:
+In file included from external/boost/signals2/connection.hpp:24:
+In file included from external/boost/signals2/slot.hpp:22:
+In file included from external/boost/signals2/detail/tracked_objects_visitor.hpp:18:
+In file included from external/boost/signals2/slot_base.hpp:22:
+In file included from external/boost/variant/variant.hpp:48:
+external/boost/type_traits/has_nothrow_constructor.hpp:27:84: warning: builtin __has_nothrow_constructor is deprecated; use __is_nothrow_constructible instead [-Wdeprecated-builtins]
+external/boost/type_traits/intrinsics.hpp:199:48: note: expanded from macro 'BOOST_HAS_NOTHROW_CONSTRUCTOR'
+  199 | #     define BOOST_HAS_NOTHROW_CONSTRUCTOR(T) (__has_nothrow_constructor(T) && is_default_constructible<T>::value)
+      |                                                ^
+external/boost/mpl/aux_/nested_type_wknd.hpp:27:7: note: in instantiation of template class 'boost::has_nothrow_constructor<boost::shared_ptr<void>>' requested here
+   27 |     : T::type
+      |       ^
+external/boost/mpl/not.hpp:41:11: note: in instantiation of template class 'boost::mpl::aux::nested_type_wknd<boost::has_nothrow_constructor<boost::shared_ptr<void>>>' requested here
+   41 |           BOOST_MPL_AUX_NESTED_TYPE_WKND(T)::value
+      |           ^
+external/boost/mpl/aux_/nested_type_wknd.hpp:38:24: note: expanded from macro 'BOOST_MPL_AUX_NESTED_TYPE_WKND'
+   38 |     ::boost::mpl::aux::nested_type_wknd<T> \
+      |                        ^
+external/boost/mpl/aux_/nested_type_wknd.hpp:27:7: note: in instantiation of template class 'boost::mpl::not_<boost::has_nothrow_constructor<boost::shared_ptr<void>>>' requested here
+   27 |     : T::type
+      |       ^
+external/boost/mpl/aux_/preprocessed/gcc/and.hpp:25:11: note: in instantiation of template class 'boost::mpl::aux::nested_type_wknd<boost::mpl::apply1<boost::mpl::protect<boost::detail::variant::find_fallback_type_pred>, boost::mpl::l_iter<boost::mpl::l_item<mpl_::long_<2>, boost::shared_ptr<void>, boost::mpl::l_item<mpl_::long_<1>, boost::signals2::detail::foreign_void_shared_ptr, boost::mpl::l_end>>>>>' requested here
+   25 |           BOOST_MPL_AUX_NESTED_TYPE_WKND(T1)::value
+      |           ^
+external/boost/mpl/aux_/nested_type_wknd.hpp:38:24: note: expanded from macro 'BOOST_MPL_AUX_NESTED_TYPE_WKND'
+   38 |     ::boost::mpl::aux::nested_type_wknd<T> \
+      |                        ^
+external/boost/mpl/aux_/preprocessed/gcc/and.hpp:50:7: note: in instantiation of template class 'boost::mpl::aux::and_impl<true, boost::mpl::apply1<boost::mpl::protect<boost::detail::variant::find_fallback_type_pred>, boost::mpl::l_iter<boost::mpl::l_item<mpl_::long_<2>, boost::shared_ptr<void>, boost::mpl::l_item<mpl_::long_<1>, boost::signals2::detail::foreign_void_shared_ptr, boost::mpl::l_end>>>>, mpl_::bool_<true>, mpl_::bool_<true>, mpl_::bool_<true>>' requested here
+   50 |     : aux::and_impl<
+      |       ^
+external/boost/mpl/iter_fold_if.hpp:42:11: note: (skipping 5 contexts in backtrace; use -ftemplate-backtrace-limit=0 to see all)
+   42 |         : and_<
+      |           ^
+external/boost/mpl/iter_fold_if.hpp:85:9: note: in instantiation of template class 'boost::mpl::aux::iter_fold_if_impl<boost::mpl::l_iter<boost::mpl::l_item<mpl_::long_<2>, boost::shared_ptr<void>, boost::mpl::l_item<mpl_::long_<1>, boost::signals2::detail::foreign_void_shared_ptr, boost::mpl::l_end>>>, mpl_::int_<0>, boost::mpl::protect<boost::mpl::next<na>>, boost::mpl::protect<boost::mpl::aux::iter_fold_if_pred<boost::mpl::protect<boost::detail::variant::find_fallback_type_pred>, boost::mpl::l_iter<l_end>>>, mpl_::na, boost::mpl::always<mpl_::bool_<false>>>' requested here
+   85 |         aux::iter_fold_if_impl<
+      |         ^
+external/boost/mpl/iter_fold_if.hpp:102:20: note: in instantiation of member class 'boost::mpl::iter_fold_if<boost::mpl::l_item<mpl_::long_<2>, boost::shared_ptr<void>, boost::mpl::l_item<mpl_::long_<1>, boost::signals2::detail::foreign_void_shared_ptr, boost::mpl::l_end>>, mpl_::int_<0>, boost::mpl::protect<boost::mpl::next<na>>, boost::mpl::protect<boost::detail::variant::find_fallback_type_pred>>::result_' requested here
+  102 |           typename result_::state
+      |                    ^
+external/boost/variant/variant.hpp:190:27: note: in instantiation of template class 'boost::mpl::iter_fold_if<boost::mpl::l_item<mpl_::long_<2>, boost::shared_ptr<void>, boost::mpl::l_item<mpl_::long_<1>, boost::signals2::detail::foreign_void_shared_ptr, boost::mpl::l_end>>, mpl_::int_<0>, boost::mpl::protect<boost::mpl::next<na>>, boost::mpl::protect<boost::detail::variant::find_fallback_type_pred>>' requested here
+  190 |     typedef typename mpl::iter_fold_if<
+      |                           ^
+external/boost/variant/variant.hpp:1250:39: note: in instantiation of template class 'boost::detail::variant::find_fallback_type<boost::mpl::l_item<mpl_::long_<2>, boost::shared_ptr<void>, boost::mpl::l_item<mpl_::long_<1>, boost::signals2::detail::foreign_void_shared_ptr, boost::mpl::l_end>>>' requested here
+ 1250 |     typedef typename detail::variant::find_fallback_type<
+      |                                       ^
+external/boost/signals2/slot_base.hpp:41:21: note: in instantiation of template class 'boost::variant<boost::shared_ptr<void>, boost::signals2::detail::foreign_void_shared_ptr>' requested here
+   41 |         result_type operator()(const WeakPtr &wp) const
+      |                     ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:22:
+In file included from external/boost/signals2/connection.hpp:24:
+In file included from external/boost/signals2/slot.hpp:22:
+In file included from external/boost/signals2/detail/tracked_objects_visitor.hpp:18:
+In file included from external/boost/signals2/slot_base.hpp:22:
+In file included from external/boost/variant/variant.hpp:48:
+external/boost/type_traits/has_nothrow_constructor.hpp:27:84: warning: builtin __has_nothrow_constructor is deprecated; use __is_nothrow_constructible instead [-Wdeprecated-builtins]
+   27 | template <class T> struct has_nothrow_constructor : public integral_constant<bool, BOOST_HAS_NOTHROW_CONSTRUCTOR(T)>{};
+      |                                                                                    ^
+external/boost/type_traits/intrinsics.hpp:199:48: note: expanded from macro 'BOOST_HAS_NOTHROW_CONSTRUCTOR'
+  199 | #     define BOOST_HAS_NOTHROW_CONSTRUCTOR(T) (__has_nothrow_constructor(T) && is_default_constructible<T>::value)
+      |                                                ^
+external/boost/mpl/aux_/nested_type_wknd.hpp:27:7: note: in instantiation of template class 'boost::has_nothrow_constructor<boost::weak_ptr<boost::signals2::detail::trackable_pointee>>' requested here
+   27 |     : T::type
+      |       ^
+external/boost/mpl/not.hpp:41:11: note: in instantiation of template class 'boost::mpl::aux::nested_type_wknd<boost::has_nothrow_constructor<boost::weak_ptr<boost::signals2::detail::trackable_pointee>>>' requested here
+   41 |           BOOST_MPL_AUX_NESTED_TYPE_WKND(T)::value
+      |           ^
+external/boost/mpl/aux_/nested_type_wknd.hpp:38:24: note: expanded from macro 'BOOST_MPL_AUX_NESTED_TYPE_WKND'
+   38 |     ::boost::mpl::aux::nested_type_wknd<T> \
+      |                        ^
+external/boost/mpl/aux_/nested_type_wknd.hpp:27:7: note: in instantiation of template class 'boost::mpl::not_<boost::has_nothrow_constructor<boost::weak_ptr<boost::signals2::detail::trackable_pointee>>>' requested here
+   27 |     : T::type
+      |       ^
+external/boost/mpl/aux_/preprocessed/gcc/and.hpp:25:11: note: in instantiation of template class 'boost::mpl::aux::nested_type_wknd<boost::mpl::apply1<boost::mpl::protect<boost::detail::variant::find_fallback_type_pred>, boost::mpl::l_iter<boost::mpl::l_item<mpl_::long_<3>, boost::weak_ptr<boost::signals2::detail::trackable_pointee>, boost::mpl::l_item<mpl_::long_<2>, boost::weak_ptr<void>, boost::mpl::l_item<mpl_::long_<1>, boost::signals2::detail::foreign_void_weak_ptr, boost::mpl::l_end>>>>>>' requested here
+   25 |           BOOST_MPL_AUX_NESTED_TYPE_WKND(T1)::value
+      |           ^
+external/boost/mpl/aux_/nested_type_wknd.hpp:38:24: note: expanded from macro 'BOOST_MPL_AUX_NESTED_TYPE_WKND'
+   38 |     ::boost::mpl::aux::nested_type_wknd<T> \
+      |                        ^
+external/boost/mpl/aux_/preprocessed/gcc/and.hpp:50:7: note: in instantiation of template class 'boost::mpl::aux::and_impl<true, boost::mpl::apply1<boost::mpl::protect<boost::detail::variant::find_fallback_type_pred>, boost::mpl::l_iter<boost::mpl::l_item<mpl_::long_<3>, boost::weak_ptr<boost::signals2::detail::trackable_pointee>, boost::mpl::l_item<mpl_::long_<2>, boost::weak_ptr<void>, boost::mpl::l_item<mpl_::long_<1>, boost::signals2::detail::foreign_void_weak_ptr, boost::mpl::l_end>>>>>, mpl_::bool_<true>, mpl_::bool_<true>, mpl_::bool_<true>>' requested here
+   50 |     : aux::and_impl<
+      |       ^
+external/boost/mpl/iter_fold_if.hpp:42:11: note: (skipping 5 contexts in backtrace; use -ftemplate-backtrace-limit=0 to see all)
+   42 |         : and_<
+      |           ^
+external/boost/mpl/iter_fold_if.hpp:85:9: note: in instantiation of template class 'boost::mpl::aux::iter_fold_if_impl<boost::mpl::l_iter<boost::mpl::l_item<mpl_::long_<3>, boost::weak_ptr<boost::signals2::detail::trackable_pointee>, boost::mpl::l_item<mpl_::long_<2>, boost::weak_ptr<void>, boost::mpl::l_item<mpl_::long_<1>, boost::signals2::detail::foreign_void_weak_ptr, boost::mpl::l_end>>>>, mpl_::int_<0>, boost::mpl::protect<boost::mpl::next<na>>, boost::mpl::protect<boost::mpl::aux::iter_fold_if_pred<boost::mpl::protect<boost::detail::variant::find_fallback_type_pred>, boost::mpl::l_iter<l_end>>>, mpl_::na, boost::mpl::always<mpl_::bool_<false>>>' requested here
+   85 |         aux::iter_fold_if_impl<
+      |         ^
+external/boost/mpl/iter_fold_if.hpp:102:20: note: in instantiation of member class 'boost::mpl::iter_fold_if<boost::mpl::l_item<mpl_::long_<3>, boost::weak_ptr<boost::signals2::detail::trackable_pointee>, boost::mpl::l_item<mpl_::long_<2>, boost::weak_ptr<void>, boost::mpl::l_item<mpl_::long_<1>, boost::signals2::detail::foreign_void_weak_ptr, boost::mpl::l_end>>>, mpl_::int_<0>, boost::mpl::protect<boost::mpl::next<na>>, boost::mpl::protect<boost::detail::variant::find_fallback_type_pred>>::result_' requested here
+  102 |           typename result_::state
+      |                    ^
+external/boost/variant/variant.hpp:190:27: note: in instantiation of template class 'boost::mpl::iter_fold_if<boost::mpl::l_item<mpl_::long_<3>, boost::weak_ptr<boost::signals2::detail::trackable_pointee>, boost::mpl::l_item<mpl_::long_<2>, boost::weak_ptr<void>, boost::mpl::l_item<mpl_::long_<1>, boost::signals2::detail::foreign_void_weak_ptr, boost::mpl::l_end>>>, mpl_::int_<0>, boost::mpl::protect<boost::mpl::next<na>>, boost::mpl::protect<boost::detail::variant::find_fallback_type_pred>>' requested here
+  190 |     typedef typename mpl::iter_fold_if<
+      |                           ^
+external/boost/variant/variant.hpp:1250:39: note: in instantiation of template class 'boost::detail::variant::find_fallback_type<boost::mpl::l_item<mpl_::long_<3>, boost::weak_ptr<boost::signals2::detail::trackable_pointee>, boost::mpl::l_item<mpl_::long_<2>, boost::weak_ptr<void>, boost::mpl::l_item<mpl_::long_<1>, boost::signals2::detail::foreign_void_weak_ptr, boost::mpl::l_end>>>>' requested here
+ 1250 |     typedef typename detail::variant::find_fallback_type<
+      |                                       ^
+external/boost/signals2/slot_base.hpp:75:48: note: in instantiation of template class 'boost::variant<boost::weak_ptr<boost::signals2::detail::trackable_pointee>, boost::weak_ptr<void>, boost::signals2::detail::foreign_void_weak_ptr>' requested here
+   75 |         for(it = tracked_objects().begin(); it != tracked_objects().end(); ++it)
+      |                                                ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:22:
+In file included from external/boost/signals2/connection.hpp:21:
+In file included from external/boost/signals2/detail/auto_buffer.hpp:31:
+external/boost/type_traits/has_trivial_assign.hpp:29:7: warning: builtin __has_trivial_assign is deprecated; use __is_trivially_assignable instead [-Wdeprecated-builtins]
+   29 |       BOOST_HAS_TRIVIAL_ASSIGN(T)
+      |       ^
+external/boost/type_traits/intrinsics.hpp:193:43: note: expanded from macro 'BOOST_HAS_TRIVIAL_ASSIGN'
+  193 | #     define BOOST_HAS_TRIVIAL_ASSIGN(T) (__has_trivial_assign(T) && !is_volatile<T>::value && is_assignable<T&, const T&>::value)
+      |                                           ^
+external/boost/signals2/detail/auto_buffer.hpp:158:51: note: in instantiation of template class 'boost::has_trivial_assign<boost::shared_ptr<void>>' requested here
+  158 |         typedef typename boost::mpl::if_c< boost::has_trivial_assign<T>::value
+      |                                                   ^
+external/boost/signals2/connection.hpp:53:61: note: in instantiation of template class 'boost::signals2::detail::auto_buffer<boost::shared_ptr<void>, boost::signals2::detail::store_n_objects<10>>' requested here
+   53 |         auto_buffer<shared_ptr<void>, store_n_objects<10> > garbage;
+      |                                                             ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:22:
+In file included from external/boost/signals2/connection.hpp:21:
+In file included from external/boost/signals2/detail/auto_buffer.hpp:31:
+external/boost/type_traits/has_trivial_assign.hpp:29:7: warning: builtin __has_trivial_assign is deprecated; use __is_trivially_assignable instead [-Wdeprecated-builtins]
+   29 |       BOOST_HAS_TRIVIAL_ASSIGN(T)
+      |       ^
+external/boost/type_traits/intrinsics.hpp:193:43: note: expanded from macro 'BOOST_HAS_TRIVIAL_ASSIGN'
+  193 | #     define BOOST_HAS_TRIVIAL_ASSIGN(T) (__has_trivial_assign(T) && !is_volatile<T>::value && is_assignable<T&, const T&>::value)
+      |                                           ^
+external/boost/signals2/detail/auto_buffer.hpp:158:51: note: in instantiation of template class 'boost::has_trivial_assign<boost::variant<boost::shared_ptr<void>, boost::signals2::detail::foreign_void_shared_ptr>>' requested here
+  158 |         typedef typename boost::mpl::if_c< boost::has_trivial_assign<T>::value
+      |                                                   ^
+external/boost/signals2/detail/slot_call_iterator.hpp:65:27: note: in instantiation of template class 'boost::signals2::detail::auto_buffer<boost::variant<boost::shared_ptr<void>, boost::signals2::detail::foreign_void_shared_ptr>, boost::signals2::detail::store_n_objects<10>>' requested here
+   65 |         tracked_ptrs_type tracked_ptrs;
+      |                           ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:21:
+In file included from external/boost/type_index.hpp:29:
+In file included from external/boost/type_index/stl_type_index.hpp:47:
+external/boost/container_hash/hash.hpp:131:33: warning: 'unary_function<const std::error_category *, unsigned long>' is deprecated [-Wdeprecated-declarations]
+  131 |         struct hash_base : std::unary_function<T, std::size_t> {};
+      |                                 ^
+external/boost/container_hash/hash.hpp:687:18: note: in instantiation of template class 'boost::hash_detail::hash_base<const std::error_category *>' requested here
+  687 |         : public boost::hash_detail::hash_base<T*>
+      |                  ^
+external/boost/container_hash/hash.hpp:415:24: note: in instantiation of template class 'boost::hash<const std::error_category *>' requested here
+  415 |         boost::hash<T> hasher;
+      |                        ^
+external/boost/container_hash/hash.hpp:546:9: note: in instantiation of function template specialization 'boost::hash_combine<const std::error_category *>' requested here
+  546 |         hash_combine(seed, &v.category());
+      |         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__functional/unary_function.h:23:29: note: 'unary_function<const std::error_category *, unsigned long>' has been explicitly marked deprecated here
+   23 | struct _LIBCPP_TEMPLATE_VIS _LIBCPP_DEPRECATED_IN_CXX11 unary_function {
+      |                             ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:990:41: note: expanded from macro '_LIBCPP_DEPRECATED_IN_CXX11'
+  990 | #    define _LIBCPP_DEPRECATED_IN_CXX11 _LIBCPP_DEPRECATED
+      |                                         ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__config:975:49: note: expanded from macro '_LIBCPP_DEPRECATED'
+  975 | #      define _LIBCPP_DEPRECATED __attribute__((__deprecated__))
+      |                                                 ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:23:
+external/boost/type_traits/has_trivial_destructor.hpp:30:86: warning: builtin __has_trivial_destructor is deprecated; use __is_trivially_destructible instead [-Wdeprecated-builtins]
+   30 | template <typename T> struct has_trivial_destructor : public integral_constant<bool, BOOST_HAS_TRIVIAL_DESTRUCTOR(T)>{};
+      |                                                                                      ^
+external/boost/type_traits/intrinsics.hpp:196:47: note: expanded from macro 'BOOST_HAS_TRIVIAL_DESTRUCTOR'
+  196 | #     define BOOST_HAS_TRIVIAL_DESTRUCTOR(T) (__has_trivial_destructor(T)  && is_destructible<T>::value)
+      |                                               ^
+external/boost/signals2/detail/auto_buffer.hpp:261:38: note: in instantiation of template class 'boost::has_trivial_destructor<boost::shared_ptr<void>>' requested here
+  261 |                 auto_buffer_destroy( boost::has_trivial_destructor<T>() );
+      |                                      ^
+external/boost/signals2/detail/auto_buffer.hpp:611:13: note: in instantiation of member function 'boost::signals2::detail::auto_buffer<boost::shared_ptr<void>, boost::signals2::detail::store_n_objects<10>>::auto_buffer_destroy' requested here
+  611 |             auto_buffer_destroy();
+      |             ^
+external/boost/signals2/connection.hpp:39:13: note: in instantiation of member function 'boost::signals2::detail::auto_buffer<boost::shared_ptr<void>, boost::signals2::detail::store_n_objects<10>>::~auto_buffer' requested here
+   39 |       class garbage_collecting_lock: public noncopyable
+      |             ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:22:
+In file included from external/boost/signals2/connection.hpp:21:
+In file included from external/boost/signals2/detail/auto_buffer.hpp:29:
+external/boost/type_traits/has_nothrow_copy.hpp:36:89: warning: builtin __has_nothrow_copy is deprecated; use __is_nothrow_constructible instead [-Wdeprecated-builtins]
+   36 | template <class T> struct has_nothrow_copy_constructor : public integral_constant<bool, BOOST_HAS_NOTHROW_COPY(T)>{};
+      |                                                                                         ^
+external/boost/type_traits/intrinsics.hpp:202:41: note: expanded from macro 'BOOST_HAS_NOTHROW_COPY'
+  202 | #     define BOOST_HAS_NOTHROW_COPY(T) (__has_nothrow_copy(T) && !is_volatile<T>::value && !is_reference<T>::value && is_copy_constructible<T>::value)
+      |                                         ^
+external/boost/type_traits/has_nothrow_copy.hpp:78:53: note: in instantiation of template class 'boost::has_nothrow_copy_constructor<boost::shared_ptr<void>>' requested here
+   78 | template <class T> struct has_nothrow_copy : public has_nothrow_copy_constructor<T>{};
+      |                                                     ^
+external/boost/signals2/detail/auto_buffer.hpp:315:50: note: in instantiation of template class 'boost::has_nothrow_copy<boost::shared_ptr<void>>' requested here
+  315 |                                                  boost::has_nothrow_copy<T>() );
+      |                                                  ^
+external/boost/signals2/detail/auto_buffer.hpp:801:13: note: in instantiation of member function 'boost::signals2::detail::auto_buffer<boost::shared_ptr<void>, boost::signals2::detail::store_n_objects<10>>::reserve_impl' requested here
+  801 |             reserve_impl( new_capacity_impl( n ) );
+      |             ^
+external/boost/signals2/detail/auto_buffer.hpp:826:16: note: in instantiation of member function 'boost::signals2::detail::auto_buffer<boost::shared_ptr<void>, boost::signals2::detail::store_n_objects<10>>::reserve' requested here
+  826 |                reserve( size_ + 1u );
+      |                ^
+external/boost/signals2/connection.hpp:47:19: note: in instantiation of member function 'boost::signals2::detail::auto_buffer<boost::shared_ptr<void>, boost::signals2::detail::store_n_objects<10>>::push_back' requested here
+   47 |           garbage.push_back(piece_of_trash);
+      |                   ^
+external/boost/signals2/connection.hpp:126:22: note: in instantiation of member function 'boost::signals2::detail::garbage_collecting_lock<boost::signals2::detail::connection_body_base>::add_trash' requested here
+  126 |             lock_arg.add_trash(release_slot());
+      |                      ^
+external/boost/signals2/connection.hpp:76:13: note: in instantiation of function template specialization 'boost::signals2::detail::connection_body_base::dec_slot_refcount<boost::signals2::detail::connection_body_base>' requested here
+   76 |             dec_slot_refcount(lock_arg);
+      |             ^
+external/boost/signals2/connection.hpp:68:11: note: in instantiation of function template specialization 'boost::signals2::detail::connection_body_base::nolock_disconnect<boost::signals2::detail::connection_body_base>' requested here
+   68 |           nolock_disconnect(local_lock);
+      |           ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:18:
+In file included from external/boost/function.hpp:30:
+In file included from external/boost/function/detail/prologue.hpp:17:
+In file included from external/boost/function/function_base.hpp:23:
+external/boost/type_traits/has_trivial_destructor.hpp:30:86: warning: builtin __has_trivial_destructor is deprecated; use __is_trivially_destructible instead [-Wdeprecated-builtins]
+   30 | template <typename T> struct has_trivial_destructor : public integral_constant<bool, BOOST_HAS_TRIVIAL_DESTRUCTOR(T)>{};
+      |                                                                                      ^
+external/boost/type_traits/intrinsics.hpp:196:47: note: expanded from macro 'BOOST_HAS_TRIVIAL_DESTRUCTOR'
+  196 | #     define BOOST_HAS_TRIVIAL_DESTRUCTOR(T) (__has_trivial_destructor(T)  && is_destructible<T>::value)
+      |                                               ^
+external/boost/signals2/detail/auto_buffer.hpp:261:38: note: in instantiation of template class 'boost::has_trivial_destructor<boost::variant<boost::shared_ptr<void>, boost::signals2::detail::foreign_void_shared_ptr>>' requested here
+  261 |                 auto_buffer_destroy( boost::has_trivial_destructor<T>() );
+      |                                      ^
+external/boost/signals2/detail/auto_buffer.hpp:611:13: note: in instantiation of member function 'boost::signals2::detail::auto_buffer<boost::variant<boost::shared_ptr<void>, boost::signals2::detail::foreign_void_shared_ptr>, boost::signals2::detail::store_n_objects<10>>::auto_buffer_destroy' requested here
+  611 |             auto_buffer_destroy();
+      |             ^
+external/boost/signals2/detail/slot_call_iterator.hpp:36:9: note: in instantiation of member function 'boost::signals2::detail::auto_buffer<boost::variant<boost::shared_ptr<void>, boost::signals2::detail::foreign_void_shared_ptr>, boost::signals2::detail::store_n_objects<10>>::~auto_buffer' requested here
+   36 |         slot_call_iterator_cache(const Function &f_arg):
+      |         ^
+external/boost/signals2/detail/signal_template.hpp:240:41: note: in instantiation of member function 'boost::signals2::detail::slot_call_iterator_cache<boost::signals2::detail::void_type, boost::signals2::detail::variadic_slot_invoker<boost::signals2::detail::void_type, std::string>>::slot_call_iterator_cache' requested here
+  240 |           slot_call_iterator_cache_type cache(invoker);
+      |                                         ^
+external/boost/signals2/detail/signal_template.hpp:722:16: note: in instantiation of member function 'boost::signals2::detail::signal_impl<void (std::string), boost::signals2::optional_last_value<void>, int, std::less<int>, boost::function<void (std::string)>, boost::function<void (const boost::signals2::connection &, std::string)>, boost::signals2::mutex>::operator()' requested here
+  722 |         return (*_pimpl)(BOOST_SIGNALS2_SIGNATURE_ARG_NAMES(BOOST_SIGNALS2_NUM_ARGS));
+      |                ^
+src/pingus/components/choice_box.cpp:77:16: note: in instantiation of member function 'boost::signals2::signal<void (std::string)>::operator()' requested here
+   77 |       on_change(choices[current_choice]);
+      |                ^
+In file included from src/pingus/components/choice_box.cpp:17:
+In file included from src/pingus/components/choice_box.hpp:20:
+In file included from external/boost/signals2/signal.hpp:22:
+In file included from external/boost/signals2/connection.hpp:21:
+In file included from external/boost/signals2/detail/auto_buffer.hpp:29:
+external/boost/type_traits/has_nothrow_copy.hpp:36:89: warning: builtin __has_nothrow_copy is deprecated; use __is_nothrow_constructible instead [-Wdeprecated-builtins]
+   36 | template <class T> struct has_nothrow_copy_constructor : public integral_constant<bool, BOOST_HAS_NOTHROW_COPY(T)>{};
+      |                                                                                         ^
+external/boost/type_traits/intrinsics.hpp:202:41: note: expanded from macro 'BOOST_HAS_NOTHROW_COPY'
+  202 | #     define BOOST_HAS_NOTHROW_COPY(T) (__has_nothrow_copy(T) && !is_volatile<T>::value && !is_reference<T>::value && is_copy_constructible<T>::value)
+      |                                         ^
+external/boost/type_traits/has_nothrow_copy.hpp:78:53: note: in instantiation of template class 'boost::has_nothrow_copy_constructor<boost::variant<boost::shared_ptr<void>, boost::signals2::detail::foreign_void_shared_ptr>>' requested here
+   78 | template <class T> struct has_nothrow_copy : public has_nothrow_copy_constructor<T>{};
+      |                                                     ^
+external/boost/signals2/detail/auto_buffer.hpp:315:50: note: in instantiation of template class 'boost::has_nothrow_copy<boost::variant<boost::shared_ptr<void>, boost::signals2::detail::foreign_void_shared_ptr>>' requested here
+  315 |                                                  boost::has_nothrow_copy<T>() );
+      |                                                  ^
+external/boost/signals2/detail/auto_buffer.hpp:801:13: note: in instantiation of member function 'boost::signals2::detail::auto_buffer<boost::variant<boost::shared_ptr<void>, boost::signals2::detail::foreign_void_shared_ptr>, boost::signals2::detail::store_n_objects<10>>::reserve_impl' requested here
+  801 |             reserve_impl( new_capacity_impl( n ) );
+      |             ^
+external/boost/signals2/detail/auto_buffer.hpp:826:16: note: in instantiation of member function 'boost::signals2::detail::auto_buffer<boost::variant<boost::shared_ptr<void>, boost::signals2::detail::foreign_void_shared_ptr>, boost::signals2::detail::store_n_objects<10>>::reserve' requested here
+  826 |                reserve( size_ + 1u );
+      |                ^
+/emsdk/upstream/emscripten/cache/sysroot/include/c++/v1/__iterator/back_insert_iterator.h:57:16: note: in instantiation of member function 'boost::signals2::detail::auto_buffer<boost::variant<boost::shared_ptr<void>, boost::signals2::detail::foreign_void_shared_ptr>, boost::signals2::detail::store_n_objects<10>>::push_back' requested here
+   57 |     container->push_back(__value);
+      |                ^
+external/boost/signals2/connection.hpp:190:25: note: (skipping 1 context in backtrace; use -ftemplate-backtrace-limit=0 to see all)
+  190 |             *inserter++ = locked_object;
+      |                         ^
+external/boost/signals2/detail/slot_call_iterator.hpp:157:22: note: in instantiation of function template specialization 'boost::signals2::detail::connection_body<std::pair<boost::signals2::detail::slot_meta_group, boost::optional<int>>, boost::signals2::slot<void (std::string)>, boost::signals2::mutex>::nolock_grab_tracked_objects<boost::signals2::detail::connection_body_base, std::back_insert_iterator<boost::signals2::detail::auto_buffer<boost::variant<boost::shared_ptr<void>, boost::signals2::detail::foreign_void_shared_ptr>, boost::signals2::detail::store_n_objects<10>>>>' requested here
+  157 |             (*iter)->nolock_grab_tracked_objects(lock, std::back_inserter(cache->tracked_ptrs));
+      |                      ^
+external/boost/signals2/detail/slot_call_iterator.hpp:101:11: note: in instantiation of member function 'boost::signals2::detail::slot_call_iterator_t<boost::signals2::detail::variadic_slot_invoker<boost::signals2::detail::void_type, std::string>, std::__list_iterator<boost::shared_ptr<boost::signals2::detail::connection_body<std::pair<boost::signals2::detail::slot_meta_group, boost::optional<int>>, boost::signals2::slot<void (std::string)>, boost::signals2::mutex>>, void *>, boost::signals2::detail::connection_body<std::pair<boost::signals2::detail::slot_meta_group, boost::optional<int>>, boost::signals2::slot<void (std::string)>, boost::signals2::mutex>>::lock_next_callable' requested here
+  101 |           lock_next_callable();
+      |           ^
+external/boost/signals2/detail/signal_template.hpp:245:15: note: in instantiation of member function 'boost::signals2::detail::slot_call_iterator_t<boost::signals2::detail::variadic_slot_invoker<boost::signals2::detail::void_type, std::string>, std::__list_iterator<boost::shared_ptr<boost::signals2::detail::connection_body<std::pair<boost::signals2::detail::slot_meta_group, boost::optional<int>>, boost::signals2::slot<void (std::string)>, boost::signals2::mutex>>, void *>, boost::signals2::detail::connection_body<std::pair<boost::signals2::detail::slot_meta_group, boost::optional<int>>, boost::signals2::slot<void (std::string)>, boost::signals2::mutex>>::slot_call_iterator_t' requested here
+  245 |               slot_call_iterator(local_state->connection_bodies().begin(), local_state->connection_bodies().end(), cache),
+      |               ^
+external/boost/signals2/detail/signal_template.hpp:722:16: note: in instantiation of member function 'boost::signals2::detail::signal_impl<void (std::string), boost::signals2::optional_last_value<void>, int, std::less<int>, boost::function<void (std::string)>, boost::function<void (const boost::signals2::connection &, std::string)>, boost::signals2::mutex>::operator()' requested here
+  722 |         return (*_pimpl)(BOOST_SIGNALS2_SIGNATURE_ARG_NAMES(BOOST_SIGNALS2_NUM_ARGS));
+      |                ^
+src/pingus/components/choice_box.cpp:77:16: note: in instantiation of member function 'boost::signals2::signal<void (std::string)>::operator()' requested here
+   77 |       on_change(choices[current_choice]);
+      |                ^
+47 warnings generated.
+src/pingus/components/playfield.cpp:217:23: error: use of undeclared identifier 'SDL_GetKeyState'; did you mean 'SDL_GetKeyName'?
+  217 |     Uint8 *keystate = SDL_GetKeyState(NULL);
+      |                       ^~~~~~~~~~~~~~~
+      |                       SDL_GetKeyName
+/emsdk/upstream/emscripten/cache/sysroot/include/SDL/SDL_keyboard.h:134:37: note: 'SDL_GetKeyName' declared here
+  134 | extern DECLSPEC const char *SDLCALL SDL_GetKeyName(SDL_Keycode key);
+      |                                     ^
+src/pingus/components/playfield.cpp:217:12: error: cannot initialize a variable of type 'Uint8 *' (aka 'unsigned char *') with an rvalue of type 'const char *'
+  217 |     Uint8 *keystate = SDL_GetKeyState(NULL);
+      |            ^          ~~~~~~~~~~~~~~~~~~~~~
+2 errors generated.
+em++: error: '/emsdk/upstream/bin/clang++ -target wasm32-unknown-emscripten -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-cxx-exceptions -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr --sysroot=/emsdk/upstream/emscripten/cache/sysroot -DEMSCRIPTEN -I/emsdk/upstream/emscripten/cache/sysroot/include/SDL -Xclang -iwithsysroot/include/compat -I. -Isrc -Iexternal -Iexternal/tinygettext -std=c++11 -O1 -fexceptions -Wno-invalid-source-encoding -DVERSION="0.7.6-web" -DHAVE_ICONV_CONST=1 -DICONV_CONST= src/pingus/components/playfield.cpp -c -o /tmp/emscripten_temp_b2z73f3e/playfield_95.o' failed (returned 1)
