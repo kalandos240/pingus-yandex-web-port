@@ -1,4 +1,5 @@
 from pathlib import Path
+import runpy
 
 # Pingus 0.7.6 splits GroundMap graphics into 32x32 tiles. That is useful for
 # old native SDL, but Emscripten's SDL1 compatibility turns every tile into a
@@ -29,3 +30,7 @@ if 'globals::tile_size' not in s:
 
 p.write_text(s, encoding='utf-8')
 print('Web GroundMap: 128x128 visual tiles enabled (collision map unchanged)')
+
+# This is closely related renderer work: eliminate full-frame SDL surface
+# readbacks caused by the minimap's tiny line primitives.
+runpy.run_path('../tools/patch_web_smallmap_fast.py', run_name='__main__')
