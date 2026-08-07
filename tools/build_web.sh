@@ -8,13 +8,16 @@ python3 ../tools/patch_pingus.py
 python3 ../tools/patch_browser_runtime.py
 
 # Browser SDL_mixer cannot decode Pingus' original tracker modules (.it/.xm/
-# .s3m/.mod).  Preserve the original music by rendering those modules to OGG
-# before embedding the data directory.  GitHub's Ubuntu runner ships ffmpeg
-# with libopenmpt and libvorbis support.
+# .s3m/.mod). Preserve the original music by rendering those modules to OGG
+# before embedding the data directory.
 mapfile -d '' TRACKER_MUSIC < <(find data/music -maxdepth 1 -type f \
   \( -iname '*.it' -o -iname '*.xm' -o -iname '*.s3m' -o -iname '*.mod' \) -print0)
 if (( ${#TRACKER_MUSIC[@]} > 0 )); then
-  command -v ffmpeg >/dev/null || { echo 'ffmpeg is required to convert Pingus tracker music' >&2; exit 1; }
+  if ! command -v ffmpeg >/dev/null 2>&1; then
+    echo 'Installing ffmpeg for Pingus tracker-music conversion'
+    sudo apt-get update
+    sudo apt-get install -y --no-install-recommends ffmpeg
+  fi
   printf 'Converting %s original tracker music files to browser-decodable OGG\n' "${#TRACKER_MUSIC[@]}"
   for track in "${TRACKER_MUSIC[@]}"; do
     output="${track%.*}.ogg"
