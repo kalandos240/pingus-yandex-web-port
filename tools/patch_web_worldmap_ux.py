@@ -2,8 +2,9 @@ from pathlib import Path
 
 # Allow manual panning of the Tutorial Island/worldmap. Native Pingus always
 # centers the camera on the walking pingu, which makes a large 1920x1200 map
-# awkward to inspect in a browser. In Web, right-drag pans with a mouse and the
-# existing touch adapter maps a finger swipe to the same secondary-drag stream.
+# awkward to inspect in a browser. In Web, a normal left-drag or right-drag
+# pans with a mouse; the existing touch adapter maps a finger swipe to the same
+# secondary-drag stream. A short left click still selects a map node.
 p = Path('src/pingus/worldmap/worldmap.hpp')
 s = p.read_text(encoding='utf-8')
 s = s.replace('''  int mouse_x;\n  int mouse_y;\n''', '''  int mouse_x;\n  int mouse_y;\n#ifdef __EMSCRIPTEN__\n  Vector2i camera_offset;\n#endif\n''', 1)
@@ -25,14 +26,20 @@ p.write_text(s, encoding='utf-8')
 
 p = Path('src/pingus/worldmap/worldmap_component.hpp')
 s = p.read_text(encoding='utf-8')
-s = s.replace('''  bool m_fast_forward;\n''', '''  bool m_fast_forward;\n#ifdef __EMSCRIPTEN__\n  bool m_map_dragging;\n  int m_drag_x;\n  int m_drag_y;\n#endif\n''', 1)
+s = s.replace('''  bool m_fast_forward;\n''', '''  bool m_fast_forward;\n#ifdef __EMSCRIPTEN__\n  bool m_map_dragging;\n  bool m_primary_dragging;\n  bool m_primary_moved;\n  int m_drag_x;\n  int m_drag_y;\n  int m_primary_start_x;\n  int m_primary_start_y;\n#endif\n''', 1)
+s = s.replace('''  void on_primary_button_press (int x, int y);\n  void on_secondary_button_press (int x, int y);\n''', '''  void on_primary_button_press (int x, int y);\n  void on_primary_button_release (int x, int y);\n  void on_secondary_button_press (int x, int y);\n''', 1)
 s = s.replace('''  void on_secondary_button_press (int x, int y);\n  void on_pointer_move(int x, int y);\n''', '''  void on_secondary_button_press (int x, int y);\n  void on_secondary_button_release (int x, int y);\n  void on_pointer_move(int x, int y);\n''', 1)
 p.write_text(s, encoding='utf-8')
 
 p = Path('src/pingus/worldmap/worldmap_component.cpp')
 s = p.read_text(encoding='utf-8')
-s = s.replace('''  worldmap_screen(worldmap_screen_),\n  m_fast_forward(false)\n{''', '''  worldmap_screen(worldmap_screen_),\n  m_fast_forward(false)\n#ifdef __EMSCRIPTEN__\n  , m_map_dragging(false), m_drag_x(0), m_drag_y(0)\n#endif\n{''', 1)
-s = s.replace('''void\nWorldmapComponent::on_pointer_move (int x, int y)\n{\n  Rect cliprect = worldmap_screen->get_trans_rect();\n  worldmap_screen->get_worldmap()->on_pointer_move(x - cliprect.left,\n                                                   y - cliprect.top);\n}\n\nvoid\nWorldmapComponent::on_secondary_button_press (int x, int y)\n{\n  Rect cliprect = worldmap_screen->get_trans_rect();\n  worldmap_screen->get_worldmap()->on_secondary_button_press(x - cliprect.left,\n                                                             y - cliprect.top);\n}\n''', '''void\nWorldmapComponent::on_pointer_move (int x, int y)\n{\n#ifdef __EMSCRIPTEN__\n  if (m_map_dragging)\n  {\n    worldmap_screen->get_worldmap()->pan_camera(m_drag_x - x, m_drag_y - y);\n    m_drag_x = x;\n    m_drag_y = y;\n  }\n#endif\n  Rect cliprect = worldmap_screen->get_trans_rect();\n  worldmap_screen->get_worldmap()->on_pointer_move(x - cliprect.left,\n                                                   y - cliprect.top);\n}\n\nvoid\nWorldmapComponent::on_secondary_button_press (int x, int y)\n{\n#ifdef __EMSCRIPTEN__\n  m_map_dragging = true;\n  m_drag_x = x;\n  m_drag_y = y;\n#else\n  Rect cliprect = worldmap_screen->get_trans_rect();\n  worldmap_screen->get_worldmap()->on_secondary_button_press(x - cliprect.left,\n                                                             y - cliprect.top);\n#endif\n}\n\nvoid\nWorldmapComponent::on_secondary_button_release (int, int)\n{\n#ifdef __EMSCRIPTEN__\n  m_map_dragging = false;\n#endif\n}\n''', 1)
+s = s.replace('''  worldmap_screen(worldmap_screen_),\n  m_fast_forward(false)\n{''', '''  worldmap_screen(worldmap_screen_),\n  m_fast_forward(false)\n#ifdef __EMSCRIPTEN__\n  , m_map_dragging(false), m_primary_dragging(false), m_primary_moved(false),\n    m_drag_x(0), m_drag_y(0), m_primary_start_x(0), m_primary_start_y(0)\n#endif\n{''', 1)
+old_primary = '''void\nWorldmapComponent::on_primary_button_press (int x, int y)\n{\n  Rect cliprect = worldmap_screen->get_trans_rect();\n  worldmap_screen->get_worldmap()->on_primary_button_press(x - cliprect.left,\n                                                           y - cliprect.top);\n}\n'''
+new_primary = '''void\nWorldmapComponent::on_primary_button_press (int x, int y)\n{\n#ifdef __EMSCRIPTEN__\n  // Delay a node click until release so the same left button can be used for\n  // natural map dragging without accidentally sending the pingu somewhere.\n  m_primary_dragging = true;\n  m_primary_moved = false;\n  m_primary_start_x = m_drag_x = x;\n  m_primary_start_y = m_drag_y = y;\n#else\n  Rect cliprect = worldmap_screen->get_trans_rect();\n  worldmap_screen->get_worldmap()->on_primary_button_press(x - cliprect.left,\n                                                           y - cliprect.top);\n#endif\n}\n\nvoid\nWorldmapComponent::on_primary_button_release (int x, int y)\n{\n#ifdef __EMSCRIPTEN__\n  if (m_primary_dragging && !m_primary_moved)\n  {\n    Rect cliprect = worldmap_screen->get_trans_rect();\n    worldmap_screen->get_worldmap()->on_primary_button_press(x - cliprect.left,\n                                                             y - cliprect.top);\n  }\n  m_primary_dragging = false;\n  m_primary_moved = false;\n#endif\n}\n'''
+if s.count(old_primary) != 1:
+    raise SystemExit('worldmap primary click anchor missing')
+s = s.replace(old_primary, new_primary, 1)
+s = s.replace('''void\nWorldmapComponent::on_pointer_move (int x, int y)\n{\n  Rect cliprect = worldmap_screen->get_trans_rect();\n  worldmap_screen->get_worldmap()->on_pointer_move(x - cliprect.left,\n                                                   y - cliprect.top);\n}\n\nvoid\nWorldmapComponent::on_secondary_button_press (int x, int y)\n{\n  Rect cliprect = worldmap_screen->get_trans_rect();\n  worldmap_screen->get_worldmap()->on_secondary_button_press(x - cliprect.left,\n                                                             y - cliprect.top);\n}\n''', '''void\nWorldmapComponent::on_pointer_move (int x, int y)\n{\n#ifdef __EMSCRIPTEN__\n  if (m_primary_dragging)\n  {\n    if (!m_primary_moved &&\n        (x < m_primary_start_x - 6 || x > m_primary_start_x + 6 ||\n         y < m_primary_start_y - 6 || y > m_primary_start_y + 6))\n    {\n      m_primary_moved = true;\n      worldmap_screen->get_worldmap()->pan_camera(m_primary_start_x - x,\n                                                   m_primary_start_y - y);\n    }\n    else if (m_primary_moved)\n    {\n      worldmap_screen->get_worldmap()->pan_camera(m_drag_x - x, m_drag_y - y);\n    }\n    m_drag_x = x;\n    m_drag_y = y;\n  }\n  else if (m_map_dragging)\n  {\n    worldmap_screen->get_worldmap()->pan_camera(m_drag_x - x, m_drag_y - y);\n    m_drag_x = x;\n    m_drag_y = y;\n  }\n#endif\n  Rect cliprect = worldmap_screen->get_trans_rect();\n  worldmap_screen->get_worldmap()->on_pointer_move(x - cliprect.left,\n                                                   y - cliprect.top);\n}\n\nvoid\nWorldmapComponent::on_secondary_button_press (int x, int y)\n{\n#ifdef __EMSCRIPTEN__\n  m_map_dragging = true;\n  m_drag_x = x;\n  m_drag_y = y;\n#else\n  Rect cliprect = worldmap_screen->get_trans_rect();\n  worldmap_screen->get_worldmap()->on_secondary_button_press(x - cliprect.left,\n                                                             y - cliprect.top);\n#endif\n}\n\nvoid\nWorldmapComponent::on_secondary_button_release (int, int)\n{\n#ifdef __EMSCRIPTEN__\n  m_map_dragging = false;\n#endif\n}\n''', 1)
 p.write_text(s, encoding='utf-8')
 
 # Protect fixed-size menu layouts from long localized strings. Wrap list
@@ -78,4 +85,4 @@ if s.count(old) != 1:
 s = s.replace(old, new, 1)
 p.write_text(s, encoding='utf-8')
 
-print('Web worldmap UX: swipe/right-drag panning + localized text wrapping/fitting enabled')
+print('Web worldmap UX: left/right drag + touch swipe panning; localized text wrapping/fitting enabled')
