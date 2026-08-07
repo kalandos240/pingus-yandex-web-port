@@ -36,6 +36,9 @@ s, a = re.subn(r'\n  argp\.add_group\("Editor Options:"\);\n  argp\.add_option\(
 s, b = re.subn(r"\n      case 'e': // -e, --editor\n        cmd_options\.editor\.set\(true\);\n        break;\n", '\n', s, count=1)
 s, c = re.subn(r'  if \(cmd_options\.editor\.is_set\(\) && cmd_options\.editor\.get\(\)\)\n  \{ // Editor\n.*?  \}\n  else if \(cmd_options\.rest\.is_set\(\)', '  if (cmd_options.rest.is_set())', s, count=1, flags=re.DOTALL)
 if (a,b,c) != (1,1,1): raise SystemExit(f'editor patch mismatch {(a,b,c)}')
+# C++11/Clang compatibility after removing the editor branch.
+s = s.replace('if (cmd_options.rest.is_set()))', 'if (cmd_options.rest.is_set())')
+s = s.replace('"Welcome to Pingus "VERSION', '"Welcome to Pingus " VERSION')
 p.write_text(s, encoding='utf-8')
 
 # Bring the old exception helpers into translation units that call them directly.
