@@ -1,6 +1,10 @@
 from pathlib import Path
 import re
 
+# Apply the last shipped-data translation fixes before the actual-data audit.
+# Importing this build helper updates data/po/ru.po in place.
+import patch_web_release_translations  # noqa: F401
+
 # Keep GPL attribution in the distributed legal files, but do not expose
 # author names/e-mail addresses in the player-facing Yandex Games UI.
 p = Path('src/pingus/screens/start_screen.cpp')
