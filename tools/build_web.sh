@@ -5,6 +5,26 @@ mkdir -p ../dist
 rm -rf ../dist/* external/boost
 cp -a /usr/include/boost external/boost
 python3 ../tools/patch_pingus.py
+python3 ../tools/patch_browser_runtime.py
+
+# Browser SDL_mixer cannot decode Pingus' original tracker modules (.it/.xm/
+# .s3m/.mod).  Preserve the original music by rendering those modules to OGG
+# before embedding the data directory.  GitHub's Ubuntu runner ships ffmpeg
+# with libopenmpt and libvorbis support.
+mapfile -d '' TRACKER_MUSIC < <(find data/music -maxdepth 1 -type f \
+  \( -iname '*.it' -o -iname '*.xm' -o -iname '*.s3m' -o -iname '*.mod' \) -print0)
+if (( ${#TRACKER_MUSIC[@]} > 0 )); then
+  command -v ffmpeg >/dev/null || { echo 'ffmpeg is required to convert Pingus tracker music' >&2; exit 1; }
+  printf 'Converting %s original tracker music files to browser-decodable OGG\n' "${#TRACKER_MUSIC[@]}"
+  for track in "${TRACKER_MUSIC[@]}"; do
+    output="${track%.*}.ogg"
+    printf '  %s -> %s\n' "$track" "$output"
+    ffmpeg -hide_banner -nostdin -loglevel error -y -i "$track" \
+      -map_metadata -1 -vn -c:a libvorbis -q:a 4 "$output"
+    test -s "$output"
+  done
+  rm -f "${TRACKER_MUSIC[@]}"
+fi
 
 mapfile -t SOURCES < <(find external/tinygettext/tinygettext src -type f -name '*.cpp' \
   ! -path 'src/editor/*' ! -path '*/opengl/*' ! -path '*/evdev/*' \
