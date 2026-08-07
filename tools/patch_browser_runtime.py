@@ -96,3 +96,16 @@ if s.count(needle) != 1:
     raise SystemExit('browser save-file permission patch mismatch')
 s = s.replace(needle, replacement, 1)
 p.write_text(s, encoding='utf-8')
+
+# Pingus' SDL1 renderer and collision system perform frequent getImageData()
+# reads from many browser canvases. Tell Chromium to create those 2D contexts
+# for frequent pixel readback; this avoids repeated GPU-to-CPU fallback work
+# and the associated Canvas2D warning flood while preserving all context opts.
+p = Path('../web/shell.html')
+s = p.read_text(encoding='utf-8')
+needle = '''    (() => {\n      const loading = document.getElementById('loading');'''
+replacement = '''    (() => {\n      const nativeCanvasGetContext = HTMLCanvasElement.prototype.getContext;\n      HTMLCanvasElement.prototype.getContext = function(type, options) {\n        if (type === '2d') {\n          const readbackOptions = options && typeof options === 'object'\n            ? { ...options, willReadFrequently: true }\n            : { willReadFrequently: true };\n          return nativeCanvasGetContext.call(this, type, readbackOptions);\n        }\n        return nativeCanvasGetContext.apply(this, arguments);\n      };\n\n      const loading = document.getElementById('loading');'''
+if s.count(needle) != 1:
+    raise SystemExit('browser canvas readback patch mismatch')
+s = s.replace(needle, replacement, 1)
+p.write_text(s, encoding='utf-8')
