@@ -7,6 +7,7 @@ cp -a /usr/include/boost external/boost
 python3 ../tools/patch_pingus.py
 python3 ../tools/patch_browser_runtime.py
 python3 ../tools/patch_focus_pause.py
+python3 ../tools/patch_yandex_ads.py
 python3 ../tools/patch_yandex_locale.py
 python3 ../tools/patch_web_localization.py
 python3 ../tools/patch_web_hide_author.py
