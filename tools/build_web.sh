@@ -9,14 +9,7 @@ python3 - <<'PY'
 from pathlib import Path
 import re
 
-def rw(path, fn):
-    p = Path(path)
-    s = p.read_text(encoding='utf-8')
-    n = fn(s)
-    if n != s:
-        p.write_text(n, encoding='utf-8')
-
-# Modern Boost / SDL compatibility fixes used by the original Pingus 0.7.6 code.
+# Modern Boost / SDL naming compatibility.
 for p in list(Path('src').rglob('*.hpp')) + list(Path('src').rglob('*.cpp')):
     s = p.read_text(encoding='utf-8')
     n = s.replace('<boost/signal.hpp>', '<boost/signals2/signal.hpp>')
@@ -25,65 +18,79 @@ for p in list(Path('src').rglob('*.hpp')) + list(Path('src').rglob('*.cpp')):
     n = n.replace('boost::signals::', 'boost::signals2::')
     n = re.sub(r'Uint8\s*\*\s*(\w+)\s*=\s*SDL_GetKeyState\(NULL\);',
                r'const Uint8* \1 = SDL_GetKeyboardState(NULL);', n)
-    # Clang C++11 rejects old adjacent string-literal/macro spelling such as
-    # "Pingus "VERSION"...". Insert the required whitespace before VERSION.
     n = re.sub(r'"([^"\n]*)"VERSION', r'"\1" VERSION', n)
     if n != s:
         p.write_text(n, encoding='utf-8')
 
-# Browser build omits the desktop level editor.
+# Browser build omits the desktop level editor command-line branch.
 p = Path('src/pingus/pingus_main.cpp')
 s = p.read_text(encoding='utf-8')
 s = s.replace('#include "editor/editor_level.hpp"\n#include "editor/editor_screen.hpp"\n', '')
 s, a = re.subn(r'\n  argp\.add_group\("Editor Options:"\);\n  argp\.add_option\(\'e\', "editor", "",\n                  _\("Loads the level editor"\)\);\n', '\n', s, count=1)
 s, b = re.subn(r"\n      case 'e': // -e, --editor\n        cmd_options\.editor\.set\(true\);\n        break;\n", '\n', s, count=1)
 s, c = re.subn(r'  if \(cmd_options\.editor\.is_set\(\) && cmd_options\.editor\.get\(\)\)\n  \{ // Editor\n.*?  \}\n  else if \(cmd_options\.rest\.is_set\(\)', '  if (cmd_options.rest.is_set())', s, count=1, flags=re.DOTALL)
-if (a,b,c) != (1,1,1): raise SystemExit(f'editor patch mismatch {(a,b,c)}')
-# C++11/Clang compatibility after removing the editor branch.
+if (a,b,c) != (1,1,1):
+    raise SystemExit(f'editor main patch mismatch {(a,b,c)}')
 s = s.replace('if (cmd_options.rest.is_set()))', 'if (cmd_options.rest.is_set())')
-s = s.replace('"Welcome to Pingus "VERSION', '"Welcome to Pingus " VERSION')
 p.write_text(s, encoding='utf-8')
 
-# Bring the old exception helpers into translation units that call them directly.
+# The main menu also references the editor. Keep the original menu layout but make
+# the editor entry inert so the browser build does not require editor object files.
+p = Path('src/pingus/screens/pingus_menu.cpp')
+s = p.read_text(encoding='utf-8')
+s = s.replace('#include "editor/editor_screen.hpp"\n', '')
+s, n = re.subn(r'void PingusMenu::do_edit\(\)\n\{.*?\n\}',
+               'void PingusMenu::do_edit()\n{\n  // Level editor is intentionally unavailable in the WebAssembly build.\n}',
+               s, count=1, flags=re.DOTALL)
+if n != 1:
+    raise SystemExit('editor menu patch mismatch')
+p.write_text(s, encoding='utf-8')
+
+# Bring old exception helpers into translation units that call them directly.
 for p in Path('src').rglob('*.cpp'):
     s = p.read_text(encoding='utf-8')
     if ('raise_exception(' in s or 'raise_error(' in s) and 'util/raise_exception.hpp' not in s:
         m = re.search(r'^#include ', s, flags=re.MULTILINE)
-        if not m: raise SystemExit(f'no include anchor in {p}')
+        if not m:
+            raise SystemExit(f'no include anchor in {p}')
         p.write_text(s[:m.start()] + '#include "util/raise_exception.hpp"\n\n' + s[m.start():], encoding='utf-8')
 
-rw('src/engine/display/blitter.cpp', lambda s: s
-   .replace('    ckey = surface->format->colorkey;', '    ckey = 0;\n    SDL_GetColorKey(surface, &ckey);')
-   .replace('  if (surface->flags & SDL_SRCALPHA)\n    SDL_SetAlpha(new_surface, SDL_SRCALPHA, surface->format->alpha);',
-            '  if (surface->flags & SDL_SRCALPHA)\n  {\n    Uint8 alpha = SDL_ALPHA_OPAQUE;\n    SDL_GetSurfaceAlphaMod(surface, &alpha);\n    SDL_SetAlpha(new_surface, SDL_SRCALPHA, alpha);\n  }')
-   .replace('  if (surface->flags & SDL_SRCCOLORKEY)\n    SDL_SetColorKey(new_surface, SDL_SRCCOLORKEY, surface->format->colorkey);',
-            '  if (surface->flags & SDL_SRCCOLORKEY)\n  {\n    Uint32 color_key = 0;\n    SDL_GetColorKey(surface, &color_key);\n    SDL_SetColorKey(new_surface, SDL_SRCCOLORKEY, color_key);\n  }'))
+# Small source-level compatibility fixes already confirmed by previous CI passes.
+def rw(path, old, new):
+    p = Path(path); s = p.read_text(encoding='utf-8'); p.write_text(s.replace(old, new), encoding='utf-8')
 
-rw('src/engine/display/surface.cpp', lambda s: s
-   .replace('          if (impl->surface->flags & SDL_SRCCOLORKEY &&\n              pixel == impl->surface->format->colorkey)',
-            '          Uint32 color_key = 0;\n          if (SDL_GetColorKey(impl->surface, &color_key) == 0 &&\n              pixel == color_key)')
-   .replace('    Uint8 alpha = impl->surface->format->alpha;', '    Uint8 alpha = SDL_ALPHA_OPAQUE;\n    SDL_GetSurfaceAlphaMod(impl->surface, &alpha);')
-   .replace('  if (impl->surface->flags & SDL_SRCCOLORKEY)\n    out << "Colorkey: " << static_cast<int>(impl->surface->format->colorkey) << std::endl;',
-            '  if (impl->surface->flags & SDL_SRCCOLORKEY)\n  {\n    Uint32 color_key = 0;\n    SDL_GetColorKey(impl->surface, &color_key);\n    out << "Colorkey: " << static_cast<int>(color_key) << std::endl;\n  }')
-   .replace('  if (impl->surface->flags & SDL_SRCALPHA)\n    out << "Alpha: " << static_cast<int>(impl->surface->format->alpha) << std::endl;',
-            '  if (impl->surface->flags & SDL_SRCALPHA)\n  {\n    Uint8 alpha = SDL_ALPHA_OPAQUE;\n    SDL_GetSurfaceAlphaMod(impl->surface, &alpha);\n    out << "Alpha: " << static_cast<int>(alpha) << std::endl;\n  }'))
+rw('src/engine/input/event.hpp', '  SDL_keysym keysym;', '  SDL_Keysym keysym;')
+rw('src/engine/input/sdl_driver.cpp', '    char* key_name = SDL_GetKeyName(static_cast<SDLKey>(i));', '    const char* key_name = SDL_GetKeyName(static_cast<SDLKey>(i));')
+rw('src/lisp/getters.hpp', '  const Lisp* el = lisp->get_list_elem(1);', '  const Lisp* el = lisp->get_list_elem(1).get();')
 
-rw('src/pingus/collision_mask.cpp', lambda s: s.replace(
-    '          if (source[y*pitch + x] == sdl_surface->format->colorkey)',
-    '          Uint32 color_key = 0;\n          SDL_GetColorKey(sdl_surface, &color_key);\n          if (source[y*pitch + x] == color_key)'))
+# Emscripten's SDL1 compatibility layer exposes declarations for a few SDL2-style
+# helper calls used by our earlier source compatibility pass, but does not provide
+# linkable implementations. Implement them directly against SDL1 surface fields.
+Path('src/web_sdl_compat.cpp').write_text(r'''#include <SDL.h>
+extern "C" int SDL_GetColorKey(SDL_Surface* surface, Uint32* key)
+{
+  if (!surface || !key) return -1;
+  *key = surface->format->colorkey;
+  return (surface->flags & SDL_SRCCOLORKEY) ? 0 : -1;
+}
+extern "C" int SDL_GetSurfaceAlphaMod(SDL_Surface* surface, Uint8* alpha)
+{
+  if (!surface || !alpha) return -1;
+  *alpha = surface->format->alpha;
+  return 0;
+}
+extern "C" SDL_Surface* SDL_DisplayFormat(SDL_Surface* surface)
+{
+  if (!surface) return 0;
+  return SDL_ConvertSurface(surface, surface->format, surface->flags);
+}
+''', encoding='utf-8')
 
-rw('src/pingus/ground_map.cpp', lambda s: s.replace(
-    '    Uint32 colorkey = sprovider.get_surface()->format->colorkey;',
-    '    Uint32 colorkey = 0;\n    SDL_GetColorKey(sprovider.get_surface(), &colorkey);'))
-
-rw('src/engine/input/event.hpp', lambda s: s.replace('  SDL_keysym keysym;', '  SDL_Keysym keysym;'))
-rw('src/engine/input/sdl_driver.cpp', lambda s: s.replace('    char* key_name = SDL_GetKeyName(static_cast<SDLKey>(i));', '    const char* key_name = SDL_GetKeyName(static_cast<SDLKey>(i));'))
-rw('src/lisp/getters.hpp', lambda s: s.replace('  const Lisp* el = lisp->get_list_elem(1);', '  const Lisp* el = lisp->get_list_elem(1).get();'))
-
-# Yield the main loop in hidden tabs and call the Yandex shell hooks after first frame / exit.
+# Yield while hidden and notify the Yandex shell when the first frame is ready.
 p = Path('src/engine/screen/screen_manager.cpp')
 s = p.read_text(encoding='utf-8')
-s = s.replace('#include <iostream>\n', '#include <iostream>\n\n#ifdef __EMSCRIPTEN__\n#include <emscripten.h>\n#endif\n', 1)
+if '#include <emscripten.h>' not in s:
+    s = s.replace('#include <iostream>\n', '#include <iostream>\n\n#ifdef __EMSCRIPTEN__\n#include <emscripten.h>\n#endif\n', 1)
 s = s.replace('  while (!screens.empty())\n  {\n    events.clear();', '''  while (!screens.empty())
   {
 #ifdef __EMSCRIPTEN__
@@ -116,7 +123,9 @@ ScreenManager::update''', 1)
 p.write_text(s, encoding='utf-8')
 PY
 
-mapfile -t SOURCES < <(find external/tinygettext/tinygettext src -type f -name '*.cpp' ! -path 'src/editor/*' ! -path '*/opengl/*' ! -path '*/evdev/*' ! -path '*/xinput/*' ! -path '*/wiimote/*' -print | sort)
+mapfile -t SOURCES < <(find external/tinygettext/tinygettext src -type f -name '*.cpp' \
+  ! -path 'src/editor/*' ! -path '*/opengl/*' ! -path '*/evdev/*' \
+  ! -path '*/xinput/*' ! -path '*/wiimote/*' -print | sort)
 (( ${#SOURCES[@]} >= 200 )) || { echo "Unexpectedly small source set" >&2; exit 1; }
 printf 'Compiling %s original C++ source files (desktop editor omitted)\n' "${#SOURCES[@]}"
 
