@@ -10,6 +10,9 @@ python3 ../tools/patch_focus_pause.py
 python3 ../tools/patch_yandex_locale.py
 python3 ../tools/patch_web_localization.py
 python3 ../tools/patch_web_hide_author.py
+python3 ../tools/audit_web_localization_sources.py
+python3 ../tools/patch_web_performance.py
+python3 ../tools/patch_web_worldmap_ux.py
 
 # The original 16/20px Pingus bitmap atlases do not contain the complete
 # Russian alphabet. Generate a tiny Web-only Cyrillic fallback atlas during
@@ -57,22 +60,19 @@ mapfile -t SOURCES < <(find external/tinygettext/tinygettext src -type f -name '
 (( ${#SOURCES[@]} >= 200 )) || { echo "Unexpectedly small source set" >&2; exit 1; }
 printf 'Compiling %s original C++ source files (desktop editor omitted)\n' "${#SOURCES[@]}"
 
-# Build a self-contained runtime JS. The old preload-file build generated
-# index.data and index.wasm which had to be fetched separately at runtime.
-# The WebAssembly binary and virtual filesystem payload are embedded into
-# pingus.js so the browser never has to fetch those secondary resources.
-# STB_IMAGE is required because SDL1 IMG_Load otherwise expects browser-side
-# preloaded images; Pingus loads its PNG assets synchronously from the VFS.
+# Build a production-optimized self-contained runtime. O2 materially reduces
+# CPU time in Pingus' software renderer; release assertions are disabled after
+# the browser/gameplay smoke tests proved the patched code paths.
 em++ "${SOURCES[@]}" \
   -I. -Isrc -Iexternal -Iexternal/tinygettext \
-  -std=c++11 -O1 -fexceptions -Wno-invalid-source-encoding \
+  -std=c++11 -O2 -fexceptions -Wno-invalid-source-encoding \
   -DVERSION='"0.7.6-web"' -DHAVE_ICONV_CONST=1 -DICONV_CONST= \
   -sUSE_SDL=1 -sUSE_SDL_IMAGE=1 -sUSE_SDL_MIXER=1 \
   -sSTB_IMAGE=1 -sUSE_LIBPNG=1 -sUSE_OGG=1 -sUSE_VORBIS=1 \
   -sDISABLE_EXCEPTION_CATCHING=0 -sFORCE_FILESYSTEM=1 \
   -sASYNCIFY=1 -sASYNCIFY_STACK_SIZE=65536 \
   -sINITIAL_MEMORY=67108864 -sALLOW_MEMORY_GROWTH=1 -sMAXIMUM_MEMORY=1073741824 \
-  -sASSERTIONS=1 -sERROR_ON_UNDEFINED_SYMBOLS=1 -sEXIT_RUNTIME=0 -sENVIRONMENT=web \
+  -sASSERTIONS=0 -sERROR_ON_UNDEFINED_SYMBOLS=1 -sEXIT_RUNTIME=0 -sENVIRONMENT=web \
   -sSINGLE_FILE=1 -lidbfs.js --embed-file data@/data \
   -o ../dist/pingus.js
 
