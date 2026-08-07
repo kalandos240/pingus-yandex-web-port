@@ -16,12 +16,14 @@ printf 'Compiling %s original C++ source files (desktop editor omitted)\n' "${#S
 # index.data and index.wasm which had to be fetched separately at runtime.
 # The WebAssembly binary and virtual filesystem payload are embedded into
 # pingus.js so the browser never has to fetch those secondary resources.
+# STB_IMAGE is required because SDL1 IMG_Load otherwise expects browser-side
+# preloaded images; Pingus loads its PNG assets synchronously from the VFS.
 em++ "${SOURCES[@]}" \
   -I. -Isrc -Iexternal -Iexternal/tinygettext \
   -std=c++11 -O1 -fexceptions -Wno-invalid-source-encoding \
   -DVERSION='"0.7.6-web"' -DHAVE_ICONV_CONST=1 -DICONV_CONST= \
   -sUSE_SDL=1 -sUSE_SDL_IMAGE=1 -sUSE_SDL_MIXER=1 \
-  -sUSE_LIBPNG=1 -sUSE_OGG=1 -sUSE_VORBIS=1 \
+  -sSTB_IMAGE=1 -sUSE_LIBPNG=1 -sUSE_OGG=1 -sUSE_VORBIS=1 \
   -sDISABLE_EXCEPTION_CATCHING=0 -sFORCE_FILESYSTEM=1 \
   -sASYNCIFY=1 -sASYNCIFY_STACK_SIZE=65536 \
   -sINITIAL_MEMORY=67108864 -sALLOW_MEMORY_GROWTH=1 -sMAXIMUM_MEMORY=1073741824 \
