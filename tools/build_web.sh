@@ -8,8 +8,11 @@ python3 ../tools/patch_pingus.py
 python3 ../tools/patch_browser_runtime.py
 python3 ../tools/patch_focus_pause.py
 python3 ../tools/patch_yandex_locale.py
+python3 ../tools/patch_web_localization.py
+python3 ../tools/patch_web_fonts.py
 python3 ../tools/patch_touch_input.py
 python3 ../tools/patch_web_menu.py
+python3 ../tools/patch_web_options.py
 python3 ../tools/patch_sdl_framebuffer.py
 python3 ../tools/patch_groundmap_erase.py
 
