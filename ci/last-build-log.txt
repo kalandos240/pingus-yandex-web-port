@@ -1,32 +1,38 @@
 Compiling 207 original C++ source files (desktop editor omitted)
 ports:INFO: retrieving port: zlib from https://github.com/madler/zlib/archive/refs/tags/v1.2.13.tar.gz
 ports:INFO: unpacking port: zlib
-cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libz.a... (this will be cached in "/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libz.a" for subsequent builds)
-system_libs:INFO: compiled 15 inputs in 2.06s
+cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libz.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libz.a" for subsequent builds)
+system_libs:INFO: compiled 15 inputs in 2.08s
 cache:INFO:  - ok
 ports:INFO: retrieving port: ogg from https://github.com/emscripten-ports/ogg/archive/version_1.zip
 ports:INFO: unpacking port: ogg
-cache:INFO: generating system library: sysroot/lib/wasm32-emscripten/libogg.a... (this will be cached in "/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libogg.a" for subsequent builds)
+cache:INFO: generating system library: sysroot/lib/wasm32-emscripten/libogg.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libogg.a" for subsequent builds)
 system_libs:INFO: compiled 2 inputs in 0.31s
 cache:INFO:  - ok
 ports:INFO: retrieving port: vorbis from https://github.com/emscripten-ports/vorbis/archive/version_1.zip
 ports:INFO: unpacking port: vorbis
-cache:INFO: generating system library: sysroot/lib/wasm32-emscripten/libvorbis.a... (this will be cached in "/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libvorbis.a" for subsequent builds)
-system_libs:INFO: compiled 22 inputs in 3.91s
+cache:INFO: generating system library: sysroot/lib/wasm32-emscripten/libvorbis.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libvorbis.a" for subsequent builds)
+system_libs:INFO: compiled 22 inputs in 3.72s
 cache:INFO:  - ok
 ports:INFO: retrieving port: libpng from https://storage.googleapis.com/webassembly/emscripten-ports/libpng-1.6.39.tar.gz
 ports:INFO: unpacking port: libpng
-cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libpng.a... (this will be cached in "/emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libpng.a" for subsequent builds)
-system_libs:INFO: compiled 25 inputs in 4.11s
+cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libpng.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libpng.a" for subsequent builds)
+system_libs:INFO: compiled 25 inputs in 4.17s
 cache:INFO:  - ok
 src/engine/display/blitter.cpp:50:29: error: no member named 'colorkey' in 'SDL_PixelFormat'
    50 |     ckey = surface->format->colorkey;
       |            ~~~~~~~~~~~~~~~  ^
-src/engine/display/blitter.cpp:229:62: error: no member named 'alpha' in 'SDL_PixelFormat'
-  229 |     SDL_SetAlpha(new_surface, SDL_SRCALPHA, surface->format->alpha);
-      |                                             ~~~~~~~~~~~~~~~  ^
-src/engine/display/blitter.cpp:236:68: error: no member named 'colorkey' in 'SDL_PixelFormat'
-  236 |     SDL_SetColorKey(new_surface, SDL_SRCCOLORKEY, surface->format->colorkey);
-      |                                                   ~~~~~~~~~~~~~~~  ^
-3 errors generated.
-em++: error: '/emsdk/upstream/bin/clang++ -target wasm32-unknown-emscripten -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-cxx-exceptions -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr --sysroot=/emsdk/upstream/emscripten/cache/sysroot -DEMSCRIPTEN -I/emsdk/upstream/emscripten/cache/sysroot/include/SDL -Xclang -iwithsysroot/include/compat -I. -Isrc -Iexternal -Iexternal/tinygettext -std=c++11 -O1 -fexceptions -Wno-invalid-source-encoding -DVERSION="0.7.6-web" -DHAVE_ICONV_CONST=1 -DICONV_CONST= src/engine/display/blitter.cpp -c -o /tmp/emscripten_temp_6op2lkbl/blitter_9.o' failed (returned 1)
+src/engine/display/blitter.cpp:230:38: error: use of undeclared identifier 'surface_alpha'
+  230 |     SDL_GetSurfaceAlphaMod(surface, &surface_alpha);
+      |                                      ^
+src/engine/display/blitter.cpp:231:45: error: use of undeclared identifier 'surface_alpha'
+  231 |     SDL_SetAlpha(new_surface, SDL_SRCALPHA, surface_alpha);
+      |                                             ^
+src/engine/display/blitter.cpp:239:35: error: use of undeclared identifier 'surface_colorkey'
+  239 |     if (SDL_GetColorKey(surface, &surface_colorkey) == 0)
+      |                                   ^
+src/engine/display/blitter.cpp:240:53: error: use of undeclared identifier 'surface_colorkey'
+  240 |       SDL_SetColorKey(new_surface, SDL_SRCCOLORKEY, surface_colorkey);
+      |                                                     ^
+5 errors generated.
+em++: error: '/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/bin/clang++ -target wasm32-unknown-emscripten -mllvm -combiner-global-alias-analysis=false -mllvm -enable-emscripten-cxx-exceptions -mllvm -enable-emscripten-sjlj -mllvm -disable-lsr --sysroot=/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot -DEMSCRIPTEN -I/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/include/SDL -Xclang -iwithsysroot/include/compat -I. -Isrc -Iexternal -Iexternal/tinygettext -std=c++11 -O1 -fexceptions -Wno-invalid-source-encoding -DVERSION="0.7.6-web" -DHAVE_ICONV_CONST=1 -DICONV_CONST= src/engine/display/blitter.cpp -c -o /tmp/emscripten_temp_npd_q2y6/blitter_9.o' failed (returned 1)
