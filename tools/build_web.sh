@@ -9,6 +9,7 @@ python3 ../tools/patch_browser_runtime.py
 python3 ../tools/patch_focus_pause.py
 python3 ../tools/patch_yandex_locale.py
 python3 ../tools/patch_web_localization.py
+python3 ../tools/patch_web_hide_author.py
 
 # The original 16/20px Pingus bitmap atlases do not contain the complete
 # Russian alphabet. Generate a tiny Web-only Cyrillic fallback atlas during
