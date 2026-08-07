@@ -71,6 +71,14 @@ if old not in source:
     raise SystemExit('Pingus SDL key-name constness patch mismatch')
 path.write_text(source.replace(old, new, 1), encoding='utf-8')
 
+path = Path('src/lisp/getters.hpp')
+source = path.read_text(encoding='utf-8')
+old = '  const Lisp* el = lisp->get_list_elem(1);'
+new = '  const Lisp* el = lisp->get_list_elem(1).get();'
+if old not in source:
+    raise SystemExit('Pingus Lisp shared-pointer patch mismatch')
+path.write_text(source.replace(old, new, 1), encoding='utf-8')
+
 path = Path('src/engine/screen/screen_manager.cpp')
 source = path.read_text(encoding='utf-8')
 include_anchor = '#include <iostream>\n'
