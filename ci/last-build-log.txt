@@ -2,7 +2,7 @@ Compiling 207 original C++ source files (desktop editor omitted)
 ports:INFO: retrieving port: zlib from https://github.com/madler/zlib/archive/refs/tags/v1.2.13.tar.gz
 ports:INFO: unpacking port: zlib
 cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libz.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libz.a" for subsequent builds)
-system_libs:INFO: compiled 15 inputs in 2.26s
+system_libs:INFO: compiled 15 inputs in 2.23s
 cache:INFO:  - ok
 ports:INFO: retrieving port: ogg from https://github.com/emscripten-ports/ogg/archive/version_1.zip
 ports:INFO: unpacking port: ogg
@@ -12,12 +12,12 @@ cache:INFO:  - ok
 ports:INFO: retrieving port: vorbis from https://github.com/emscripten-ports/vorbis/archive/version_1.zip
 ports:INFO: unpacking port: vorbis
 cache:INFO: generating system library: sysroot/lib/wasm32-emscripten/libvorbis.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libvorbis.a" for subsequent builds)
-system_libs:INFO: compiled 22 inputs in 3.79s
+system_libs:INFO: compiled 22 inputs in 4.23s
 cache:INFO:  - ok
 ports:INFO: retrieving port: libpng from https://storage.googleapis.com/webassembly/emscripten-ports/libpng-1.6.39.tar.gz
 ports:INFO: unpacking port: libpng
 cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libpng.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libpng.a" for subsequent builds)
-system_libs:INFO: compiled 25 inputs in 4.38s
+system_libs:INFO: compiled 25 inputs in 4.58s
 cache:INFO:  - ok
 src/pingus/actions/boarder.cpp:55:67: warning: operator '?:' has lower precedence than '+'; '+' will be evaluated first [-Wparentheses]
    55 |       pingu->set_pos(Vector3f(old_pos.x + (old_pos.x < new_pos.x) ? 1.0f : -1.0f, 
