@@ -63,20 +63,37 @@ rw('src/engine/input/event.hpp', '  SDL_keysym keysym;', '  SDL_Keysym keysym;')
 rw('src/engine/input/sdl_driver.cpp', '    char* key_name = SDL_GetKeyName(static_cast<SDLKey>(i));', '    const char* key_name = SDL_GetKeyName(static_cast<SDLKey>(i));')
 rw('src/lisp/getters.hpp', '  const Lisp* el = lisp->get_list_elem(1);', '  const Lisp* el = lisp->get_list_elem(1).get();')
 
-# Emscripten's SDL1 compatibility layer exposes declarations for a few SDL2-style
-# helper calls used by our earlier source compatibility pass, but does not provide
-# linkable implementations. Implement them directly against SDL1 surface fields.
+# Emscripten's SDL1 shim uses an SDL2-era public SDL_PixelFormat structure, so
+# old Pingus cannot read format->colorkey/alpha directly. Use getter helpers.
+p = Path('src/engine/display/blitter.cpp')
+s = p.read_text(encoding='utf-8')
+s = s.replace('    ckey = surface->format->colorkey;\n    useckey = surface->flags & SDL_SRCCOLORKEY;',
+              '    useckey = SDL_GetColorKey(surface, &ckey) == 0;')
+s = s.replace('    SDL_SetAlpha(new_surface, SDL_SRCALPHA, surface->format->alpha);',
+              '    Uint8 surface_alpha = 255;\n    SDL_GetSurfaceAlphaMod(surface, &surface_alpha);\n    SDL_SetAlpha(new_surface, SDL_SRCALPHA, surface_alpha);')
+s = s.replace('    SDL_SetColorKey(new_surface, SDL_SRCCOLORKEY, surface->format->colorkey);',
+              '    Uint32 surface_colorkey = 0;\n    if (SDL_GetColorKey(surface, &surface_colorkey) == 0)\n      SDL_SetColorKey(new_surface, SDL_SRCCOLORKEY, surface_colorkey);')
+p.write_text(s, encoding='utf-8')
+
+# The SDL1 JavaScript shim keeps per-surface alpha in SDL.surfaces rather than
+# in SDL_PixelFormat. Color-keying is explicitly a no-op in Emscripten's SDL1
+# backend, therefore the getter correctly reports that no color key is active.
 Path('src/web_sdl_compat.cpp').write_text(r'''#include <SDL.h>
+#include <emscripten.h>
 extern "C" int SDL_GetColorKey(SDL_Surface* surface, Uint32* key)
 {
   if (!surface || !key) return -1;
-  *key = surface->format->colorkey;
-  return (surface->flags & SDL_SRCCOLORKEY) ? 0 : -1;
+  *key = 0;
+  return -1;
 }
 extern "C" int SDL_GetSurfaceAlphaMod(SDL_Surface* surface, Uint8* alpha)
 {
   if (!surface || !alpha) return -1;
-  *alpha = surface->format->alpha;
+  int value = EM_ASM_INT({
+    var s = SDL.surfaces[$0];
+    return s && typeof s.alpha === 'number' ? s.alpha : 255;
+  }, surface);
+  *alpha = static_cast<Uint8>(value);
   return 0;
 }
 extern "C" SDL_Surface* SDL_DisplayFormat(SDL_Surface* surface)
