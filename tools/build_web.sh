@@ -9,7 +9,6 @@ python3 ../tools/patch_browser_runtime.py
 python3 ../tools/patch_focus_pause.py
 python3 ../tools/patch_yandex_locale.py
 python3 ../tools/patch_web_localization.py
-python3 ../tools/patch_release_ru_data.py
 python3 ../tools/patch_web_hide_author.py
 python3 ../tools/audit_web_localization_sources.py
 python3 ../tools/patch_web_performance.py
