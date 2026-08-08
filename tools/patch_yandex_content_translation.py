@@ -1,4 +1,5 @@
 from pathlib import Path
+import ast
 import re
 
 po = Path('data/po/ru.po')
@@ -9,6 +10,36 @@ text = po.read_text(encoding='utf-8')
 
 def po_quote(value: str) -> str:
     return value.replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n')
+
+
+def po_value(lines, key):
+    for i, line in enumerate(lines):
+        if line.startswith(key + ' '):
+            parts = [line[len(key) + 1:]]
+            j = i + 1
+            while j < len(lines) and lines[j].startswith('"'):
+                parts.append(lines[j])
+                j += 1
+            value = ''
+            for part in parts:
+                try:
+                    value += ast.literal_eval(part)
+                except Exception:
+                    return None
+            return value
+    return None
+
+
+def replace_msgstr(block: str, translated: str) -> str:
+    lines = block.splitlines()
+    start = next((i for i, line in enumerate(lines) if line.startswith('msgstr ')), None)
+    if start is None:
+        raise SystemExit('PO block has no msgstr')
+    end = start + 1
+    while end < len(lines) and lines[end].startswith('"'):
+        end += 1
+    lines[start:end] = ['msgstr "' + po_quote(translated) + '"']
+    return '\n'.join(lines)
 
 
 def current_field(path: str, field: str) -> str:
@@ -42,15 +73,31 @@ specs = [
      'Пингусов отделяет от выхода большая пропасть. Простого моста недостаточно, чтобы безопасно их провести, если только вы не найдёте правильное место. Сможете обнаружить эту точку?'),
 ]
 
+blocks = re.split(r'\n\s*\n', text.strip())
+updated = 0
 added = 0
 for path, field, translated in specs:
     source = current_field(path, field)
-    marker = 'msgid "' + po_quote(source) + '"'
-    if marker in text:
-        continue
-    text = text.rstrip() + '\n\n# Web/Yandex-safe player-facing wording.\n' \
-        + marker + '\nmsgstr "' + po_quote(translated) + '"\n'
-    added += 1
+    matches = []
+    for i, block in enumerate(blocks):
+        msgid = po_value(block.splitlines(), 'msgid')
+        if msgid == source:
+            matches.append(i)
 
-po.write_text(text, encoding='utf-8')
-print(f'Web RU: added {added} Yandex-safe translation entries')
+    if matches:
+        # Update every legacy duplicate to the same final translation. A later
+        # catalog-dedupe pass removes redundant blocks, which prevents
+        # tinygettext's runtime add_translation collision warning.
+        for i in matches:
+            blocks[i] = replace_msgstr(blocks[i], translated)
+        updated += len(matches)
+    else:
+        blocks.append(
+            '# Web/Yandex-safe player-facing wording.\n'
+            + 'msgid "' + po_quote(source) + '"\n'
+            + 'msgstr "' + po_quote(translated) + '"'
+        )
+        added += 1
+
+po.write_text('\n\n'.join(blocks).rstrip() + '\n', encoding='utf-8')
+print(f'Web RU: updated {updated} existing and added {added} Yandex-safe translation entries')
