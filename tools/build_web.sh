@@ -10,6 +10,7 @@ python3 ../tools/patch_focus_pause.py
 python3 ../tools/patch_yandex_ads.py
 python3 ../tools/patch_yandex_ad_resume.py
 python3 ../tools/patch_yandex_gameplay.py
+python3 ../tools/patch_yandex_final_compliance.py
 python3 ../tools/patch_yandex_content.py
 python3 ../tools/patch_yandex_locale.py
 python3 ../tools/patch_web_localization.py
@@ -21,7 +22,10 @@ python3 ../tools/patch_web_performance.py
 python3 ../tools/patch_web_many_pingus.py
 python3 ../tools/patch_web_smallmap_fast.py
 python3 ../tools/patch_web_worldmap_ux.py
-python3 ../tools/patch_web_background_seams.py
+
+# Keep the original Pingus background artwork and its original tiling behavior.
+# The visible seams/repetition are part of the legacy source game rather than a
+# browser-only rendering defect, so the release build must not alter those assets.
 
 # The original 16/20px Pingus bitmap atlases do not contain the complete
 # Russian alphabet. Generate a tiny Web-only Cyrillic fallback atlas during
