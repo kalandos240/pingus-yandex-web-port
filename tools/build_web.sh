@@ -12,6 +12,7 @@ python3 ../tools/patch_yandex_gameplay.py
 python3 ../tools/patch_yandex_content.py
 python3 ../tools/patch_yandex_locale.py
 python3 ../tools/patch_web_localization.py
+python3 ../tools/patch_yandex_content_translation.py
 python3 ../tools/patch_web_hide_author.py
 python3 ../tools/audit_web_localization_sources.py
 python3 ../tools/audit_yandex_content.py
@@ -109,10 +110,15 @@ PY
 # Externalize the generated bootstrap/style and remove inline event handlers.
 python3 ../tools/postprocess_csp.py
 
+# Ship the corresponding GPL source with the distributed object-code build so
+# source availability does not depend on access to the private development repo.
+python3 ../tools/package_gpl_source.py
+
 test -s ../dist/index.html
 test -s ../dist/bootstrap.js
 test -s ../dist/pingus.css
 test -s ../dist/pingus.js
+test -s ../dist/PINGUS-CORRESPONDING-SOURCE.tar.gz
 grep -q 'GameplayAPI' ../dist/bootstrap.js
 grep -q 'pingusSetGameplayActive' ../dist/pingus.js
 grep -q 'id="backdrop"' ../dist/index.html
