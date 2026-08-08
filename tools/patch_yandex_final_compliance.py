@@ -167,10 +167,12 @@ game_path.write_text(game, encoding='utf-8')
 # toggles fullscreen and Ctrl+O/Ctrl+G/Ctrl+M have application actions. Those
 # are useful on native desktop but conflict with browser/OS commands and should
 # not be game controls in the Yandex Web target.
+# patch_pingus.py runs before this script and modernizes SDL_GetKeyState to
+# SDL_GetKeyboardState, so match that already-patched source form.
 global_path = Path('src/pingus/global_event.cpp')
 global_event = global_path.read_text(encoding='utf-8')
-hotkey_anchor = '''void\nGlobalEvent::on_button_press(const SDL_KeyboardEvent& event)\n{\n  Uint8* keystate = SDL_GetKeyState(NULL);'''
-hotkey_replacement = '''void\nGlobalEvent::on_button_press(const SDL_KeyboardEvent& event)\n{\n#ifdef __EMSCRIPTEN__\n  (void)event;\n  return;\n#else\n  Uint8* keystate = SDL_GetKeyState(NULL);'''
+hotkey_anchor = '''void\nGlobalEvent::on_button_press(const SDL_KeyboardEvent& event)\n{\n  const Uint8* keystate = SDL_GetKeyboardState(NULL);'''
+hotkey_replacement = '''void\nGlobalEvent::on_button_press(const SDL_KeyboardEvent& event)\n{\n#ifdef __EMSCRIPTEN__\n  (void)event;\n  return;\n#else\n  const Uint8* keystate = SDL_GetKeyboardState(NULL);'''
 if 'Yandex Web intentionally leaves browser/OS hotkeys to the browser' not in global_event:
     if global_event.count(hotkey_anchor) != 1:
         raise SystemExit('final compliance: global hotkey start anchor missing or duplicated')
