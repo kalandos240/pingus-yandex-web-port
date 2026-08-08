@@ -46,9 +46,11 @@ python3 ../tools/patch_web_options.py
 python3 ../tools/patch_web_audio_channels.py
 python3 ../tools/patch_sdl_framebuffer.py
 python3 ../tools/patch_groundmap_erase.py
-# Apply the decorative widescreen fill last: several earlier Web patches use
-# the original canvas markup as an anchor. Keeping it last avoids interference.
+# Apply the decorative widescreen fill late: several earlier Web patches use
+# the original canvas markup as an anchor. Cloud synchronization then patches
+# the final browser lifecycle/save code just before packaging.
 python3 ../tools/patch_web_backdrop.py
+python3 ../tools/patch_yandex_cloud_saves.py
 
 # Browser SDL_mixer cannot decode Pingus' original tracker modules (.it/.xm/
 # .s3m/.mod). Preserve the original music by rendering those modules to OGG
@@ -128,8 +130,12 @@ test -s ../dist/pingus.js
 test -s ../dist/PINGUS-CORRESPONDING-SOURCE.tar.gz
 grep -q 'GameplayAPI' ../dist/bootstrap.js
 grep -q 'pingusSetGameplayActive' ../dist/pingus.js
+grep -q 'PINGUS_CLOUD_KEY' ../dist/bootstrap.js
+grep -q 'player.getData' ../dist/bootstrap.js
+grep -q 'player.setData' ../dist/bootstrap.js
 grep -q 'id="backdrop"' ../dist/index.html
 grep -q 'drawBackdrop' ../dist/bootstrap.js
+node --check ../dist/bootstrap.js
 if find ../dist -maxdepth 1 -type f \( -name '*.wasm' -o -name '*.data' \) | grep -q .; then
   echo 'Unexpected external wasm/data payload in dist' >&2
   exit 1
