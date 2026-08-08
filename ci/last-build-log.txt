@@ -1,3 +1,4 @@
+Yandex content: removed public Xmas 2011 bonus levelset (religious-reference risk)
 UNTRANSLATED_PLAYER_FACING=0
 ENGLISH_PASSTHROUGH_PLAYER_FACING=0
 Web translations: ru + built-in English; pinned ru=11a27787; removed 24 other .po files
@@ -5,70 +6,11 @@ Web RU: applied 6 final shipped-data translations
 Web UI: visible author/contact metadata removed; legal files retained
 Tutorial completion: ending now continues directly to other levelsets
 Web RU layout: long levelset labels compacted for fixed UI
-RELEASE_VISIBLE_LEVELS=76
-ACTUAL_VISIBLE_STRINGS=168
+RELEASE_VISIBLE_LEVELS=66
+ACTUAL_VISIBLE_STRINGS=146
 UNTRANSLATED_ACTUAL_VISIBLE=0
-Web performance: fixed 800x600 framebuffer and ignored stale desktop video config
-Web many-pingu performance: bounded catch-up, offscreen culling, minimap sampling, 30 fps rendering
-Web SmallMap: pingu markers and viewport frame use no-readback fills
-Web worldmap UX: left/right drag + touch swipe panning; localized text wrapping/fitting enabled
-Installing Web Cyrillic font generation dependencies
-Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
-Hit:6 https://dl.google.com/linux/chrome-stable/deb stable InRelease
-Hit:7 https://packages.microsoft.com/repos/azure-cli noble InRelease
-Hit:8 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease
-Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
-Hit:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease
-Hit:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease
-Hit:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease
-Reading package lists...
-Reading package lists...
-Building dependency tree...
-Reading state information...
-fonts-dejavu-core is already the newest version (2.37-8).
-fonts-dejavu-core set to manually installed.
-The following additional packages will be installed:
-  libimagequant0 libraqm0
-Suggested packages:
-  python-pil-doc
-Recommended packages:
-  python3-olefile
-The following NEW packages will be installed:
-  libimagequant0 libraqm0 python3-pil
-0 upgraded, 3 newly installed, 0 to remove and 86 not upgraded.
-Need to get 503 kB of archives.
-After this operation, 1955 kB of additional disk space will be used.
-Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
-Get:2 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libimagequant0 amd64 2.18.0-1build1 [36.3 kB]
-Get:3 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libraqm0 amd64 0.10.1-1build1 [15.0 kB]
-Get:4 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 python3-pil amd64 10.2.0-1ubuntu1.2 [452 kB]
-Fetched 503 kB in 0s (11.3 MB/s)
-Selecting previously unselected package libimagequant0:amd64.
-(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 219916 files and directories currently installed.)
-Preparing to unpack .../libimagequant0_2.18.0-1build1_amd64.deb ...
-Unpacking libimagequant0:amd64 (2.18.0-1build1) ...
-Selecting previously unselected package libraqm0:amd64.
-Preparing to unpack .../libraqm0_0.10.1-1build1_amd64.deb ...
-Unpacking libraqm0:amd64 (0.10.1-1build1) ...
-Selecting previously unselected package python3-pil:amd64.
-Preparing to unpack .../python3-pil_10.2.0-1ubuntu1.2_amd64.deb ...
-Unpacking python3-pil:amd64 (10.2.0-1ubuntu1.2) ...
-Setting up libraqm0:amd64 (0.10.1-1build1) ...
-Setting up libimagequant0:amd64 (2.18.0-1build1) ...
-Setting up python3-pil:amd64 (10.2.0-1ubuntu1.2) ...
-Processing triggers for libc-bin (2.39-0ubuntu8.7) ...
-
-Running kernel seems to be up-to-date.
-
-No services need to be restarted.
-
-No containers need to be restarted.
-
-No user sessions are running outdated binaries.
-
-No VM guests are running outdated hypervisor (qemu) binaries on this host.
-chalk-16px: appended 67 Russian fallback glyphs -> chalk-16px-ru-web.png
-chalk-20px: appended 67 Russian fallback glyphs -> chalk-20px-ru-web.png
-chalk-40px: appended 67 Russian fallback glyphs -> chalk-40px-ru-web.png
-pingus-small-20px: appended 67 Russian fallback glyphs -> pingus-small-20px-ru-web.png
-touch controls shell anchor missing or duplicated
+YANDEX_CONTENT_VISIBLE_LEVELS=66
+YANDEX_CONTENT_TEXTS_CHECKED=146
+YANDEX_CONTENT_RISK_HITS=1
+YANDEX_CONTENT_RISK: religion token='heaven' text="Miner's heaven" origin=data/levels/tutorial/miner-tutorial2-grumbel.pingus:levelname
+reachable player-facing text contains Yandex content-policy risk terms
