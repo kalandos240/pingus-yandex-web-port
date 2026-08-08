@@ -1,4 +1,7 @@
-Yandex content: removed public Xmas 2011 bonus levelset (religious-reference risk)
+Yandex content: removed public Xmas 2011 bonus levelset
+Yandex content: removed public Halloween 2007 bonus levelset
+Yandex content: removed public Halloween 2011 bonus levelset
+Yandex content: renamed core tutorial title 'Miner's heaven' -> 'Miner's Dream'
 UNTRANSLATED_PLAYER_FACING=0
 ENGLISH_PASSTHROUGH_PLAYER_FACING=0
 Web translations: ru + built-in English; pinned ru=11a27787; removed 24 other .po files
@@ -6,11 +9,8 @@ Web RU: applied 6 final shipped-data translations
 Web UI: visible author/contact metadata removed; legal files retained
 Tutorial completion: ending now continues directly to other levelsets
 Web RU layout: long levelset labels compacted for fixed UI
-RELEASE_VISIBLE_LEVELS=66
-ACTUAL_VISIBLE_STRINGS=146
-UNTRANSLATED_ACTUAL_VISIBLE=0
-YANDEX_CONTENT_VISIBLE_LEVELS=66
-YANDEX_CONTENT_TEXTS_CHECKED=146
-YANDEX_CONTENT_RISK_HITS=1
-YANDEX_CONTENT_RISK: religion token='heaven' text="Miner's heaven" origin=data/levels/tutorial/miner-tutorial2-grumbel.pingus:levelname
-reachable player-facing text contains Yandex content-policy risk terms
+RELEASE_VISIBLE_LEVELS=48
+ACTUAL_VISIBLE_STRINGS=106
+UNTRANSLATED_ACTUAL_VISIBLE=1
+UNTRANSLATED_ACTUAL: Miner's Dream || data/levels/tutorial/miner-tutorial2-grumbel.pingus:levelname
+releasable player-facing data still contains untranslated strings
