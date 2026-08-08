@@ -8,6 +8,7 @@ python3 ../tools/patch_pingus.py
 python3 ../tools/patch_browser_runtime.py
 python3 ../tools/patch_focus_pause.py
 python3 ../tools/patch_yandex_ads.py
+python3 ../tools/patch_yandex_ad_resume.py
 python3 ../tools/patch_yandex_gameplay.py
 python3 ../tools/patch_yandex_content.py
 python3 ../tools/patch_yandex_locale.py
