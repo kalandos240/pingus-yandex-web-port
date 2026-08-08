@@ -7,7 +7,7 @@ import re
 # Hidden developer packs and source comments are deliberately excluded.
 
 RISK_PATTERNS = {
-    'esoterics': re.compile(r'\b(?:astrolog(?:y|er|ical)|horoscope|fortune[- ]?tell|tarot|divination|séance|seance)\b', re.I),
+    'esoterics': re.compile(r'\b(?:astrolog(?:y|er|ical)|horoscope|fortune[- ]?tell|tarot|divination|séance|seance|witch|witchcraft|wizard|wizardry|sorcer(?:y|er)|magic|magical|curse|cursed|occult)\b', re.I),
     'politics-war': re.compile(r'\b(?:politic(?:s|al)|president|government|parliament|election|military|army|soldier|war|warfare|invasion)\b', re.I),
     'religion': re.compile(r'\b(?:christmas|xmas|jesus|christ|christian|church|bible|priest|pope|religion|religious|mosque|islam|allah|quran|satan|devil|heaven|hell)\b', re.I),
     'profanity': re.compile(r'\b(?:fuck|fucking|shit|bitch|cunt|motherfucker)\b', re.I),
@@ -44,10 +44,12 @@ for value in ('Continue Journey', 'Watch Intro'):
     if value in wm:
         checks.append((value, f'{tutorial_map}:storydot/name'))
 
+missing_levels = []
 for name in sorted(visible_level_files):
     candidates = [Path('data/levels') / (name + '.pingus'), Path('data/levels') / name]
     path = next((p for p in candidates if p.is_file()), None)
     if path is None:
+        missing_levels.append(name)
         continue
     text = path.read_text(encoding='utf-8', errors='replace')
     for key, value in quoted_fields(text, ('levelname', 'description')):
@@ -66,10 +68,15 @@ for value, origin in checks:
             hits.append((category, match.group(0), value, origin))
 
 print(f'YANDEX_CONTENT_VISIBLE_LEVELS={len(visible_level_files)}')
+print(f'YANDEX_CONTENT_MISSING_LEVEL_FILES={len(missing_levels)}')
+for name in missing_levels:
+    print(f'YANDEX_CONTENT_MISSING_LEVEL: {name}')
 print(f'YANDEX_CONTENT_TEXTS_CHECKED={len(checks)}')
 print(f'YANDEX_CONTENT_RISK_HITS={len(hits)}')
 for category, token, value, origin in hits:
     printable = value.replace('\n', '\\n')
     print(f'YANDEX_CONTENT_RISK: {category} token={token!r} text={printable!r} origin={origin}')
+if missing_levels:
+    raise SystemExit('public Yandex release references missing level files')
 if hits:
     raise SystemExit('reachable player-facing text contains Yandex content-policy risk terms')
