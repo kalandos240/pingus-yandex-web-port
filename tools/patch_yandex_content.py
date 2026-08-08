@@ -25,8 +25,7 @@ for filename, title in public_bonus_packs.items():
 
 # One core tutorial title says "Miner's heaven". Even though the phrase is
 # idiomatic, "heaven" is an avoidable religious reference under the platform's
-# very broad rule. Keep the level and gameplay unchanged; only use a neutral
-# Web-release title.
+# broad rule. Keep the level and gameplay unchanged; only use a neutral title.
 miner = Path('data/levels/tutorial/miner-tutorial2-grumbel.pingus')
 if not miner.is_file():
     raise SystemExit('expected tutorial miner level is missing')
@@ -37,3 +36,25 @@ if text.count(old) != 1:
     raise SystemExit('Miner tutorial title anchor missing or duplicated')
 miner.write_text(text.replace(old, new, 1), encoding='utf-8')
 print("Yandex content: renamed core tutorial title 'Miner\'s heaven' -> 'Miner\'s Dream'")
+
+# Another core tutorial description uses the biblical term "armageddon" for
+# Pingus' restart/finish button. The mechanic and button stay untouched; only
+# player-facing wording is made neutral for the Yandex release.
+snow9 = Path('data/levels/tutorial/snow9-grumbel.pingus')
+if not snow9.is_file():
+    raise SystemExit('expected tutorial snow9 level is missing')
+text = snow9.read_text(encoding='utf-8')
+old_description = (
+    "The more levels you master, the more difficult they will get, but don't panic, as this one is still pretty easy. "
+    "Just use the stuff that you've learned in the previous levels and you shouldn't have many problems. "
+    "If you think you've reached a situation from which you can no longer solve the level, double click the armageddon button at the lower right. "
+)
+new_description = (
+    "The more levels you master, the more difficult they will get, but don't panic, as this one is still pretty easy. "
+    "Just use the stuff that you've learned in the previous levels and you shouldn't have many problems. "
+    "If you think you've reached a situation from which you can no longer solve the level, double click the restart button at the lower right. "
+)
+if text.count(old_description) != 1:
+    raise SystemExit('tutorial restart-description anchor missing or duplicated')
+snow9.write_text(text.replace(old_description, new_description, 1), encoding='utf-8')
+print("Yandex content: replaced player-facing 'armageddon button' wording with 'restart button'")
