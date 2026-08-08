@@ -1,8 +1,23 @@
 from pathlib import Path
+import importlib
 import math
+import os
 import re
+import subprocess
+import sys
 
-from PIL import Image
+try:
+    from PIL import Image
+except ModuleNotFoundError:
+    # This patch currently runs before the shared Web-font dependency block.
+    # Install Pillow once, then restart this script so the same deterministic
+    # texture conversion can run without changing the rest of the build order.
+    subprocess.run(['sudo', 'apt-get', 'update'], check=True)
+    subprocess.run([
+        'sudo', 'apt-get', 'install', '-y', '--no-install-recommends', 'python3-pil'
+    ], check=True)
+    importlib.invalidate_caches()
+    os.execv(sys.executable, [sys.executable, __file__])
 
 # Pingus 0.7.6 repeats small SurfaceBackground images. Several legacy sky/cloud
 # textures were painted as ordinary images rather than truly tileable textures,
