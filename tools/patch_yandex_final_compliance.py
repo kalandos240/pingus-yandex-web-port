@@ -4,13 +4,16 @@ from pathlib import Path
 # pause/resume and GameplayAPI patches have been applied to the downloaded
 # Pingus 0.7.6 source and browser shell.
 #
-# It addresses three moderation-sensitive details:
+# It addresses moderation-sensitive details:
 #   1) GameplayAPI must be STOPPED during platform pauses/ads/tab backgrounding,
 #      then restored only if a playable level is still active.
 #   2) progress must be flushed to IDBFS immediately after SavegameManager stores
 #      a completed/attempted level, instead of waiting for the 15 s safety timer.
 #   3) audio unlock must never accidentally resume sound while Yandex says the
 #      game is paused.
+#   4) legacy desktop hotkeys such as F5/F11/F12/Alt+Enter/Ctrl+O/Ctrl+G must not
+#      be implemented by the game in the browser, because they overlap standard
+#      browser/OS commands.
 
 shell_path = Path('../web/shell.html')
 shell = shell_path.read_text(encoding='utf-8')
@@ -158,4 +161,25 @@ if 'window.pingusSaveNow' not in game:
     game = game.replace(save_anchor, save_replacement, 1)
 
 game_path.write_text(game, encoding='utf-8')
-print('Yandex final compliance: platform GameplayAPI sync + immediate progression save')
+
+# Pingus' original desktop build contains global shortcuts for browser/OS keys:
+# F5 opens Options, F11 toggles fullscreen, F12 saves a screenshot, Alt+Enter
+# toggles fullscreen and Ctrl+O/Ctrl+G/Ctrl+M have application actions. Those
+# are useful on native desktop but conflict with browser/OS commands and should
+# not be game controls in the Yandex Web target.
+global_path = Path('src/pingus/global_event.cpp')
+global_event = global_path.read_text(encoding='utf-8')
+hotkey_anchor = '''void\nGlobalEvent::on_button_press(const SDL_KeyboardEvent& event)\n{\n  Uint8* keystate = SDL_GetKeyState(NULL);'''
+hotkey_replacement = '''void\nGlobalEvent::on_button_press(const SDL_KeyboardEvent& event)\n{\n#ifdef __EMSCRIPTEN__\n  (void)event;\n  return;\n#else\n  Uint8* keystate = SDL_GetKeyState(NULL);'''
+if 'Yandex Web intentionally leaves browser/OS hotkeys to the browser' not in global_event:
+    if global_event.count(hotkey_anchor) != 1:
+        raise SystemExit('final compliance: global hotkey start anchor missing or duplicated')
+    global_event = global_event.replace(hotkey_anchor, hotkey_replacement, 1)
+    end_anchor = '''    default:\n      // console << "GlobalEvent: Unknown key pressed: " << key.id;\n      break;\n  }\n}'''
+    end_replacement = '''    default:\n      // console << "GlobalEvent: Unknown key pressed: " << key.id;\n      break;\n  }\n#endif // __EMSCRIPTEN__ - Yandex Web intentionally leaves browser/OS hotkeys to the browser\n}'''
+    if global_event.count(end_anchor) != 1:
+        raise SystemExit('final compliance: global hotkey end anchor missing or duplicated')
+    global_event = global_event.replace(end_anchor, end_replacement, 1)
+
+global_path.write_text(global_event, encoding='utf-8')
+print('Yandex final compliance: GameplayAPI sync + immediate saves + browser-safe hotkeys')
