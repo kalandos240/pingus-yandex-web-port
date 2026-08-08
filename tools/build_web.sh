@@ -14,8 +14,8 @@ python3 ../tools/patch_yandex_final_compliance.py
 python3 ../tools/patch_yandex_content.py
 python3 ../tools/patch_yandex_locale.py
 python3 ../tools/patch_web_localization.py
-python3 ../tools/patch_web_po_dedupe.py
 python3 ../tools/patch_yandex_content_translation.py
+python3 ../tools/patch_web_po_dedupe.py
 python3 ../tools/patch_web_hide_author.py
 python3 ../tools/audit_web_localization_sources.py
 python3 ../tools/audit_yandex_content.py
