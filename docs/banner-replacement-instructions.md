@@ -1,0 +1,1 @@
+Replace docs/banner.jpg with the real Pingus main-menu screenshot supplied by the repository owner. README already references docs/banner.jpg.
