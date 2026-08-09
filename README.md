@@ -1,5 +1,9 @@
 <p align="center">
-  <img src="docs/banner.svg" alt="Pingus Web Port for Yandex Games" width="100%" />
+  <img src="docs/banner.jpg" alt="Pingus Web Port for Yandex Games" width="100%" />
+</p>
+
+<p align="center">
+  <sub>Настоящий кадр из оригинального Pingus — без сгенерированной обложки.</sub>
 </p>
 
 <p align="center">
