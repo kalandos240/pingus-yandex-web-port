@@ -1,0 +1,1 @@
+Real banner source: in-game main menu screenshot supplied by repository owner. README uses docs/banner.jpg.
