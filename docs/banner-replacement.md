@@ -1,0 +1,1 @@
+The README banner should be the real in-game Pingus main menu screenshot provided on 2026-08-09.
