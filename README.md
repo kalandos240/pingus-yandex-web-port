@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="docs/banner.jpg" alt="Pingus main menu" width="100%" />
-</p>
+
 
 <p align="center">
   <strong>Оригинальный Pingus 0.7.6, портированный в браузер и адаптированный для Яндекс Игр.</strong>
