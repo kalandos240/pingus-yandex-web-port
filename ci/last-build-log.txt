@@ -36,10 +36,10 @@ Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
 Hit:6 https://packages.microsoft.com/repos/azure-cli noble InRelease
 Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
 Hit:7 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease
+Hit:8 https://dl.google.com/linux/chrome-stable/deb stable InRelease
 Hit:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease
 Hit:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease
 Hit:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease
-Hit:8 https://dl.google.com/linux/chrome-stable/deb stable InRelease
 Reading package lists...
 Reading package lists...
 Building dependency tree...
@@ -54,16 +54,16 @@ Recommended packages:
   python3-olefile
 The following NEW packages will be installed:
   libimagequant0 libraqm0 python3-pil
-0 upgraded, 3 newly installed, 0 to remove and 97 not upgraded.
+0 upgraded, 3 newly installed, 0 to remove and 3 not upgraded.
 Need to get 503 kB of archives.
 After this operation, 1955 kB of additional disk space will be used.
 Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
 Get:2 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libimagequant0 amd64 2.18.0-1build1 [36.3 kB]
 Get:3 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libraqm0 amd64 0.10.1-1build1 [15.0 kB]
 Get:4 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 python3-pil amd64 10.2.0-1ubuntu1.2 [452 kB]
-Fetched 503 kB in 1s (655 kB/s)
+Fetched 503 kB in 0s (8409 kB/s)
 Selecting previously unselected package libimagequant0:amd64.
-(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 219916 files and directories currently installed.)
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 220101 files and directories currently installed.)
 Preparing to unpack .../libimagequant0_2.18.0-1build1_amd64.deb ...
 Unpacking libimagequant0:amd64 (2.18.0-1build1) ...
 Selecting previously unselected package libraqm0:amd64.
@@ -75,7 +75,7 @@ Unpacking python3-pil:amd64 (10.2.0-1ubuntu1.2) ...
 Setting up libraqm0:amd64 (0.10.1-1build1) ...
 Setting up libimagequant0:amd64 (2.18.0-1build1) ...
 Setting up python3-pil:amd64 (10.2.0-1ubuntu1.2) ...
-Processing triggers for libc-bin (2.39-0ubuntu8.7) ...
+Processing triggers for libc-bin (2.39-0ubuntu8.8) ...
 
 Running kernel seems to be up-to-date.
 
@@ -145,7 +145,7 @@ The following NEW packages will be installed:
   libva-drm2 libva-x11-2 libva2 libvdpau1 libvidstab1.1 libvorbisenc2 libvpl2
   libvpx9 libx264-164 libx265-199 libxcb-shape0 libxv1 libxvidcore4 libzimg2
   libzix-0-0 libzvbi-common libzvbi0t64 ocl-icd-libopencl1
-0 upgraded, 87 newly installed, 0 to remove and 97 not upgraded.
+0 upgraded, 87 newly installed, 0 to remove and 3 not upgraded.
 Need to get 62.8 MB of archives.
 After this operation, 173 MB of additional disk space will be used.
 Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
@@ -236,9 +236,9 @@ Get:85 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libxcb-shape0 amd
 Get:86 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libxv1 amd64 2:1.0.11-1.1build1 [10.7 kB]
 Get:87 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libavdevice60 amd64 7:6.1.1-3ubuntu5 [82.3 kB]
 Get:88 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 ffmpeg amd64 7:6.1.1-3ubuntu5 [1879 kB]
-Fetched 62.8 MB in 53s (1177 kB/s)
+Fetched 62.8 MB in 2s (33.7 MB/s)
 Selecting previously unselected package libva2:amd64.
-(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 220044 files and directories currently installed.)
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 220229 files and directories currently installed.)
 Preparing to unpack .../00-libva2_2.20.0-2ubuntu0.2_amd64.deb ...
 Unpacking libva2:amd64 (2.20.0-2ubuntu0.2) ...
 Selecting previously unselected package libva-drm2:amd64.
@@ -590,7 +590,7 @@ Setting up libavdevice60:amd64 (7:6.1.1-3ubuntu5) ...
 Setting up ffmpeg (7:6.1.1-3ubuntu5) ...
 Processing triggers for man-db (2.12.0-4build2) ...
 Not building database; man-db/auto-update is not 'true'.
-Processing triggers for libc-bin (2.39-0ubuntu8.7) ...
+Processing triggers for libc-bin (2.39-0ubuntu8.8) ...
 
 Running kernel seems to be up-to-date.
 
@@ -602,68 +602,86 @@ No user sessions are running outdated binaries.
 
 No VM guests are running outdated hypervisor (qemu) binaries on this host.
 Converting 20 original tracker music files to browser-decodable OGG
-  data/music/pingus-8.it -> data/music/pingus-8.ogg
-  data/music/pingus-2.it -> data/music/pingus-2.ogg
-  data/music/goin_march.it -> data/music/goin_march.ogg
-  data/music/pingus-3.it -> data/music/pingus-3.ogg
-  data/music/pingus-5.it -> data/music/pingus-5.ogg
-  data/music/gd-giirm.s3m -> data/music/gd-giirm.ogg
-  data/music/gd-matth.it -> data/music/gd-matth.ogg
   data/music/success_2.it -> data/music/success_2.ogg
-  data/music/pingus-6.it -> data/music/pingus-6.ogg
-  data/music/rough_journey.it -> data/music/rough_journey.ogg
-  data/music/gd-ite.it -> data/music/gd-ite.ogg
-  data/music/the_big_march_in_space.it -> data/music/the_big_march_in_space.ogg
-  data/music/gd-myla.it -> data/music/gd-myla.ogg
   data/music/pingus-7.it -> data/music/pingus-7.ogg
   data/music/pingus-4.it -> data/music/pingus-4.ogg
-  data/music/gd-cancn.it -> data/music/gd-cancn.ogg
+  data/music/pingus-3.it -> data/music/pingus-3.ogg
+  data/music/gd-myla.it -> data/music/gd-myla.ogg
   data/music/success_1.it -> data/music/success_1.ogg
-  data/music/pingus-1.it -> data/music/pingus-1.ogg
+  data/music/gd-matth.it -> data/music/gd-matth.ogg
+  data/music/rough_journey.it -> data/music/rough_journey.ogg
+  data/music/pingus-5.it -> data/music/pingus-5.ogg
+  data/music/gd-giirm.s3m -> data/music/gd-giirm.ogg
   data/music/sorcerer.it -> data/music/sorcerer.ogg
+  data/music/the_big_march_in_space.it -> data/music/the_big_march_in_space.ogg
+  data/music/pingus-6.it -> data/music/pingus-6.ogg
+  data/music/pingus-2.it -> data/music/pingus-2.ogg
+  data/music/goin_march.it -> data/music/goin_march.ogg
+  data/music/pingus-8.it -> data/music/pingus-8.ogg
+  data/music/gd-ite.it -> data/music/gd-ite.ogg
+  data/music/pingus-1.it -> data/music/pingus-1.ogg
+  data/music/gd-cancn.it -> data/music/gd-cancn.ogg
   data/music/pingus-9.it -> data/music/pingus-9.ogg
 Compiling 207 original C++ source files (desktop editor omitted)
 ports:INFO: retrieving port: zlib from https://github.com/madler/zlib/archive/refs/tags/v1.2.13.tar.gz
-ports:INFO: unpacking port: zlib
-cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libz.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libz.a" for subsequent builds)
-system_libs:INFO: compiled 15 inputs in 1.26s
-cache:INFO:  - ok
-ports:INFO: retrieving port: ogg from https://github.com/emscripten-ports/ogg/archive/version_1.zip
-ports:INFO: unpacking port: ogg
-cache:INFO: generating system library: sysroot/lib/wasm32-emscripten/libogg.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libogg.a" for subsequent builds)
-system_libs:INFO: compiled 2 inputs in 0.26s
-cache:INFO:  - ok
-ports:INFO: retrieving port: vorbis from https://github.com/emscripten-ports/vorbis/archive/version_1.zip
-ports:INFO: unpacking port: vorbis
-cache:INFO: generating system library: sysroot/lib/wasm32-emscripten/libvorbis.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libvorbis.a" for subsequent builds)
-system_libs:INFO: compiled 22 inputs in 2.17s
-cache:INFO:  - ok
-ports:INFO: retrieving port: libpng from https://storage.googleapis.com/webassembly/emscripten-ports/libpng-1.6.39.tar.gz
-ports:INFO: unpacking port: libpng
-cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libpng.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libpng.a" for subsequent builds)
-system_libs:INFO: compiled 25 inputs in 2.43s
-cache:INFO:  - ok
-src/pingus/actions/boarder.cpp:55:67: warning: operator '?:' has lower precedence than '+'; '+' will be evaluated first [-Wparentheses]
-   55 |       pingu->set_pos(Vector3f(old_pos.x + (old_pos.x < new_pos.x) ? 1.0f : -1.0f, 
-      |                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ^
-src/pingus/actions/boarder.cpp:55:67: note: place parentheses around the '+' expression to silence this warning
-   55 |       pingu->set_pos(Vector3f(old_pos.x + (old_pos.x < new_pos.x) ? 1.0f : -1.0f, 
-      |                                                                   ^
-      |                               (                                  )
-src/pingus/actions/boarder.cpp:55:67: note: place parentheses around the '?:' expression to evaluate it first
-   55 |       pingu->set_pos(Vector3f(old_pos.x + (old_pos.x < new_pos.x) ? 1.0f : -1.0f, 
-      |                                                                   ^             
-      |                                           (                                     )
-1 warning generated.
-cache:INFO: generating system asset: symbol_lists/fdecf0cfa21ec4b8d95ed29f50e405a177a62afe.json... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/symbol_lists/fdecf0cfa21ec4b8d95ed29f50e405a177a62afe.json" for subsequent builds)
-cache:INFO:  - ok
-CSP: inline bootstrap/style/event handler externalized
-CSP: index.html contains external scripts only
-SDL1: expected canvas compatibility warning suppressed; copy behavior retained
-GPL corresponding source bundle: PINGUS-CORRESPONDING-SOURCE.tar.gz 12710008 bytes
-Self-contained browser runtime created:
-  PINGUS-CORRESPONDING-SOURCE.tar.gz 12710008 bytes
-  bootstrap.js 33107 bytes
-  index.html 896 bytes
-  pingus.css 2010 bytes
-  pingus.js 51202393 bytes
+Traceback (most recent call last):
+  File "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/em++.py", line 15, in <module>
+    sys.exit(emcc.main(sys.argv))
+             ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/contextlib.py", line 81, in inner
+    return func(*args, **kwds)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/emcc.py", line 1604, in main
+    ret = run(args)
+          ^^^^^^^^^
+  File "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/emcc.py", line 657, in run
+    linker_inputs = phase_compile_inputs(options, state, newargs, input_files)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/contextlib.py", line 81, in inner
+    return func(*args, **kwds)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/emcc.py", line 1071, in phase_compile_inputs
+    compile_source_file(i, input_file)
+  File "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/emcc.py", line 1046, in compile_source_file
+    cmd = get_clang_command()
+          ^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/emcc.py", line 970, in get_clang_command
+    return compiler + get_cflags(state.orig_args, use_cxx) + compile_args
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/emcc.py", line 446, in get_cflags
+    ports.add_cflags(cflags, settings)
+  File "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/tools/ports/__init__.py", line 580, in add_cflags
+    port.get(Ports, settings, shared)
+  File "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/tools/ports/zlib.py", line 17, in get
+    ports.fetch_project('zlib', f'https://github.com/madler/zlib/archive/refs/tags/v{VERSION}.tar.gz', sha512hash=HASH)
+  File "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/tools/ports/__init__.py", line 351, in fetch_project
+    retrieve()
+  File "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/tools/ports/__init__.py", line 310, in retrieve
+    f = urlopen(url)
+        ^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 215, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 515, in open
+    response = self._open(req, data)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 532, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 492, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 1392, in https_open
+    return self.do_open(http.client.HTTPSConnection, req,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/urllib/request.py", line 1348, in do_open
+    r = h.getresponse()
+        ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/http/client.py", line 1457, in getresponse
+    response.begin()
+  File "/usr/lib/python3.12/http/client.py", line 336, in begin
+    version, status, reason = self._read_status()
+                              ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/http/client.py", line 305, in _read_status
+    raise RemoteDisconnected("Remote end closed connection without"
+http.client.RemoteDisconnected: Remote end closed connection without response
