@@ -1,22 +1,22 @@
-127.0.0.1 - - [12/Aug/2026 13:29:24] "GET /persistence-smoke.html HTTP/1.1" 200 -
-127.0.0.1 - - [12/Aug/2026 13:29:24] "GET /persistence-smoke.html HTTP/1.1" 200 -
-127.0.0.1 - - [12/Aug/2026 13:29:25] "GET /persistence-smoke.html?pingus-persistence-smoke=1 HTTP/1.1" 200 -
-127.0.0.1 - - [12/Aug/2026 13:29:25] "GET /pingus.css HTTP/1.1" 200 -
-127.0.0.1 - - [12/Aug/2026 13:29:25] code 404, message File not found
-127.0.0.1 - - [12/Aug/2026 13:29:25] "GET /sdk.js HTTP/1.1" 404 -
-127.0.0.1 - - [12/Aug/2026 13:29:25] "GET /bootstrap.js HTTP/1.1" 200 -
-127.0.0.1 - - [12/Aug/2026 13:29:25] "GET /pingus.js HTTP/1.1" 200 -
-127.0.0.1 - - [12/Aug/2026 13:29:26] code 404, message File not found
-127.0.0.1 - - [12/Aug/2026 13:29:26] "GET /favicon.ico HTTP/1.1" 404 -
-127.0.0.1 - - [12/Aug/2026 13:29:26] code 404, message File not found
-127.0.0.1 - - [12/Aug/2026 13:29:26] "GET /favicon.ico HTTP/1.1" 404 -
-127.0.0.1 - - [12/Aug/2026 13:29:30] "GET /persistence-smoke.html?pingus-persistence-smoke=1 HTTP/1.1" 304 -
-127.0.0.1 - - [12/Aug/2026 13:29:30] code 404, message File not found
-127.0.0.1 - - [12/Aug/2026 13:29:30] "GET /sdk.js HTTP/1.1" 404 -
-127.0.0.1 - - [12/Aug/2026 13:29:30] "GET /bootstrap.js HTTP/1.1" 304 -
-127.0.0.1 - - [12/Aug/2026 13:29:30] "GET /pingus.css HTTP/1.1" 304 -
-127.0.0.1 - - [12/Aug/2026 13:29:30] "GET /pingus.js HTTP/1.1" 304 -
-127.0.0.1 - - [12/Aug/2026 13:29:30] code 404, message File not found
-127.0.0.1 - - [12/Aug/2026 13:29:30] "GET /favicon.ico HTTP/1.1" 404 -
-127.0.0.1 - - [12/Aug/2026 13:29:31] code 404, message File not found
-127.0.0.1 - - [12/Aug/2026 13:29:31] "GET /__pingus_persist_success__?detail=(pingus-stats%20%0A%20%20(tutorial-startstory-seen%20%221%22)) HTTP/1.1" 404 -
+127.0.0.1 - - [12/Aug/2026 15:09:12] "GET /persistence-smoke.html HTTP/1.1" 200 -
+127.0.0.1 - - [12/Aug/2026 15:09:12] "GET /persistence-smoke.html HTTP/1.1" 200 -
+127.0.0.1 - - [12/Aug/2026 15:09:12] "GET /persistence-smoke.html?pingus-persistence-smoke=1 HTTP/1.1" 200 -
+127.0.0.1 - - [12/Aug/2026 15:09:12] code 404, message File not found
+127.0.0.1 - - [12/Aug/2026 15:09:12] "GET /sdk.js HTTP/1.1" 404 -
+127.0.0.1 - - [12/Aug/2026 15:09:12] "GET /pingus.css HTTP/1.1" 200 -
+127.0.0.1 - - [12/Aug/2026 15:09:12] "GET /pingus.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Aug/2026 15:09:12] "GET /bootstrap.js HTTP/1.1" 200 -
+127.0.0.1 - - [12/Aug/2026 15:09:13] code 404, message File not found
+127.0.0.1 - - [12/Aug/2026 15:09:13] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Aug/2026 15:09:14] code 404, message File not found
+127.0.0.1 - - [12/Aug/2026 15:09:14] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Aug/2026 15:09:17] "GET /persistence-smoke.html?pingus-persistence-smoke=1 HTTP/1.1" 304 -
+127.0.0.1 - - [12/Aug/2026 15:09:17] code 404, message File not found
+127.0.0.1 - - [12/Aug/2026 15:09:17] "GET /sdk.js HTTP/1.1" 404 -
+127.0.0.1 - - [12/Aug/2026 15:09:17] "GET /pingus.css HTTP/1.1" 304 -
+127.0.0.1 - - [12/Aug/2026 15:09:17] "GET /bootstrap.js HTTP/1.1" 304 -
+127.0.0.1 - - [12/Aug/2026 15:09:17] "GET /pingus.js HTTP/1.1" 304 -
+127.0.0.1 - - [12/Aug/2026 15:09:18] code 404, message File not found
+127.0.0.1 - - [12/Aug/2026 15:09:18] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [12/Aug/2026 15:09:18] code 404, message File not found
+127.0.0.1 - - [12/Aug/2026 15:09:18] "GET /__pingus_persist_success__?detail=(pingus-stats%20%0A%20%20(tutorial-startstory-seen%20%221%22)) HTTP/1.1" 404 -
