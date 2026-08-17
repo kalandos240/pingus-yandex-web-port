@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Convert an already-built browser/Yandex dist directory into a Playgama package."""
+"""Convert a pinned, already-tested Pingus browser build into a Playgama package."""
 from pathlib import Path
 import argparse
 import re
@@ -8,22 +8,23 @@ import shutil
 BRIDGE_URL = "https://bridge.playgama.com/v2/stable/playgama-bridge.js"
 BRIDGE = f'<script src="{BRIDGE_URL}"></script>'
 ADAPTER = '<script src="playgama-yandex-compat.js"></script>'
-VIEWPORT_MARKER = 'Playgama full-viewport background fix v2'
+VIEWPORT_MARKER = 'Playgama full-viewport background fix v3'
 VIEWPORT_CSS = r'''
 
-/* Playgama full-viewport background fix v2
-   IMPORTANT: this is presentation-only. Pingus keeps its original runtime and
-   native 4:3 canvas behavior. The surrounding viewport is painted so square,
-   wide and tall QA containers never expose dark letterbox bars. */
+/* Playgama full-viewport background fix v3
+   Presentation only. The tested Pingus runtime and native 4:3 canvas are never
+   modified, stretched or cropped. Only the otherwise-unused viewport area is
+   painted with a full-bleed icy scene so square/wide/tall containers have no
+   dark letterbox bars. */
 html,
 body,
 #game-shell {
-  background-color: #6aa8c5 !important;
+  background-color: #7fc1dc !important;
   background-image:
-    radial-gradient(ellipse at 50% -10%, rgba(242,252,255,.98) 0%, rgba(192,231,246,.78) 24%, rgba(106,168,197,.18) 55%, transparent 72%),
-    radial-gradient(ellipse at 18% 94%, rgba(239,249,253,.96) 0%, rgba(201,232,243,.70) 24%, transparent 52%),
-    radial-gradient(ellipse at 82% 102%, rgba(226,244,250,.92) 0%, rgba(179,218,234,.62) 25%, transparent 53%),
-    linear-gradient(180deg, #90d2e9 0%, #67b0cf 36%, #397797 68%, #dceff6 100%) !important;
+    radial-gradient(ellipse at 12% 108%, rgba(249,253,255,.99) 0 18%, rgba(214,238,248,.92) 19% 29%, transparent 45%),
+    radial-gradient(ellipse at 88% 105%, rgba(246,252,255,.98) 0 16%, rgba(199,230,243,.86) 17% 29%, transparent 46%),
+    radial-gradient(ellipse at 50% -18%, rgba(248,253,255,.98) 0 14%, rgba(204,237,248,.84) 27%, transparent 58%),
+    linear-gradient(180deg, #a6e0f2 0%, #78c1dd 35%, #4c91b1 67%, #dceff7 100%) !important;
   background-repeat: no-repeat !important;
   background-size: cover !important;
   background-position: center !important;
@@ -33,25 +34,21 @@ body,
   isolation: isolate;
 }
 
-/* Once Pingus has rendered, its existing backdrop canvas mirrors the game.
-   Brighten that layer so the 4:3 extensions look like part of the scene rather
-   than opaque bars. No bootstrap/runtime JavaScript is modified. */
-#backdrop {
-  z-index: 0;
-  opacity: .90 !important;
-  filter: blur(24px) saturate(1.05) brightness(1.03) !important;
-  transform: scale(1.16) !important;
-}
-
+/* The old mirrored backdrop could resemble letterbox bars to the Playgama QA
+   scale test. Disable only that decorative layer; gameplay remains untouched. */
+#backdrop,
 #backdrop-overlay {
-  z-index: 0;
-  background:
-    radial-gradient(circle at center, rgba(16,37,56,0) 0%, rgba(16,37,56,.03) 68%, rgba(8,20,30,.12) 100%),
-    linear-gradient(180deg, rgba(255,255,255,.04), rgba(10,28,40,.04)) !important;
+  display: none !important;
 }
 
-#canvas { z-index: 1; }
-#loading { z-index: 2; }
+#canvas {
+  position: relative;
+  z-index: 1;
+}
+
+#loading {
+  z-index: 2;
+}
 '''
 
 NOTICE = f"""Playgama integration
@@ -60,13 +57,14 @@ NOTICE = f"""Playgama integration
 Active SDK: Playgama Bridge JS Core v2 stable
 {BRIDGE_URL}
 
-The package keeps the port's already-tested game-side Yandex-style calls behind
-playgama-yandex-compat.js. That facade maps language, lifecycle, ads, pause/resume
-and Player data to Playgama Bridge v2. The Playgama package does not load /sdk.js.
+The package keeps the already-tested Pingus runtime byte-for-byte unchanged.
+Only index.html SDK wiring, the Playgama compatibility adapter/config, and CSS
+presentation are added. Rewarded ads are disabled because Pingus has no rewarded
+mechanic. Interstitial ads and Playgama storage remain enabled.
 
 Bridge configuration: playgama-bridge-config.json
-Viewport: Pingus runtime is left byte-for-byte unchanged. Only CSS presentation
-fills unused square/wide/tall viewport space with an icy responsive backdrop.
+Viewport: native 4:3 gameplay stays fully visible and centered; unused viewport
+space is painted by CSS so square/wide/tall Playgama containers have no bars.
 """
 
 
@@ -97,10 +95,8 @@ def patch_pingus_viewport(dist: Path) -> None:
         raise SystemExit('pingus.css is missing from the Playgama package')
 
     css = css_path.read_text(encoding='utf-8')
-    # A package is always rebuilt from the clean Yandex release. This removal is
-    # defensive for local re-runs of the converter on an already patched folder.
     css = re.sub(
-        r'\n/\* Playgama full-viewport background fix(?: v2)?[\s\S]*\Z',
+        r'\n/\* Playgama full-viewport background fix(?: v\d+)?[\s\S]*\Z',
         '',
         css,
         count=1,
