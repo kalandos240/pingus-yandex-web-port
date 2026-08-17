@@ -24,6 +24,8 @@ jobs:
           rm -rf dist-playgama
           mkdir dist-playgama
           unzip -q release/pingus-yandex-web.zip -d dist-playgama
+          unzip -p release/pingus-yandex-web.zip bootstrap.js > /tmp/pingus-base-bootstrap.js
+          test -s /tmp/pingus-base-bootstrap.js
 
       - name: Install Playgama Bridge integration
         run: |
@@ -43,10 +45,14 @@ jobs:
           grep -q 'https://bridge.playgama.com/v2/stable/playgama-bridge.js' dist-playgama/index.html
           grep -q 'playgama-yandex-compat.js' dist-playgama/index.html
           grep -q 'Playgama Bridge v2' dist-playgama/playgama-yandex-compat.js
-          grep -q 'Playgama full-viewport background fix' dist-playgama/pingus.css
-          grep -q 'drawBackdrop();' dist-playgama/bootstrap.js
+          grep -q 'Playgama full-viewport background fix v2' dist-playgama/pingus.css
+          grep -q 'background-size: cover' dist-playgama/pingus.css
           if grep -q 'bridge.playgama.com/v1/' dist-playgama/index.html; then exit 1; fi
           if grep -Eq '<script[^>]+src="?/sdk\.js' dist-playgama/index.html; then exit 1; fi
+
+          # The viewport fix must never modify Pingus runtime code again.
+          cmp /tmp/pingus-base-bootstrap.js dist-playgama/bootstrap.js
+
           node --check dist-playgama/playgama-yandex-compat.js
           node --check dist-playgama/bootstrap.js
           python3 -m json.tool dist-playgama/playgama-bridge-config.json >/dev/null
