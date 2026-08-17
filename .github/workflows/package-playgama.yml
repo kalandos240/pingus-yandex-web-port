@@ -10,22 +10,37 @@ on:
 permissions:
   contents: read
 
+env:
+  # This exact runtime already passed real Playgama SDK/save certification.
+  # Do not silently replace it with a later hourly rebuild.
+  PINGUS_PLAYGAMA_BASE: d0525afb6458ae9f72e40e628b438465367ebdc7
+  PINGUS_JS_SHA256: 66735b95c95872f80888d8cff1bf0cf68095c5f8a001508a7f0ce21ac2a7b775
+  PINGUS_BOOTSTRAP_SHA256: 88cfc5589313fae2c3fb6c2c32cb72f6b43cfeca37d5457edde9ef9c9bf6e150
+
 jobs:
   package:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout repository with pinned build history
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Prepare latest verified Pingus build
+      - name: Prepare pinned verified Pingus runtime
         run: |
           set -euo pipefail
-          test -s release/pingus-yandex-web.zip
+          git cat-file -e "${PINGUS_PLAYGAMA_BASE}:release/pingus-yandex-web.zip"
+          git show "${PINGUS_PLAYGAMA_BASE}:release/pingus-yandex-web.zip" > /tmp/pingus-yandex-web.zip
+          test -s /tmp/pingus-yandex-web.zip
+
           rm -rf dist-playgama
           mkdir dist-playgama
-          unzip -q release/pingus-yandex-web.zip -d dist-playgama
-          unzip -p release/pingus-yandex-web.zip bootstrap.js > /tmp/pingus-base-bootstrap.js
-          test -s /tmp/pingus-base-bootstrap.js
+          unzip -q /tmp/pingus-yandex-web.zip -d dist-playgama
+
+          echo "${PINGUS_JS_SHA256}  dist-playgama/pingus.js" | sha256sum -c -
+          echo "${PINGUS_BOOTSTRAP_SHA256}  dist-playgama/bootstrap.js" | sha256sum -c -
+          cp dist-playgama/pingus.js /tmp/pingus-base.js
+          cp dist-playgama/bootstrap.js /tmp/pingus-base-bootstrap.js
 
       - name: Install Playgama Bridge integration
         run: |
@@ -34,7 +49,7 @@ jobs:
             --adapter playgama/playgama-yandex-compat.js \
             --config playgama/playgama-bridge-config.json
 
-      - name: Validate Playgama Bridge v2 package
+      - name: Validate Playgama package without runtime mutation
         run: |
           set -euo pipefail
           test -s dist-playgama/index.html
@@ -42,16 +57,24 @@ jobs:
           test -s dist-playgama/playgama-bridge-config.json
           test -s dist-playgama/pingus.css
           test -s dist-playgama/bootstrap.js
+          test -s dist-playgama/pingus.js
+
           grep -q 'https://bridge.playgama.com/v2/stable/playgama-bridge.js' dist-playgama/index.html
           grep -q 'playgama-yandex-compat.js' dist-playgama/index.html
           grep -q 'Playgama Bridge v2' dist-playgama/playgama-yandex-compat.js
-          grep -q 'Playgama full-viewport background fix v2' dist-playgama/pingus.css
+          grep -q 'Playgama full-viewport background fix v3' dist-playgama/pingus.css
           grep -q 'background-size: cover' dist-playgama/pingus.css
+          grep -q 'display: none !important' dist-playgama/pingus.css
+          grep -q '"disable": true' dist-playgama/playgama-bridge-config.json
+
           if grep -q 'bridge.playgama.com/v1/' dist-playgama/index.html; then exit 1; fi
           if grep -Eq '<script[^>]+src="?/sdk\.js' dist-playgama/index.html; then exit 1; fi
 
-          # The viewport fix must never modify Pingus runtime code again.
+          # Critical invariant: Playgama packaging may not touch game runtime.
+          cmp /tmp/pingus-base.js dist-playgama/pingus.js
           cmp /tmp/pingus-base-bootstrap.js dist-playgama/bootstrap.js
+          echo "${PINGUS_JS_SHA256}  dist-playgama/pingus.js" | sha256sum -c -
+          echo "${PINGUS_BOOTSTRAP_SHA256}  dist-playgama/bootstrap.js" | sha256sum -c -
 
           node --check dist-playgama/playgama-yandex-compat.js
           node --check dist-playgama/bootstrap.js
@@ -63,14 +86,14 @@ jobs:
       - name: Create Playgama ZIP
         run: |
           set -euo pipefail
-          (cd dist-playgama && zip -9 -X -r ../pingus-playgama-v2.zip .)
-          unzip -t pingus-playgama-v2.zip
-          ls -lh pingus-playgama-v2.zip
+          (cd dist-playgama && zip -9 -X -r ../pingus-playgama-v3.zip .)
+          unzip -t pingus-playgama-v3.zip
+          ls -lh pingus-playgama-v3.zip
 
       - name: Upload Playgama build
         uses: actions/upload-artifact@v4
         with:
-          name: pingus-playgama-v2
-          path: pingus-playgama-v2.zip
+          name: pingus-playgama-v3
+          path: pingus-playgama-v3.zip
           if-no-files-found: error
           retention-days: 90
