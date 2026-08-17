@@ -40,7 +40,7 @@ jobs:
           test -s dist-playgama/playgama-bridge-config.json
           grep -q 'https://bridge.playgama.com/v1/stable/playgama-bridge.js' dist-playgama/index.html
           grep -q 'playgama-yandex-compat.js' dist-playgama/index.html
-          ! grep -Eq '<script[^>]+src=["'"']?/sdk\.js' dist-playgama/index.html
+          if grep -Eq '<script[^>]+src="?/sdk\.js' dist-playgama/index.html; then exit 1; fi
           node --check dist-playgama/playgama-yandex-compat.js
           python3 -m json.tool dist-playgama/playgama-bridge-config.json >/dev/null
           unpacked_bytes="$(du -sb dist-playgama | cut -f1)"
