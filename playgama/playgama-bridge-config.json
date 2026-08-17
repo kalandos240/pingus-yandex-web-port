@@ -6,12 +6,10 @@
     "minimumDelayBetweenInterstitial": 120,
     "initialInterstitialDelay": 60,
     "interstitial": {
-      "disable": false,
-      "preloadOnStart": false
+      "disable": false
     },
     "rewarded": {
-      "disable": false,
-      "preloadOnStart": false
+      "disable": false
     },
     "banner": {
       "disable": true
@@ -19,6 +17,6 @@
   },
   "device": {
     "useBuiltInOrientationPopup": false,
-    "supportedOrientations": ["portrait", "landscape"]
+    "supportedOrientations": ["landscape"]
   }
 }
