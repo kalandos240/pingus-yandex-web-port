@@ -1,0 +1,63 @@
+name: Package Playgama build
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'playgama/**'
+      - '.github/workflows/package-playgama.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare latest verified Pingus build
+        run: |
+          set -euo pipefail
+          test -s release/pingus-yandex-web.zip
+          rm -rf dist-playgama
+          mkdir dist-playgama
+          unzip -q release/pingus-yandex-web.zip -d dist-playgama
+
+      - name: Install Playgama Bridge integration
+        run: |
+          set -euo pipefail
+          python3 playgama/package_playgama.py dist-playgama \
+            --adapter playgama/playgama-yandex-compat.js \
+            --config playgama/playgama-bridge-config.json
+
+      - name: Validate Playgama package
+        run: |
+          set -euo pipefail
+          test -s dist-playgama/index.html
+          test -s dist-playgama/playgama-yandex-compat.js
+          test -s dist-playgama/playgama-bridge-config.json
+          grep -q 'https://bridge.playgama.com/v1/stable/playgama-bridge.js' dist-playgama/index.html
+          grep -q 'playgama-yandex-compat.js' dist-playgama/index.html
+          if grep -Eq '<script[^>]+src="?/sdk\.js' dist-playgama/index.html; then exit 1; fi
+          node --check dist-playgama/playgama-yandex-compat.js
+          python3 -m json.tool dist-playgama/playgama-bridge-config.json >/dev/null
+          unpacked_bytes="$(du -sb dist-playgama | cut -f1)"
+          echo "Unpacked Playgama bytes: ${unpacked_bytes}"
+          test "${unpacked_bytes}" -lt 300000000
+
+      - name: Create Playgama ZIP
+        run: |
+          set -euo pipefail
+          (cd dist-playgama && zip -9 -X -r ../pingus-playgama.zip .)
+          unzip -t pingus-playgama.zip
+          ls -lh pingus-playgama.zip
+
+      - name: Upload Playgama build
+        uses: actions/upload-artifact@v4
+        with:
+          name: pingus-playgama
+          path: pingus-playgama.zip
+          if-no-files-found: error
+          retention-days: 90

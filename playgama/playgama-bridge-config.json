@@ -1,0 +1,24 @@
+{
+  "sendAnalyticsEvents": true,
+  "disableLoadingLogo": true,
+  "showFullLoadingLogo": false,
+  "advertisement": {
+    "minimumDelayBetweenInterstitial": 120,
+    "initialInterstitialDelay": 60,
+    "interstitial": {
+      "disable": false,
+      "preloadOnStart": false
+    },
+    "rewarded": {
+      "disable": false,
+      "preloadOnStart": false
+    },
+    "banner": {
+      "disable": true
+    }
+  },
+  "device": {
+    "useBuiltInOrientationPopup": false,
+    "supportedOrientations": ["portrait", "landscape"]
+  }
+}
