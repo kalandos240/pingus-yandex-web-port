@@ -11,8 +11,8 @@ permissions:
   contents: read
 
 env:
-  # This exact runtime already passed real Playgama SDK/save certification.
-  # Do not silently replace it with a later hourly rebuild.
+  # Exact runtime that already rendered correctly in Playgama and passed
+  # real SDK/storage certification. Never substitute an hourly rebuild here.
   PINGUS_PLAYGAMA_BASE: d0525afb6458ae9f72e40e628b438465367ebdc7
   PINGUS_JS_SHA256: 66735b95c95872f80888d8cff1bf0cf68095c5f8a001508a7f0ce21ac2a7b775
   PINGUS_BOOTSTRAP_SHA256: 88cfc5589313fae2c3fb6c2c32cb72f6b43cfeca37d5457edde9ef9c9bf6e150
@@ -21,17 +21,17 @@ jobs:
   package:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository with pinned build history
+      - name: Checkout Playgama packaging files
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Prepare pinned verified Pingus runtime
+      - name: Download pinned verified Pingus runtime
         run: |
           set -euo pipefail
-          git cat-file -e "${PINGUS_PLAYGAMA_BASE}:release/pingus-yandex-web.zip"
-          git show "${PINGUS_PLAYGAMA_BASE}:release/pingus-yandex-web.zip" > /tmp/pingus-yandex-web.zip
+          curl -fL --retry 4 --retry-all-errors \
+            "https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PINGUS_PLAYGAMA_BASE}/release/pingus-yandex-web.zip" \
+            -o /tmp/pingus-yandex-web.zip
           test -s /tmp/pingus-yandex-web.zip
+          unzip -t /tmp/pingus-yandex-web.zip
 
           rm -rf dist-playgama
           mkdir dist-playgama
@@ -65,7 +65,6 @@ jobs:
           grep -q 'Playgama full-viewport background fix v3' dist-playgama/pingus.css
           grep -q 'background-size: cover' dist-playgama/pingus.css
           grep -q 'display: none !important' dist-playgama/pingus.css
-          grep -q '"disable": true' dist-playgama/playgama-bridge-config.json
 
           if grep -q 'bridge.playgama.com/v1/' dist-playgama/index.html; then exit 1; fi
           if grep -Eq '<script[^>]+src="?/sdk\.js' dist-playgama/index.html; then exit 1; fi
@@ -79,6 +78,14 @@ jobs:
           node --check dist-playgama/playgama-yandex-compat.js
           node --check dist-playgama/bootstrap.js
           python3 -m json.tool dist-playgama/playgama-bridge-config.json >/dev/null
+          python3 - <<'PY'
+          import json
+          with open('dist-playgama/playgama-bridge-config.json', encoding='utf-8') as f:
+              cfg = json.load(f)
+          assert cfg['advertisement']['rewarded']['disable'] is True
+          assert cfg['advertisement']['interstitial']['disable'] is False
+          PY
+
           unpacked_bytes="$(du -sb dist-playgama | cut -f1)"
           echo "Unpacked Playgama bytes: ${unpacked_bytes}"
           test "${unpacked_bytes}" -lt 300000000
