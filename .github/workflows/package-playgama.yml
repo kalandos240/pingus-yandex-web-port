@@ -32,14 +32,16 @@ jobs:
             --adapter playgama/playgama-yandex-compat.js \
             --config playgama/playgama-bridge-config.json
 
-      - name: Validate Playgama package
+      - name: Validate Playgama Bridge v2 package
         run: |
           set -euo pipefail
           test -s dist-playgama/index.html
           test -s dist-playgama/playgama-yandex-compat.js
           test -s dist-playgama/playgama-bridge-config.json
-          grep -q 'https://bridge.playgama.com/v1/stable/playgama-bridge.js' dist-playgama/index.html
+          grep -q 'https://bridge.playgama.com/v2/stable/playgama-bridge.js' dist-playgama/index.html
           grep -q 'playgama-yandex-compat.js' dist-playgama/index.html
+          grep -q 'Playgama Bridge v2' dist-playgama/playgama-yandex-compat.js
+          if grep -q 'bridge.playgama.com/v1/' dist-playgama/index.html; then exit 1; fi
           if grep -Eq '<script[^>]+src="?/sdk\.js' dist-playgama/index.html; then exit 1; fi
           node --check dist-playgama/playgama-yandex-compat.js
           python3 -m json.tool dist-playgama/playgama-bridge-config.json >/dev/null
@@ -50,14 +52,14 @@ jobs:
       - name: Create Playgama ZIP
         run: |
           set -euo pipefail
-          (cd dist-playgama && zip -9 -X -r ../pingus-playgama.zip .)
-          unzip -t pingus-playgama.zip
-          ls -lh pingus-playgama.zip
+          (cd dist-playgama && zip -9 -X -r ../pingus-playgama-v2.zip .)
+          unzip -t pingus-playgama-v2.zip
+          ls -lh pingus-playgama-v2.zip
 
       - name: Upload Playgama build
         uses: actions/upload-artifact@v4
         with:
-          name: pingus-playgama
-          path: pingus-playgama.zip
+          name: pingus-playgama-v2
+          path: pingus-playgama-v2.zip
           if-no-files-found: error
           retention-days: 90
