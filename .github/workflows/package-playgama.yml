@@ -38,12 +38,17 @@ jobs:
           test -s dist-playgama/index.html
           test -s dist-playgama/playgama-yandex-compat.js
           test -s dist-playgama/playgama-bridge-config.json
+          test -s dist-playgama/pingus.css
+          test -s dist-playgama/bootstrap.js
           grep -q 'https://bridge.playgama.com/v2/stable/playgama-bridge.js' dist-playgama/index.html
           grep -q 'playgama-yandex-compat.js' dist-playgama/index.html
           grep -q 'Playgama Bridge v2' dist-playgama/playgama-yandex-compat.js
+          grep -q 'Playgama full-viewport background fix' dist-playgama/pingus.css
+          grep -q 'drawBackdrop();' dist-playgama/bootstrap.js
           if grep -q 'bridge.playgama.com/v1/' dist-playgama/index.html; then exit 1; fi
           if grep -Eq '<script[^>]+src="?/sdk\.js' dist-playgama/index.html; then exit 1; fi
           node --check dist-playgama/playgama-yandex-compat.js
+          node --check dist-playgama/bootstrap.js
           python3 -m json.tool dist-playgama/playgama-bridge-config.json >/dev/null
           unpacked_bytes="$(du -sb dist-playgama | cut -f1)"
           echo "Unpacked Playgama bytes: ${unpacked_bytes}"
