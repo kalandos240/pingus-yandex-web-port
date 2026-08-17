@@ -5,24 +5,31 @@ import argparse
 import re
 import shutil
 
-BRIDGE = '<script src="https://bridge.playgama.com/v1/stable/playgama-bridge.js"></script>'
+BRIDGE_URL = "https://bridge.playgama.com/v2/stable/playgama-bridge.js"
+BRIDGE = f'<script src="{BRIDGE_URL}"></script>'
 ADAPTER = '<script src="playgama-yandex-compat.js"></script>'
-NOTICE = """Playgama integration
+NOTICE = f"""Playgama integration
 ====================
 
-Active SDK: Playgama Bridge JS Core v1 stable
-https://bridge.playgama.com/v1/stable/playgama-bridge.js
+Active SDK: Playgama Bridge JS Core v2 stable
+{BRIDGE_URL}
 
 The package keeps the port's already-tested game-side Yandex-style calls behind
 playgama-yandex-compat.js. That facade maps language, lifecycle, ads, pause/resume
-and Player data to Playgama Bridge. The Playgama package does not load /sdk.js.
+and Player data to Playgama Bridge v2. The Playgama package does not load /sdk.js.
 
 Bridge configuration: playgama-bridge-config.json
 """
 
 
 def patch_html(html: str) -> str:
-    if 'bridge.playgama.com/v1/stable/playgama-bridge.js' in html:
+    html = re.sub(
+        r'<script\s+src=["\']https://bridge\.playgama\.com/v1/(?:stable|latest)/playgama-bridge\.js["\']\s*></script>',
+        BRIDGE,
+        html,
+        flags=re.I,
+    )
+    if BRIDGE_URL in html and 'playgama-yandex-compat.js' in html:
         return html
     direct_sdk = re.compile(r'<script\s+src=(?:["\']?/sdk\.js["\']?|/sdk\.js)\s*></script>', re.I)
     if direct_sdk.search(html):
@@ -51,8 +58,10 @@ def main() -> None:
     html = patch_html(index.read_text(encoding='utf-8'))
     if re.search(r'<script\s+src=(?:["\']?/sdk\.js["\']?|/sdk\.js)', html, re.I):
         raise SystemExit('Direct /sdk.js reference remains in Playgama index.html')
+    if 'bridge.playgama.com/v1/' in html:
+        raise SystemExit('Legacy Playgama Bridge v1 reference remains in Playgama index.html')
     if BRIDGE not in html or ADAPTER not in html:
-        raise SystemExit('Playgama Bridge bootstrap was not installed')
+        raise SystemExit('Playgama Bridge v2 bootstrap was not installed')
     index.write_text(html, encoding='utf-8')
 
     shutil.copy2(args.adapter, dist / 'playgama-yandex-compat.js')
@@ -73,7 +82,7 @@ def main() -> None:
     if total >= 300_000_000:
         raise SystemExit(f'Playgama package exceeds 300 MB unpacked: {total}')
 
-    print(f'Playgama package prepared: {dist}')
+    print(f'Playgama Bridge v2 package prepared: {dist}')
     print(f'Unpacked bytes: {total}')
 
 
