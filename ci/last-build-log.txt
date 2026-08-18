@@ -33,9 +33,9 @@ Web SmallMap: pingu markers and viewport frame use no-readback fills
 Web worldmap UX: left/right drag + touch swipe panning; localized text wrapping/fitting enabled
 Installing Web Cyrillic font generation dependencies
 Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
 Hit:6 https://packages.microsoft.com/repos/azure-cli noble InRelease
 Hit:7 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease
-Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
 Hit:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease
 Hit:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease
 Hit:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease
@@ -61,7 +61,7 @@ Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
 Get:2 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libimagequant0 amd64 2.18.0-1build1 [36.3 kB]
 Get:3 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libraqm0 amd64 0.10.1-1build1 [15.0 kB]
 Get:4 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 python3-pil amd64 10.2.0-1ubuntu1.2 [452 kB]
-Fetched 503 kB in 30s (16.7 kB/s)
+Fetched 503 kB in 0s (2926 kB/s)
 Selecting previously unselected package libimagequant0:amd64.
 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 220101 files and directories currently installed.)
 Preparing to unpack .../libimagequant0_2.18.0-1build1_amd64.deb ...
@@ -94,13 +94,13 @@ Web audio: 64 SDL_mixer channels + stale HTMLAudio reclamation enabled
 Yandex cloud saves: Player.getData/setData + IDBFS merge/fallback enabled
 Installing ffmpeg for Pingus tracker-music conversion
 Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+Hit:6 https://packages.microsoft.com/repos/azure-cli noble InRelease
 Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+Hit:7 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease
 Hit:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease
 Hit:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease
 Hit:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease
-Hit:6 https://packages.microsoft.com/repos/azure-cli noble InRelease
-Hit:7 https://dl.google.com/linux/chrome-stable/deb stable InRelease
-Hit:8 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease
+Hit:8 https://dl.google.com/linux/chrome-stable/deb stable InRelease
 Reading package lists...
 Reading package lists...
 Building dependency tree...
@@ -182,15 +182,15 @@ Get:31 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libzvbi0t64 a
 Get:32 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libavcodec60 amd64 7:6.1.1-3ubuntu5 [5851 kB]
 Get:33 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libraw1394-11 amd64 2.1.2-2build3 [26.2 kB]
 Get:34 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libavc1394-0 amd64 0.5.4-5build3 [15.4 kB]
-Ign:35 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libunibreak5 amd64 5.1-2build1
-Ign:36 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libass9 amd64 1:0.17.1-2build1
+Get:35 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libunibreak5 amd64 5.1-2build1 [25.0 kB]
+Get:36 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libass9 amd64 1:0.17.1-2build1 [104 kB]
 Get:37 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libudfread0 amd64 1.1.2-1build1 [19.0 kB]
 Get:38 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libbluray2 amd64 1:1.3.4-1build1 [159 kB]
 Get:39 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libchromaprint1 amd64 1.5.1-5 [30.5 kB]
 Get:40 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libgme0 amd64 0.6.3-7build1 [134 kB]
 Get:41 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 libmpg123-0t64 amd64 1.32.5-1ubuntu1.1 [169 kB]
-Ign:42 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libopenmpt0t64 amd64 0.7.3-1.1build3
-Ign:43 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libcjson1 amd64 1.7.17-1
+Get:42 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libopenmpt0t64 amd64 0.7.3-1.1build3 [647 kB]
+Get:43 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libcjson1 amd64 1.7.17-1 [24.8 kB]
 Get:44 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libmbedcrypto7t64 amd64 2.28.8-1 [209 kB]
 Get:45 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 librist4 amd64 0.2.10+dfsg-2 [74.9 kB]
 Get:46 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libsrt1.5-gnutls amd64 1.5.3-1build2 [316 kB]
@@ -236,11 +236,7 @@ Get:85 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libxcb-shape0 amd
 Get:86 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libxv1 amd64 2:1.0.11-1.1build1 [10.7 kB]
 Get:87 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libavdevice60 amd64 7:6.1.1-3ubuntu5 [82.3 kB]
 Get:88 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 ffmpeg amd64 7:6.1.1-3ubuntu5 [1879 kB]
-Get:35 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libunibreak5 amd64 5.1-2build1 [25.0 kB]
-Get:36 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libass9 amd64 1:0.17.1-2build1 [104 kB]
-Get:42 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libopenmpt0t64 amd64 0.7.3-1.1build3 [647 kB]
-Get:43 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libcjson1 amd64 1.7.17-1 [24.8 kB]
-Fetched 62.8 MB in 5min 41s (184 kB/s)
+Fetched 62.8 MB in 33s (1894 kB/s)
 Selecting previously unselected package libva2:amd64.
 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 220229 files and directories currently installed.)
 Preparing to unpack .../00-libva2_2.20.0-2ubuntu0.2_amd64.deb ...
@@ -635,7 +631,7 @@ cache:INFO:  - ok
 ports:INFO: retrieving port: libpng from https://storage.googleapis.com/webassembly/emscripten-ports/libpng-1.6.39.tar.gz
 ports:INFO: unpacking port: libpng
 cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libpng.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libpng.a" for subsequent builds)
-system_libs:INFO: compiled 25 inputs in 2.20s
+system_libs:INFO: compiled 25 inputs in 2.14s
 cache:INFO:  - ok
 ports:INFO: retrieving port: ogg from https://github.com/emscripten-ports/ogg/archive/version_1.zip
 ports:INFO: unpacking port: ogg
@@ -645,7 +641,7 @@ cache:INFO:  - ok
 ports:INFO: retrieving port: vorbis from https://github.com/emscripten-ports/vorbis/archive/version_1.zip
 ports:INFO: unpacking port: vorbis
 cache:INFO: generating system library: sysroot/lib/wasm32-emscripten/libvorbis.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libvorbis.a" for subsequent builds)
-system_libs:INFO: compiled 22 inputs in 2.02s
+system_libs:INFO: compiled 22 inputs in 2.04s
 cache:INFO:  - ok
 src/pingus/actions/boarder.cpp:55:67: warning: operator '?:' has lower precedence than '+'; '+' will be evaluated first [-Wparentheses]
    55 |       pingu->set_pos(Vector3f(old_pos.x + (old_pos.x < new_pos.x) ? 1.0f : -1.0f, 
@@ -664,10 +660,10 @@ cache:INFO:  - ok
 CSP: inline bootstrap/style/event handler externalized
 CSP: index.html contains external scripts only
 SDL1: expected canvas compatibility warning suppressed; copy behavior retained
-GPL corresponding source bundle: PINGUS-CORRESPONDING-SOURCE.tar.gz 12709989 bytes
+GPL corresponding source bundle: PINGUS-CORRESPONDING-SOURCE.tar.gz 12710000 bytes
 Self-contained browser runtime created:
-  PINGUS-CORRESPONDING-SOURCE.tar.gz 12709989 bytes
+  PINGUS-CORRESPONDING-SOURCE.tar.gz 12710000 bytes
   bootstrap.js 33107 bytes
   index.html 896 bytes
   pingus.css 2010 bytes
-  pingus.js 51201945 bytes
+  pingus.js 51201005 bytes
