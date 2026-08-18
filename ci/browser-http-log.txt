@@ -1,14 +1,12 @@
-127.0.0.1 - - [17/Aug/2026 23:43:57] "GET /index.html HTTP/1.1" 200 -
-127.0.0.1 - - [17/Aug/2026 23:43:57] "GET /index.html HTTP/1.1" 200 -
-127.0.0.1 - - [17/Aug/2026 23:44:04] "GET /index.html?pingus-smoke=1 HTTP/1.1" 200 -
-127.0.0.1 - - [17/Aug/2026 23:44:04] "GET /pingus.css HTTP/1.1" 200 -
-127.0.0.1 - - [17/Aug/2026 23:44:04] code 404, message File not found
-127.0.0.1 - - [17/Aug/2026 23:44:04] "GET /sdk.js HTTP/1.1" 404 -
-127.0.0.1 - - [17/Aug/2026 23:44:04] "GET /bootstrap.js HTTP/1.1" 200 -
-127.0.0.1 - - [17/Aug/2026 23:44:04] "GET /pingus.js HTTP/1.1" 200 -
-127.0.0.1 - - [17/Aug/2026 23:44:05] code 404, message File not found
-127.0.0.1 - - [17/Aug/2026 23:44:05] "GET /favicon.ico HTTP/1.1" 404 -
-127.0.0.1 - - [17/Aug/2026 23:44:06] code 404, message File not found
-127.0.0.1 - - [17/Aug/2026 23:44:06] "GET /__pingus_ready__ HTTP/1.1" 404 -
-127.0.0.1 - - [17/Aug/2026 23:44:07] code 404, message File not found
-127.0.0.1 - - [17/Aug/2026 23:44:07] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [18/Aug/2026 01:50:35] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [18/Aug/2026 01:50:35] "GET /index.html HTTP/1.1" 200 -
+127.0.0.1 - - [18/Aug/2026 01:50:45] "GET /index.html?pingus-smoke=1 HTTP/1.1" 200 -
+127.0.0.1 - - [18/Aug/2026 01:50:46] "GET /pingus.css HTTP/1.1" 200 -
+127.0.0.1 - - [18/Aug/2026 01:50:46] "GET /pingus.js HTTP/1.1" 200 -
+127.0.0.1 - - [18/Aug/2026 01:50:46] code 404, message File not found
+127.0.0.1 - - [18/Aug/2026 01:50:46] "GET /sdk.js HTTP/1.1" 404 -
+127.0.0.1 - - [18/Aug/2026 01:50:46] "GET /bootstrap.js HTTP/1.1" 200 -
+127.0.0.1 - - [18/Aug/2026 01:50:47] code 404, message File not found
+127.0.0.1 - - [18/Aug/2026 01:50:47] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [18/Aug/2026 01:50:48] code 404, message File not found
+127.0.0.1 - - [18/Aug/2026 01:50:48] "GET /__pingus_ready__ HTTP/1.1" 404 -
