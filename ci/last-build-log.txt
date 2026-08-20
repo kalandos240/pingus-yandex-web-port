@@ -33,12 +33,12 @@ Web SmallMap: pingu markers and viewport frame use no-readback fills
 Web worldmap UX: left/right drag + touch swipe panning; localized text wrapping/fitting enabled
 Installing Web Cyrillic font generation dependencies
 Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+Hit:6 https://packages.microsoft.com/repos/azure-cli noble InRelease
 Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+Hit:7 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease
 Hit:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease
 Hit:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease
 Hit:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease
-Hit:6 https://packages.microsoft.com/repos/azure-cli noble InRelease
-Hit:7 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease
 Hit:8 https://dl.google.com/linux/chrome-stable/deb stable InRelease
 Reading package lists...
 Reading package lists...
@@ -54,16 +54,16 @@ Recommended packages:
   python3-olefile
 The following NEW packages will be installed:
   libimagequant0 libraqm0 python3-pil
-0 upgraded, 3 newly installed, 0 to remove and 14 not upgraded.
+0 upgraded, 3 newly installed, 0 to remove and 21 not upgraded.
 Need to get 503 kB of archives.
 After this operation, 1955 kB of additional disk space will be used.
 Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
 Get:2 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libimagequant0 amd64 2.18.0-1build1 [36.3 kB]
 Get:3 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libraqm0 amd64 0.10.1-1build1 [15.0 kB]
 Get:4 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 python3-pil amd64 10.2.0-1ubuntu1.2 [452 kB]
-Fetched 503 kB in 0s (2650 kB/s)
+Fetched 503 kB in 0s (2810 kB/s)
 Selecting previously unselected package libimagequant0:amd64.
-(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 220086 files and directories currently installed.)
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 220101 files and directories currently installed.)
 Preparing to unpack .../libimagequant0_2.18.0-1build1_amd64.deb ...
 Unpacking libimagequant0:amd64 (2.18.0-1build1) ...
 Selecting previously unselected package libraqm0:amd64.
@@ -94,13 +94,13 @@ Web audio: 64 SDL_mixer channels + stale HTMLAudio reclamation enabled
 Yandex cloud saves: Player.getData/setData + IDBFS merge/fallback enabled
 Installing ffmpeg for Pingus tracker-music conversion
 Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
+Hit:6 https://packages.microsoft.com/repos/azure-cli noble InRelease
 Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
-Hit:6 https://dl.google.com/linux/chrome-stable/deb stable InRelease
-Hit:7 https://packages.microsoft.com/repos/azure-cli noble InRelease
-Hit:8 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease
+Hit:7 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease
 Hit:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease
 Hit:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease
 Hit:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease
+Hit:8 https://dl.google.com/linux/chrome-stable/deb stable InRelease
 Reading package lists...
 Reading package lists...
 Building dependency tree...
@@ -145,7 +145,7 @@ The following NEW packages will be installed:
   libva-drm2 libva-x11-2 libva2 libvdpau1 libvidstab1.1 libvorbisenc2 libvpl2
   libvpx9 libx264-164 libx265-199 libxcb-shape0 libxv1 libxvidcore4 libzimg2
   libzix-0-0 libzvbi-common libzvbi0t64 ocl-icd-libopencl1
-0 upgraded, 87 newly installed, 0 to remove and 14 not upgraded.
+0 upgraded, 87 newly installed, 0 to remove and 21 not upgraded.
 Need to get 62.8 MB of archives.
 After this operation, 173 MB of additional disk space will be used.
 Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
@@ -236,9 +236,9 @@ Get:85 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libxcb-shape0 amd
 Get:86 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libxv1 amd64 2:1.0.11-1.1build1 [10.7 kB]
 Get:87 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 libavdevice60 amd64 7:6.1.1-3ubuntu5 [82.3 kB]
 Get:88 http://azure.archive.ubuntu.com/ubuntu noble/universe amd64 ffmpeg amd64 7:6.1.1-3ubuntu5 [1879 kB]
-Fetched 62.8 MB in 5s (12.5 MB/s)
+Fetched 62.8 MB in 8s (7596 kB/s)
 Selecting previously unselected package libva2:amd64.
-(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 220214 files and directories currently installed.)
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 220229 files and directories currently installed.)
 Preparing to unpack .../00-libva2_2.20.0-2ubuntu0.2_amd64.deb ...
 Unpacking libva2:amd64 (2.20.0-2ubuntu0.2) ...
 Selecting previously unselected package libva-drm2:amd64.
@@ -626,22 +626,22 @@ Compiling 207 original C++ source files (desktop editor omitted)
 ports:INFO: retrieving port: zlib from https://github.com/madler/zlib/archive/refs/tags/v1.2.13.tar.gz
 ports:INFO: unpacking port: zlib
 cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libz.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libz.a" for subsequent builds)
-system_libs:INFO: compiled 15 inputs in 0.75s
+system_libs:INFO: compiled 15 inputs in 1.00s
 cache:INFO:  - ok
 ports:INFO: retrieving port: libpng from https://storage.googleapis.com/webassembly/emscripten-ports/libpng-1.6.39.tar.gz
 ports:INFO: unpacking port: libpng
 cache:INFO: generating port: sysroot/lib/wasm32-emscripten/libpng.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libpng.a" for subsequent builds)
-system_libs:INFO: compiled 25 inputs in 1.29s
+system_libs:INFO: compiled 25 inputs in 1.95s
 cache:INFO:  - ok
 ports:INFO: retrieving port: ogg from https://github.com/emscripten-ports/ogg/archive/version_1.zip
 ports:INFO: unpacking port: ogg
 cache:INFO: generating system library: sysroot/lib/wasm32-emscripten/libogg.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libogg.a" for subsequent builds)
-system_libs:INFO: compiled 2 inputs in 0.16s
+system_libs:INFO: compiled 2 inputs in 0.21s
 cache:INFO:  - ok
 ports:INFO: retrieving port: vorbis from https://github.com/emscripten-ports/vorbis/archive/version_1.zip
 ports:INFO: unpacking port: vorbis
 cache:INFO: generating system library: sysroot/lib/wasm32-emscripten/libvorbis.a... (this will be cached in "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/.emsdk/upstream/emscripten/cache/sysroot/lib/wasm32-emscripten/libvorbis.a" for subsequent builds)
-system_libs:INFO: compiled 22 inputs in 1.23s
+system_libs:INFO: compiled 22 inputs in 1.94s
 cache:INFO:  - ok
 src/pingus/actions/boarder.cpp:55:67: warning: operator '?:' has lower precedence than '+'; '+' will be evaluated first [-Wparentheses]
    55 |       pingu->set_pos(Vector3f(old_pos.x + (old_pos.x < new_pos.x) ? 1.0f : -1.0f, 
@@ -660,10 +660,10 @@ cache:INFO:  - ok
 CSP: inline bootstrap/style/event handler externalized
 CSP: index.html contains external scripts only
 SDL1: expected canvas compatibility warning suppressed; copy behavior retained
-GPL corresponding source bundle: PINGUS-CORRESPONDING-SOURCE.tar.gz 12710007 bytes
+GPL corresponding source bundle: PINGUS-CORRESPONDING-SOURCE.tar.gz 12709981 bytes
 Self-contained browser runtime created:
-  PINGUS-CORRESPONDING-SOURCE.tar.gz 12710007 bytes
+  PINGUS-CORRESPONDING-SOURCE.tar.gz 12709981 bytes
   bootstrap.js 33107 bytes
   index.html 896 bytes
   pingus.css 2010 bytes
-  pingus.js 51205273 bytes
+  pingus.js 51204349 bytes
