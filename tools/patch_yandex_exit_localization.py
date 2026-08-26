@@ -3,8 +3,9 @@ import base64
 import hashlib
 import io
 import re
+import statistics
 
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont, ImageFilter
 
 DATA_IMAGES = Path('data/images')
 LEVELS_ROOT = Path('data/levels')
@@ -12,6 +13,9 @@ SPRITE_CPP = Path('src/engine/display/sprite.cpp')
 ATLAS_DIR = Path('../assets')
 ATLAS_B64_GLOB = 'yandex_ru_texture_patch_atlas.b64part*'
 ATLAS_SHA256 = '9d6449ef12730ecab33a8e4a0758e32eaab5c83e97175eff22560360fa4c0549'
+TUTORIAL_SIGN_BOX = (780, 330, 1220, 480)
+TUTORIAL_SIGN_TEXT = 'Учебный остров'
+TUTORIAL_SIGN_FONT = Path('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf')
 ATLAS_PART_SHA256 = [
     '9aee882d6f473479761a6da627a2f42b029ac4e6f30271063e7943bf6bc27f32',
     'bf17bac8516f3d850c57fd7b9af9a2d80f5f991d121142266390043a942c41e6',
@@ -50,7 +54,6 @@ PATCHES = [
     ('exits/sweetexit', 'exits/sweetexit.png', 'exits/sweetexit_ru.png', (65, 48, 116, 72), (880, 58, 931, 82), False),
     ('exits/xmas', 'exits/xmas.png', 'exits/xmas_ru.png', (41, 39, 102, 71), (933, 58, 994, 90), False),
     ('traps/laser_exit', 'traps/laser_exit.png', 'traps/laser_exit_ru.png', (14, 13, 438, 37), (0, 92, 424, 116), False),
-    ('worldmaps/tutorial/layer0', 'worldmaps/tutorial_layer0.jpg', 'worldmaps/tutorial_layer0_ru.png', (650, 285, 935, 355), (426, 92, 711, 162), True),
 ]
 
 atlas_parts = sorted(ATLAS_DIR.glob(ATLAS_B64_GLOB))
@@ -104,19 +107,6 @@ for resource, source_rel, target_rel, bbox, atlas_box, is_tutorial in PATCHES:
     image.save(target_path, format='PNG', optimize=True)
     expected_images.append(target_path)
 
-    if is_tutorial:
-        source_sprite = DATA_IMAGES / 'worldmaps/tutorial/layer0.sprite'
-        target_sprite = DATA_IMAGES / 'worldmaps/tutorial/layer0_ru.sprite'
-        text = source_sprite.read_text(encoding='utf-8')
-        if text.count('../tutorial_layer0.jpg') != 1:
-            raise SystemExit('Yandex RU tutorial sprite anchor missing or duplicated')
-        target_sprite.write_text(
-            text.replace('../tutorial_layer0.jpg', '../tutorial_layer0_ru.png', 1),
-            encoding='utf-8',
-        )
-        localized_resources[resource] = 'worldmaps/tutorial/layer0_ru'
-        continue
-
     if resource.startswith('exits/'):
         text_bearing_exits.add(resource)
 
@@ -133,6 +123,93 @@ for resource, source_rel, target_rel, bbox, atlas_box, is_tutorial in PATCHES:
         text = text[:match.start(1)] + replacement + text[match.end(1):]
         target_sprite.write_text(text, encoding='utf-8')
     localized_resources[resource] = resource + '_ru'
+
+# The old atlas patch for the tutorial map targeted the wrong coordinates and
+# left "Tutorial Island" untouched. Rebuild the whole 440x150 sign region from
+# the original art: remove the English lettering using a robust per-row estimate
+# of the wood colour, preserve the sign outline/posts/snow, then draw the Russian
+# label at the exact real sign location. This is deterministic and needs no
+# opaque binary replacement image.
+worldmap_source = DATA_IMAGES / 'worldmaps/tutorial_layer0.jpg'
+worldmap_target = DATA_IMAGES / 'worldmaps/tutorial_layer0_ru.png'
+worldmap_image = Image.open(worldmap_source).convert('RGB')
+if worldmap_image.size != (1920, 1200):
+    raise SystemExit(f'Yandex RU tutorial map has unexpected size: {worldmap_image.size}')
+if not TUTORIAL_SIGN_FONT.is_file():
+    raise SystemExit(f'Yandex RU tutorial sign font source missing: {TUTORIAL_SIGN_FONT}')
+
+sign = worldmap_image.crop(TUTORIAL_SIGN_BOX)
+source_sign = sign.copy()
+source_px = source_sign.load()
+output_px = sign.load()
+# Local coordinates of the wooden sign face. The border, posts and surrounding
+# snow remain pixel-for-pixel from the original artwork.
+left, top, right, bottom = 57, 43, 381, 93
+for y in range(top, bottom):
+    samples = []
+    for x in range(55, 383):
+        red, green, blue = source_px[x, y]
+        # Green English lettering is rejected; the median therefore follows the
+        # underlying brown board rather than being pulled toward the text.
+        if green <= red + 10 and 40 < red < 190 and 25 < green < 150:
+            samples.append((red, green, blue))
+    if not samples:
+        raise SystemExit(f'Yandex RU tutorial sign could not estimate wood row {y}')
+    base = tuple(int(statistics.median(channel)) for channel in zip(*samples))
+    base_luma = sum(base) // 3
+    for x in range(left, right):
+        red, green, blue = source_px[x, y]
+        luma = (red + green + blue) // 3
+        delta = max(-7, min(7, (luma - base_luma) // 8))
+        output_px[x, y] = tuple(max(0, min(255, value + delta)) for value in base)
+
+# Suppress JPEG/text remnants without touching the carved frame.
+cleaned = sign.crop((left, top, right, bottom)).filter(ImageFilter.GaussianBlur(1.2))
+sign.paste(cleaned, (left, top))
+draw = ImageDraw.Draw(sign)
+font = None
+for size in range(38, 15, -1):
+    candidate = ImageFont.truetype(str(TUTORIAL_SIGN_FONT), size)
+    bounds = draw.textbbox((0, 0), TUTORIAL_SIGN_TEXT, font=candidate, stroke_width=2)
+    if bounds[2] - bounds[0] <= 315 and bounds[3] - bounds[1] <= 44:
+        font = candidate
+        break
+if font is None:
+    raise SystemExit('Yandex RU tutorial sign text does not fit')
+bounds = draw.textbbox((0, 0), TUTORIAL_SIGN_TEXT, font=font, stroke_width=2)
+text_width = bounds[2] - bounds[0]
+text_height = bounds[3] - bounds[1]
+x = (sign.width - text_width) // 2 - bounds[0]
+y = 50 + (43 - text_height) // 2 - bounds[1]
+# Two passes preserve the hand-painted green-on-wood contrast at game scale.
+draw.text((x + 1, y + 2), TUTORIAL_SIGN_TEXT, font=font,
+          fill=(21, 65, 30), stroke_width=3, stroke_fill=(38, 54, 25))
+draw.text((x, y), TUTORIAL_SIGN_TEXT, font=font,
+          fill=(42, 160, 73), stroke_width=1, stroke_fill=(18, 78, 36))
+worldmap_image.paste(sign, TUTORIAL_SIGN_BOX[:2])
+worldmap_image.save(worldmap_target, format='PNG', optimize=True)
+expected_images.append(worldmap_target)
+source_sprite = DATA_IMAGES / 'worldmaps/tutorial/layer0.sprite'
+target_sprite = DATA_IMAGES / 'worldmaps/tutorial/layer0_ru.sprite'
+text = source_sprite.read_text(encoding='utf-8')
+if text.count('../tutorial_layer0.jpg') != 1:
+    raise SystemExit('Yandex RU tutorial sprite anchor missing or duplicated')
+target_sprite.write_text(text.replace('../tutorial_layer0.jpg', '../tutorial_layer0_ru.png', 1), encoding='utf-8')
+localized_resources['worldmaps/tutorial/layer0'] = 'worldmaps/tutorial/layer0_ru'
+
+# Additional baked-text resources are generated later by
+# patch_web_visual_localization.py. Register their RU names here so Sprite uses
+# one locale decision for all graphical text.
+localized_resources.update({
+    'groundpieces/ground/signposts/danger': 'groundpieces/ground/signposts/danger_ru',
+    'groundpieces/ground/penguinworld/penguinworld': 'groundpieces/ground/penguinworld/penguinworld_ru',
+    'core/misc/loading': 'core/misc/loading_ru',
+    'core/misc/unplayable': 'core/misc/unplayable_ru',
+    'core/misc/unplayable2': 'core/misc/unplayable2_ru',
+    'core/misc/404sprite': 'core/misc/404sprite_ru',
+    'game/loading': 'game/loading_ru',
+    'game/404': 'game/404_ru',
+})
 
 # Audit every level. We do not rewrite .pingus files: collision masks continue
 # to use the original resource descriptor, so localization cannot alter level
@@ -153,10 +230,16 @@ if missing:
 # the original descriptor/resource name.
 s = SPRITE_CPP.read_text(encoding='utf-8')
 include_anchor = '#include "util/log.hpp"\n'
-if '#include "util/system.hpp"' not in s:
+if '#include "tinygettext/dictionary_manager.hpp"' not in s:
     if s.count(include_anchor) != 1:
         raise SystemExit('Yandex RU Sprite include anchor missing or duplicated')
-    s = s.replace(include_anchor, include_anchor + '#include "util/system.hpp"\n', 1)
+    s = s.replace(include_anchor, '#include "tinygettext/dictionary_manager.hpp"\n' + include_anchor, 1)
+
+if 'extern tinygettext::DictionaryManager dictionary_manager;' not in s:
+    extern_anchor = '#include "util/log.hpp"\n\n'
+    if s.count(extern_anchor) != 1:
+        raise SystemExit('Yandex RU Sprite extern anchor missing or duplicated')
+    s = s.replace(extern_anchor, extern_anchor + 'extern tinygettext::DictionaryManager dictionary_manager;\n\n', 1)
 
 if 'yandex_localized_sprite_name' not in s:
     helper_anchor = 'Sprite::Sprite() :\n'
@@ -171,7 +254,7 @@ if 'yandex_localized_sprite_name' not in s:
 std::string yandex_localized_sprite_name(const std::string& name)
 {{
 #ifdef __EMSCRIPTEN__
-  if (System::get_language() == "ru")
+  if (dictionary_manager.get_language().get_language() == "ru")
   {{
 {mapping_lines}
   }}
@@ -198,6 +281,13 @@ if new not in s:
     if s.count(old) != 1:
         raise SystemExit('Yandex RU Sprite ResDescriptor anchor missing or duplicated')
     s = s.replace(old, new, 1)
+old_404 = '    desc_.filename = Pathname("images/core/misc/404.png", Pathname::DATA_PATH);\n'
+new_404 = ('    desc_.filename = Pathname(dictionary_manager.get_language().get_language() == "ru" ? '
+           '"images/core/misc/404_ru.png" : "images/core/misc/404.png", Pathname::DATA_PATH);\n')
+if old_404 in s:
+    if s.count(old_404) != 2:
+        raise SystemExit('Yandex RU 404 fallback anchor count changed')
+    s = s.replace(old_404, new_404)
 SPRITE_CPP.write_text(s, encoding='utf-8')
 
 missing_outputs = [str(p) for p in expected_images if not p.is_file() or p.stat().st_size == 0]
@@ -206,6 +296,6 @@ if missing_outputs:
 
 print(
     'Yandex RU texture localization: '
-    f'{len(text_bearing_exits)} EXIT textures + laser exit + tutorial map installed; '
+    f'{len(text_bearing_exits)} EXIT textures + laser exit + verified tutorial map installed; '
     f'{len(referenced_exits)} exit resource types audited; level descriptors unchanged'
 )
