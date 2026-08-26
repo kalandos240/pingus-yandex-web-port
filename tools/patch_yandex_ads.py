@@ -4,7 +4,7 @@ from pathlib import Path
 # natural transition initiated by the player. Do not show an ad automatically
 # when ResultScreen opens. Instead, request it only when the player clicks a
 # result-screen action (continue, give up, or retry), immediately before the
-# corresponding screen transition. Browser-side code enforces a five-minute
+# corresponding screen transition. Browser-side code enforces a 90-second
 # minimum interval between requests.
 p = Path('src/pingus/screens/result_screen.cpp')
 s = p.read_text(encoding='utf-8')
@@ -52,11 +52,22 @@ p = Path('../web/shell.html')
 s = p.read_text(encoding='utf-8')
 
 state_anchor = '      let autosaveTimer = 0;\n'
-state_replacement = '''      let autosaveTimer = 0;\n      const INTERSTITIAL_MIN_INTERVAL_MS = 300000;\n      let interstitialInProgress = false;\n      let lastInterstitialAt = performance.now();\n'''
-if 'INTERSTITIAL_MIN_INTERVAL_MS' not in s:
-    if s.count(state_anchor) != 1:
-        raise SystemExit('Yandex ad shell state anchor missing or duplicated')
-    s = s.replace(state_anchor, state_replacement, 1)
+state_replacement = '''      let autosaveTimer = 0;\n      const INTERSTITIAL_MIN_INTERVAL_MS = 90000;\n      let interstitialInProgress = false;\n      let lastInterstitialAt = performance.now();\n'''
+if 'const INTERSTITIAL_MIN_INTERVAL_MS = 90000;' not in s:
+    if 'INTERSTITIAL_MIN_INTERVAL_MS' in s:
+        import re
+        s, count = re.subn(
+            r'const INTERSTITIAL_MIN_INTERVAL_MS = \d+;',
+            'const INTERSTITIAL_MIN_INTERVAL_MS = 90000;',
+            s,
+            count=1,
+        )
+        if count != 1:
+            raise SystemExit('Yandex ad cooldown constant missing or duplicated')
+    else:
+        if s.count(state_anchor) != 1:
+            raise SystemExit('Yandex ad shell state anchor missing or duplicated')
+        s = s.replace(state_anchor, state_replacement, 1)
 
 sdk_anchor = '''      window.yandexSDKPromise = (async () => {\n        try {\n          if (typeof YaGames === 'undefined') return null;\n          const ysdk = await YaGames.init();\n          window.ysdk = ysdk;'''
 if sdk_anchor not in s:
@@ -67,7 +78,7 @@ ad_code = r'''
       // Called only after the player explicitly clicks a result-screen action.
       // This makes the fullscreen ad part of a natural transition rather than
       // an automatic interruption. The first request is delayed for at least
-      // five minutes after page load, and subsequent requests use the same
+      // 90 seconds after page load, and subsequent requests use the same
       // minimum interval.
       window.pingusShowInterstitialAfterResultAction = () => {
         if (interstitialInProgress) return;

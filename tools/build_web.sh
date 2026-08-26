@@ -15,7 +15,6 @@ python3 ../tools/patch_yandex_content.py
 python3 ../tools/patch_yandex_locale.py
 python3 ../tools/patch_web_localization.py
 python3 ../tools/patch_yandex_content_translation.py
-python3 ../tools/patch_yandex_exit_localization.py
 python3 ../tools/patch_web_po_dedupe.py
 python3 ../tools/patch_web_hide_author.py
 python3 ../tools/audit_web_localization_sources.py
@@ -39,6 +38,14 @@ if ! python3 -c 'from PIL import Image, ImageDraw, ImageFont' >/dev/null 2>&1 ||
   sudo apt-get update
   sudo apt-get install -y --no-install-recommends fonts-dejavu-core python3-pil
 fi
+# PIL is now available. Build Russian copies of every player-facing EXIT
+# texture and the tutorial-map sign without changing the original assets.
+python3 ../tools/patch_yandex_exit_localization.py
+test -s data/images/exits/ice2_ru.png
+test -s data/images/exits/sortie_anim_ru.png
+test -s data/images/traps/laser_exit_ru.png
+test -s data/images/worldmaps/tutorial_layer0_ru.png
+grep -q 'yandex_localized_sprite_name' src/engine/display/sprite.cpp
 python3 ../tools/patch_web_fonts.py
 
 python3 ../tools/patch_touch_input.py
@@ -137,7 +144,7 @@ grep -q 'player.setData' ../dist/bootstrap.js
 grep -q 'id="backdrop"' ../dist/index.html
 grep -q 'drawBackdrop' ../dist/bootstrap.js
 grep -q 'pingusShowInterstitialAfterResultAction' ../dist/bootstrap.js
-grep -q 'INTERSTITIAL_MIN_INTERVAL_MS = 300000' ../dist/bootstrap.js
+grep -q 'INTERSTITIAL_MIN_INTERVAL_MS = 90000' ../dist/bootstrap.js
 if grep -q 'pingusShowInterstitialAfterLevel' ../dist/bootstrap.js; then
   echo 'Legacy automatic post-level interstitial hook is still present' >&2
   exit 1
