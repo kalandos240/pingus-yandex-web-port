@@ -13,6 +13,10 @@ LEVELS = Path('data/levels')
 # for every level and every SurfaceBackground resource, by mirror-tiling repeated
 # axes. Mirrored neighbours share the exact same edge pixels, including animated
 # sprite backgrounds, so no per-level asset whitelist is required.
+#
+# Important: a mirrored texture has a 2-tile period. Carry mirror parity through
+# start-position normalization and wrap scrolling at 2*width/height; otherwise a
+# tile could abruptly switch orientation when its moving boundary crosses zero.
 
 h = HPP.read_text(encoding='utf-8')
 old = '''  /** Background image */\n  Sprite bg_sprite;\n\n  /** The horizontal scrolling speed in pixels per tick */'''
@@ -52,8 +56,34 @@ if new not in s:
         raise SystemExit('Web background seams: update anchor missing or duplicated')
     s = s.replace(old, new, 1)
 
+# A mirrored sequence repeats only after two tiles. Preserve that phase when an
+# animated/scrolling background accumulator wraps.
+old = '''  if (scroll_x) \n  {\n    scroll_ox += scroll_x;\n\n    if (scroll_ox > bg_sprite.get_width())\n      scroll_ox -= static_cast<float>(bg_sprite.get_width());\n    else if (-scroll_ox > bg_sprite.get_width())\n      scroll_ox += static_cast<float>(bg_sprite.get_width());\n  }\n\n  if (scroll_y) \n  {\n    scroll_oy += scroll_y;\n\n    if (scroll_oy > bg_sprite.get_height())\n      scroll_oy -= static_cast<float>(bg_sprite.get_height());\n    else if (-scroll_oy > bg_sprite.get_height())\n      scroll_oy += static_cast<float>(bg_sprite.get_height());\n  }'''
+new = '''  if (scroll_x)\n  {\n    scroll_ox += scroll_x;\n#ifdef __EMSCRIPTEN__\n    const float wrap_x = static_cast<float>(bg_sprite.get_width() * (mirror_tile_x ? 2 : 1));\n#else\n    const float wrap_x = static_cast<float>(bg_sprite.get_width());\n#endif\n    while (scroll_ox > wrap_x) scroll_ox -= wrap_x;\n    while (-scroll_ox > wrap_x) scroll_ox += wrap_x;\n  }\n\n  if (scroll_y)\n  {\n    scroll_oy += scroll_y;\n#ifdef __EMSCRIPTEN__\n    const float wrap_y = static_cast<float>(bg_sprite.get_height() * (mirror_tile_y ? 2 : 1));\n#else\n    const float wrap_y = static_cast<float>(bg_sprite.get_height());\n#endif\n    while (scroll_oy > wrap_y) scroll_oy -= wrap_y;\n    while (-scroll_oy > wrap_y) scroll_oy += wrap_y;\n  }'''
+if new not in s:
+    if s.count(old) != 1:
+        raise SystemExit('Web background seams: scroll wrap anchor missing or duplicated')
+    s = s.replace(old, new, 1)
+
+# Normalize the first drawn tile to the viewport while carrying how many full
+# tile-width shifts were applied. That shift determines the first tile's mirror
+# parity and prevents a moving tile from changing orientation at x/y == 0.
+old = '''  if (start_x > 0)\n    start_x = (start_x % bg_sprite.get_width()) - bg_sprite.get_width();\n\n  if (start_y > 0)\n    start_y = (start_y % bg_sprite.get_height()) - bg_sprite.get_height();'''
+new = '''#ifdef __EMSCRIPTEN__\n  bool first_flip_x = false;\n  bool first_flip_y = false;\n\n  if (mirror_tile_x)\n  {\n    const int width = bg_sprite.get_width();\n    int tile_shift = 0;\n    if (start_x > 0)\n    {\n      tile_shift = -((start_x + width - 1) / width);\n      start_x += tile_shift * width;\n    }\n    else if (start_x <= -width)\n    {\n      tile_shift = (-start_x) / width;\n      start_x += tile_shift * width;\n    }\n    first_flip_x = ((tile_shift % 2) != 0);\n  }\n  else if (start_x > 0)\n  {\n    start_x = (start_x % bg_sprite.get_width()) - bg_sprite.get_width();\n  }\n\n  if (mirror_tile_y)\n  {\n    const int height = bg_sprite.get_height();\n    int tile_shift = 0;\n    if (start_y > 0)\n    {\n      tile_shift = -((start_y + height - 1) / height);\n      start_y += tile_shift * height;\n    }\n    else if (start_y <= -height)\n    {\n      tile_shift = (-start_y) / height;\n      start_y += tile_shift * height;\n    }\n    first_flip_y = ((tile_shift % 2) != 0);\n  }\n  else if (start_y > 0)\n  {\n    start_y = (start_y % bg_sprite.get_height()) - bg_sprite.get_height();\n  }\n#else\n  if (start_x > 0)\n    start_x = (start_x % bg_sprite.get_width()) - bg_sprite.get_width();\n\n  if (start_y > 0)\n    start_y = (start_y % bg_sprite.get_height()) - bg_sprite.get_height();\n#endif'''
+if new not in s:
+    if s.count(old) != 1:
+        raise SystemExit('Web background seams: start phase anchor missing or duplicated')
+    s = s.replace(old, new, 1)
+
+old = '''  for(int y = start_y;\n      y < world->get_height();\n      y += bg_sprite.get_height())\n  {\n    for(int x = start_x;\n        x < world->get_width();\n        x += bg_sprite.get_width())'''
+new = '''  int tile_row = 0;\n  for(int y = start_y;\n      y < world->get_height();\n      y += bg_sprite.get_height(), ++tile_row)\n  {\n    int tile_col = 0;\n    for(int x = start_x;\n        x < world->get_width();\n        x += bg_sprite.get_width(), ++tile_col)'''
+if new not in s:
+    if s.count(old) != 1:
+        raise SystemExit('Web background seams: tile loop anchor missing or duplicated')
+    s = s.replace(old, new, 1)
+
 old = '''      gc.color().draw(bg_sprite, Vector2i(x - offset.x, y - offset.y), pos.z);'''
-new = '''#ifdef __EMSCRIPTEN__\n      // Choose parity from the tile's absolute grid coordinate rather than from\n      // loop counters. The mirrored pattern therefore remains stable while the\n      // camera/parallax origin crosses a tile boundary.\n      const int tile_x = (x >= 0) ? (x / bg_sprite.get_width())\n                                  : -(((-x) + bg_sprite.get_width() - 1) / bg_sprite.get_width());\n      const int tile_y = (y >= 0) ? (y / bg_sprite.get_height())\n                                  : -(((-y) + bg_sprite.get_height() - 1) / bg_sprite.get_height());\n      const bool flip_x = mirror_tile_x && ((tile_x % 2) != 0);\n      const bool flip_y = mirror_tile_y && ((tile_y % 2) != 0);\n      if (flip_x && flip_y)\n        gc.color().draw(bg_sprite_hvflip, Vector2i(x - offset.x, y - offset.y), pos.z);\n      else if (flip_x)\n        gc.color().draw(bg_sprite_hflip, Vector2i(x - offset.x, y - offset.y), pos.z);\n      else if (flip_y)\n        gc.color().draw(bg_sprite_vflip, Vector2i(x - offset.x, y - offset.y), pos.z);\n      else\n        gc.color().draw(bg_sprite, Vector2i(x - offset.x, y - offset.y), pos.z);\n#else\n      gc.color().draw(bg_sprite, Vector2i(x - offset.x, y - offset.y), pos.z);\n#endif'''
+new = '''#ifdef __EMSCRIPTEN__\n      const bool flip_x = mirror_tile_x && (first_flip_x != ((tile_col % 2) != 0));\n      const bool flip_y = mirror_tile_y && (first_flip_y != ((tile_row % 2) != 0));\n      if (flip_x && flip_y)\n        gc.color().draw(bg_sprite_hvflip, Vector2i(x - offset.x, y - offset.y), pos.z);\n      else if (flip_x)\n        gc.color().draw(bg_sprite_hflip, Vector2i(x - offset.x, y - offset.y), pos.z);\n      else if (flip_y)\n        gc.color().draw(bg_sprite_vflip, Vector2i(x - offset.x, y - offset.y), pos.z);\n      else\n        gc.color().draw(bg_sprite, Vector2i(x - offset.x, y - offset.y), pos.z);\n#else\n      gc.color().draw(bg_sprite, Vector2i(x - offset.x, y - offset.y), pos.z);\n#endif'''
 if new not in s:
     if s.count(old) != 1:
         raise SystemExit('Web background seams: draw anchor missing or duplicated')
@@ -104,22 +134,30 @@ for path in sorted(LEVELS.rglob('*.pingus')):
             resources.add(mx.group(1))
         sx = '(stretch-x #t)' in block
         sy = '(stretch-y #t)' in block
-        if not sx: repeat_x += 1
-        if not sy: repeat_y += 1
-        if not sx and not sy: repeat_both += 1
+        if not sx:
+            repeat_x += 1
+        if not sy:
+            repeat_y += 1
+        if not sx and not sy:
+            repeat_both += 1
         pos = end
 
 if total < 200 or len(resources) < 25:
     raise SystemExit(f'Web background seams: unexpectedly small whole-game audit: {total} objects, {len(resources)} resources')
 
 patched_cpp = CPP.read_text(encoding='utf-8')
-for marker in ('mirror_tile_x', 'mirror_tile_y', 'ResourceModifier::ROT0FLIP',
-               'ResourceModifier::ROT180FLIP', 'const bool flip_x', 'const bool flip_y'):
+for marker in (
+    'mirror_tile_x', 'mirror_tile_y',
+    'ResourceModifier::ROT0FLIP', 'ResourceModifier::ROT180FLIP',
+    'const float wrap_x', 'const float wrap_y',
+    'first_flip_x', 'first_flip_y', 'tile_col', 'tile_row',
+    'const bool flip_x', 'const bool flip_y',
+):
     if marker not in patched_cpp:
         raise SystemExit(f'Web background seams: renderer marker missing: {marker}')
 
 print(
-    'Web background seams: global mirror-tiling renderer enabled; '
+    'Web background seams: stable global mirror-tiling renderer enabled; '
     f'{total} SurfaceBackground object(s), {len(resources)} resource type(s), '
     f'{repeat_x} repeating X, {repeat_y} repeating Y, {repeat_both} repeating both audited'
 )
