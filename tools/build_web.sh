@@ -15,6 +15,7 @@ python3 ../tools/patch_yandex_content.py
 python3 ../tools/patch_yandex_locale.py
 python3 ../tools/patch_web_localization.py
 python3 ../tools/patch_yandex_content_translation.py
+python3 ../tools/patch_yandex_exit_localization.py
 python3 ../tools/patch_web_po_dedupe.py
 python3 ../tools/patch_web_hide_author.py
 python3 ../tools/audit_web_localization_sources.py
@@ -135,6 +136,12 @@ grep -q 'player.getData' ../dist/bootstrap.js
 grep -q 'player.setData' ../dist/bootstrap.js
 grep -q 'id="backdrop"' ../dist/index.html
 grep -q 'drawBackdrop' ../dist/bootstrap.js
+grep -q 'pingusShowInterstitialAfterResultAction' ../dist/bootstrap.js
+grep -q 'INTERSTITIAL_MIN_INTERVAL_MS = 300000' ../dist/bootstrap.js
+if grep -q 'pingusShowInterstitialAfterLevel' ../dist/bootstrap.js; then
+  echo 'Legacy automatic post-level interstitial hook is still present' >&2
+  exit 1
+fi
 node --check ../dist/bootstrap.js
 if find ../dist -maxdepth 1 -type f \( -name '*.wasm' -o -name '*.data' \) | grep -q .; then
   echo 'Unexpected external wasm/data payload in dist' >&2
