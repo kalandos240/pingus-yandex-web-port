@@ -37,8 +37,8 @@ Hit:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
 Hit:6 https://packages.microsoft.com/repos/azure-cli noble InRelease
 Hit:3 http://azure.archive.ubuntu.com/ubuntu noble-updates InRelease
 Hit:4 http://azure.archive.ubuntu.com/ubuntu noble-backports InRelease
-Hit:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease
 Hit:7 https://packages.microsoft.com/ubuntu/24.04/prod noble InRelease
+Hit:5 http://azure.archive.ubuntu.com/ubuntu noble-security InRelease
 Hit:8 https://dl.google.com/linux/chrome-stable/deb stable InRelease
 Reading package lists...
 Reading package lists...
@@ -61,7 +61,7 @@ Get:1 file:/etc/apt/apt-mirrors.txt Mirrorlist [144 B]
 Get:2 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libimagequant0 amd64 2.18.0-1build1 [36.3 kB]
 Get:3 http://azure.archive.ubuntu.com/ubuntu noble/main amd64 libraqm0 amd64 0.10.1-1build1 [15.0 kB]
 Get:4 http://azure.archive.ubuntu.com/ubuntu noble-updates/main amd64 python3-pil amd64 10.2.0-1ubuntu1.2 [452 kB]
-Fetched 503 kB in 0s (3383 kB/s)
+Fetched 503 kB in 0s (4567 kB/s)
 Selecting previously unselected package libimagequant0:amd64.
 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 220086 files and directories currently installed.)
 Preparing to unpack .../libimagequant0_2.18.0-1build1_amd64.deb ...
@@ -86,12 +86,4 @@ No containers need to be restarted.
 No user sessions are running outdated binaries.
 
 No VM guests are running outdated hypervisor (qemu) binaries on this host.
-Traceback (most recent call last):
-  File "/home/runner/work/pingus-yandex-web-port/pingus-yandex-web-port/repo/pingus-src/../tools/patch_yandex_exit_localization.py", line 41, in <module>
-    atlas = Image.open(io.BytesIO(b''.join(p.read_bytes() for p in atlas_parts))).convert('RGBA')
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/usr/lib/python3/dist-packages/PIL/Image.py", line 922, in convert
-    self.load()
-  File "/usr/lib/python3/dist-packages/PIL/ImageFile.py", line 310, in load
-    raise _get_oserror(err_code, encoder=False)
-OSError: broken data stream when reading image file
+Yandex RU texture patch atlas checksum mismatch: expected 9d6449ef12730ecab33a8e4a0758e32eaab5c83e97175eff22560360fa4c0549, got ba60c5d9cd7896ad4c0336c4d50b2d38fdc874237ce22c0c4aa3d64bf9b3427b
