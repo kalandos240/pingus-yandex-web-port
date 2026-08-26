@@ -1,4 +1,6 @@
 from pathlib import Path
+import base64
+import hashlib
 import io
 import re
 
@@ -7,13 +9,13 @@ from PIL import Image
 DATA_IMAGES = Path('data/images')
 LEVELS_ROOT = Path('data/levels')
 SPRITE_CPP = Path('src/engine/display/sprite.cpp')
-ATLAS_DIR = Path('../assets')
-ATLAS_GLOB = 'yandex_ru_texture_patch_atlas.png.part*'
+ATLAS_B64 = Path('../assets/yandex_ru_texture_patch_atlas.b64')
+ATLAS_SHA256 = '9d6449ef12730ecab33a8e4a0758e32eaab5c83e97175eff22560360fa4c0549'
 TEXT_FREE_EXITS = {'exits/ice', 'exits/space'}
 
 # Each record maps the English source image to a Russian-only output image.
 # bbox is where the original English lettering lives; atlas is the matching
-# localized crop inside assets/yandex_ru_texture_patch_atlas.png.
+# localized crop inside the verified texture-patch atlas.
 PATCHES = [
     ('exits/crystal', 'exits/crystal.png', 'exits/crystal_ru.png', (54, 42, 108, 69), (0, 0, 54, 27), False),
     ('exits/desert', 'exits/desertexit.png', 'exits/desertexit_ru.png', (50, 42, 101, 65), (56, 0, 107, 23), False),
@@ -35,10 +37,26 @@ PATCHES = [
     ('worldmaps/tutorial/layer0', 'worldmaps/tutorial_layer0.jpg', 'worldmaps/tutorial_layer0_ru.png', (650, 285, 935, 355), (426, 92, 711, 162), True),
 ]
 
-atlas_parts = sorted(ATLAS_DIR.glob(ATLAS_GLOB))
-if not atlas_parts:
-    raise SystemExit('Yandex RU texture patch atlas parts are missing')
-atlas = Image.open(io.BytesIO(b''.join(p.read_bytes() for p in atlas_parts))).convert('RGBA')
+if not ATLAS_B64.is_file():
+    raise SystemExit(f'Yandex RU texture patch atlas missing: {ATLAS_B64}')
+try:
+    atlas_bytes = base64.b64decode(ATLAS_B64.read_text(encoding='ascii').strip(), validate=True)
+except Exception as error:
+    raise SystemExit(f'Yandex RU texture patch atlas base64 is invalid: {error}')
+actual_sha256 = hashlib.sha256(atlas_bytes).hexdigest()
+if actual_sha256 != ATLAS_SHA256:
+    raise SystemExit(
+        'Yandex RU texture patch atlas checksum mismatch: '
+        f'expected {ATLAS_SHA256}, got {actual_sha256}'
+    )
+try:
+    atlas = Image.open(io.BytesIO(atlas_bytes)).convert('RGBA')
+    atlas.load()
+except Exception as error:
+    raise SystemExit(f'Yandex RU texture patch atlas image is invalid: {error}')
+if atlas.size != (1024, 162):
+    raise SystemExit(f'Yandex RU texture patch atlas has unexpected size: {atlas.size}')
+
 localized_resources = {}
 text_bearing_exits = set()
 expected_images = []
