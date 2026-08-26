@@ -34,7 +34,28 @@ indiana_line = '  (level (filename "desert/indiana-yingwan"))\n'
 if desert_text.count(indiana_line) != 1:
     raise SystemExit('Indiana-style Desert levelset entry missing or duplicated')
 desert_set.write_text(desert_text.replace(indiana_line, '', 1), encoding='utf-8')
-print('Yandex content: removed public Indiana Jones / religious-reference Desert level')
+
+# Do not merely hide this unsafe level from the menu. It also contains a baked
+# English DODGE clue assembled from smallD/smallO/smallD/smallG/smallE hotspot
+# rasters. Since the level is intentionally excluded from the Yandex product,
+# remove the level file and its four now-unreferenced letter assets from shipped
+# data as well. This makes the release-data audit honest: disabled content cannot
+# leak English or prohibited references through a future developer entry point.
+indiana_level = Path('data/levels/desert/indiana-yingwan.pingus')
+if not indiana_level.is_file():
+    raise SystemExit('Indiana-style Desert level file missing before release removal')
+indiana_level_text = indiana_level.read_text(encoding='utf-8')
+for resource in ('smallD', 'smallE', 'smallG', 'smallO'):
+    marker = f'hotspots/desert/{resource}'
+    if marker not in indiana_level_text:
+        raise SystemExit(f'expected baked-English Indiana marker missing: {marker}')
+indiana_level.unlink()
+for filename in ('smallD.png', 'smallE.png', 'smallG.png', 'smallO.png'):
+    asset = Path('data/images/hotspots/desert') / filename
+    if not asset.is_file():
+        raise SystemExit(f'expected Indiana letter asset missing: {asset}')
+    asset.unlink()
+print('Yandex content: removed Indiana level data + baked English DODGE letter assets from shipped data')
 
 # Several core Tutorial Island levels reuse a decorated Christmas-tree terrain
 # asset. The object is actual ground, so deleting it could alter level geometry.
