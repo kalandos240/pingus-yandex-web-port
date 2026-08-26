@@ -9,8 +9,24 @@ from PIL import Image
 DATA_IMAGES = Path('data/images')
 LEVELS_ROOT = Path('data/levels')
 SPRITE_CPP = Path('src/engine/display/sprite.cpp')
-ATLAS_B64 = Path('../assets/yandex_ru_texture_patch_atlas.b64')
+ATLAS_DIR = Path('../assets')
+ATLAS_B64_GLOB = 'yandex_ru_texture_patch_atlas.b64part*'
 ATLAS_SHA256 = '9d6449ef12730ecab33a8e4a0758e32eaab5c83e97175eff22560360fa4c0549'
+ATLAS_PART_SHA256 = [
+    '9aee882d6f473479761a6da627a2f42b029ac4e6f30271063e7943bf6bc27f32',
+    'bf17bac8516f3d850c57fd7b9af9a2d80f5f991d121142266390043a942c41e6',
+    '9e772c5c5e68c7c58ddaeddd4e86a560cb6f1f03bdd231639a79e14a639c465d',
+    'c143a6ab1639ae2de87ae4141f702240f9cd9f881b5180214875bcc8159e4083',
+    '85f9e9d9ed0627140a300b677fc70eb575cffd60c618600f65bca7e5c5bd0739',
+    'c79bfbaa944e86df1c5e5257e1f725706fa32392400541cd1fbe19e0bcdecd9d',
+    'da1884f20c759a3c7dbc2805499e81f021568dd3795d6059a721de0c39943c75',
+    '6443c376b02c8f2c65f4356ab4e538a4723d2d7fcfcafd3483bbdd6c01c87790',
+    'ce148e90e66754590d2f961d31c3963b580e0c4533a2999887453a073ef7ebb8',
+    '7b5a7febd807cd8a0d66061b577a91c68b611d0acedb1618852f660a970b87b7',
+    '61ace04eb5d1a9ef50fbbe33e082490bdf12a3ae6cac947eb76f47c85fbbbc3f',
+    '91fe2e30298ff260f59bb98dc9785fcd8e0f9c87732094e8eeab824a1bee83fc',
+    'b26cbb4c74445adeff6af503cc9f409c4fa86d6982cda1fe4a6a19835f3f55f8',
+]
 TEXT_FREE_EXITS = {'exits/ice', 'exits/space'}
 
 # Each record maps the English source image to a Russian-only output image.
@@ -37,10 +53,23 @@ PATCHES = [
     ('worldmaps/tutorial/layer0', 'worldmaps/tutorial_layer0.jpg', 'worldmaps/tutorial_layer0_ru.png', (650, 285, 935, 355), (426, 92, 711, 162), True),
 ]
 
-if not ATLAS_B64.is_file():
-    raise SystemExit(f'Yandex RU texture patch atlas missing: {ATLAS_B64}')
+atlas_parts = sorted(ATLAS_DIR.glob(ATLAS_B64_GLOB))
+if len(atlas_parts) != len(ATLAS_PART_SHA256):
+    raise SystemExit(
+        f'Yandex RU texture atlas chunk count mismatch: expected {len(ATLAS_PART_SHA256)}, got {len(atlas_parts)}'
+    )
+encoded_parts = []
+for index, (path, expected_hash) in enumerate(zip(atlas_parts, ATLAS_PART_SHA256)):
+    text = path.read_text(encoding='ascii').strip()
+    actual_hash = hashlib.sha256(text.encode('ascii')).hexdigest()
+    if actual_hash != expected_hash:
+        raise SystemExit(
+            f'Yandex RU texture atlas chunk {index:02d} checksum mismatch: '
+            f'expected {expected_hash}, got {actual_hash}'
+        )
+    encoded_parts.append(text)
 try:
-    atlas_bytes = base64.b64decode(ATLAS_B64.read_text(encoding='ascii').strip(), validate=True)
+    atlas_bytes = base64.b64decode(''.join(encoded_parts), validate=True)
 except Exception as error:
     raise SystemExit(f'Yandex RU texture patch atlas base64 is invalid: {error}')
 actual_sha256 = hashlib.sha256(atlas_bytes).hexdigest()
