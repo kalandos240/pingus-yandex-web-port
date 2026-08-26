@@ -1,9 +1,11 @@
 from pathlib import Path
 
-# Fullscreen Yandex ads are requested only from ResultScreen::on_startup(),
-# i.e. after a level has already ended. There is intentionally no timer that
-# can fire during active gameplay. JavaScript enforces a two-minute minimum
-# interval between ad requests.
+# Yandex moderation requires fullscreen ads in real-time games to appear at a
+# natural transition initiated by the player. Do not show an ad automatically
+# when ResultScreen opens. Instead, request it only when the player clicks a
+# result-screen action (continue, give up, or retry), immediately before the
+# corresponding screen transition. Browser-side code enforces a five-minute
+# minimum interval between requests.
 p = Path('src/pingus/screens/result_screen.cpp')
 s = p.read_text(encoding='utf-8')
 
@@ -14,23 +16,43 @@ if '<emscripten.h>' not in s:
         raise SystemExit('Yandex ad ResultScreen include anchor missing or duplicated')
     s = s.replace(include_anchor, include_replacement, 1)
 
-startup_tail = '''  else\n  {\n    Sound::PingusSound::play_music("pingus-2.it", 1.f, false);\n  }\n}'''
-startup_replacement = '''  else\n  {\n    Sound::PingusSound::play_music("pingus-2.it", 1.f, false);\n  }\n\n#ifdef __EMSCRIPTEN__\n  // The result screen means gameplay has already ended. Requesting the ad\n  // here guarantees that the ad timer can never interrupt an active level.\n  EM_ASM({\n    if (typeof window.pingusShowInterstitialAfterLevel === 'function')\n      window.pingusShowInterstitialAfterLevel();\n  });\n#endif\n}'''
-if 'pingusShowInterstitialAfterLevel' not in s:
-    if s.count(startup_tail) != 1:
-        raise SystemExit('Yandex ad ResultScreen startup anchor missing or duplicated')
-    s = s.replace(startup_tail, startup_replacement, 1)
+helper_anchor = 'class ResultScreenComponent : public GUI::Component\n'
+helper = '''#ifdef __EMSCRIPTEN__\nstatic void request_yandex_interstitial_after_result_action()\n{\n  EM_ASM({\n    if (typeof window.pingusShowInterstitialAfterResultAction === 'function')\n      window.pingusShowInterstitialAfterResultAction();\n  });\n}\n#else\nstatic void request_yandex_interstitial_after_result_action() {}\n#endif\n\n'''
+if 'request_yandex_interstitial_after_result_action()' not in s:
+    if s.count(helper_anchor) != 1:
+        raise SystemExit('Yandex ad ResultScreen helper anchor missing or duplicated')
+    s = s.replace(helper_anchor, helper + helper_anchor, 1)
+
+replacements = [
+    (
+        '''  void on_click() {\n    parent->close_screen();\n    Sound::PingusSound::play_sound("yipee");\n  }''',
+        '''  void on_click() {\n    request_yandex_interstitial_after_result_action();\n    parent->close_screen();\n    Sound::PingusSound::play_sound("yipee");\n  }'''
+    ),
+    (
+        '''  void on_click() {\n    parent->close_screen();\n  }''',
+        '''  void on_click() {\n    request_yandex_interstitial_after_result_action();\n    parent->close_screen();\n  }'''
+    ),
+    (
+        '''  void on_click()\n  {\n    parent->retry_level();\n  }''',
+        '''  void on_click()\n  {\n    request_yandex_interstitial_after_result_action();\n    parent->retry_level();\n  }'''
+    ),
+]
+for old, new in replacements:
+    if new not in s:
+        if s.count(old) != 1:
+            raise SystemExit('Yandex ad result-action anchor missing or duplicated')
+        s = s.replace(old, new, 1)
 
 p.write_text(s, encoding='utf-8')
 
-# Add the browser-side two-minute cooldown and Yandex SDK call. This patch runs
-# before CSP post-processing; postprocess_csp.py later moves this bootstrap into
+# Add the browser-side cooldown and Yandex SDK call. This patch runs before CSP
+# post-processing; postprocess_csp.py later moves this bootstrap into
 # bootstrap.js, so the final archive still contains no inline JavaScript.
 p = Path('../web/shell.html')
 s = p.read_text(encoding='utf-8')
 
 state_anchor = '      let autosaveTimer = 0;\n'
-state_replacement = '''      let autosaveTimer = 0;\n      const INTERSTITIAL_MIN_INTERVAL_MS = 120000;\n      let interstitialInProgress = false;\n      let lastInterstitialAt = performance.now();\n'''
+state_replacement = '''      let autosaveTimer = 0;\n      const INTERSTITIAL_MIN_INTERVAL_MS = 300000;\n      let interstitialInProgress = false;\n      let lastInterstitialAt = performance.now();\n'''
 if 'INTERSTITIAL_MIN_INTERVAL_MS' not in s:
     if s.count(state_anchor) != 1:
         raise SystemExit('Yandex ad shell state anchor missing or duplicated')
@@ -42,18 +64,17 @@ if sdk_anchor not in s:
 
 ad_code = r'''
 
-      // Called only by the native ResultScreen after a level ends. The elapsed
-      // time is checked here instead of using setInterval(), so a fullscreen ad
-      // can never appear in the middle of gameplay. The first request is also
-      // delayed until at least two minutes after the page was opened.
-      window.pingusShowInterstitialAfterLevel = () => {
+      // Called only after the player explicitly clicks a result-screen action.
+      // This makes the fullscreen ad part of a natural transition rather than
+      // an automatic interruption. The first request is delayed for at least
+      // five minutes after page load, and subsequent requests use the same
+      // minimum interval.
+      window.pingusShowInterstitialAfterResultAction = () => {
         if (interstitialInProgress) return;
 
         const now = performance.now();
         if (now - lastInterstitialAt < INTERSTITIAL_MIN_INTERVAL_MS) return;
 
-        // Count attempts as part of the cooldown too. This avoids repeatedly
-        // hammering the SDK on every short level when ads are unavailable.
         lastInterstitialAt = now;
         interstitialInProgress = true;
 
@@ -106,9 +127,7 @@ ad_code = r'''
       };
 '''
 
-if 'window.pingusShowInterstitialAfterLevel = () =>' not in s:
-    # Place the ad function immediately before SDK initialization. It can safely
-    # await yandexSDKPromise later when ResultScreen invokes it.
+if 'window.pingusShowInterstitialAfterResultAction = () =>' not in s:
     s = s.replace('      window.yandexSDKPromise = (async () => {', ad_code + '\n      window.yandexSDKPromise = (async () => {', 1)
 
 p.write_text(s, encoding='utf-8')
