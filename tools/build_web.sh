@@ -24,9 +24,10 @@ python3 ../tools/patch_web_many_pingus.py
 python3 ../tools/patch_web_smallmap_fast.py
 python3 ../tools/patch_web_worldmap_ux.py
 
-# Keep the original Pingus background artwork and its original tiling behavior.
-# The visible seams/repetition are part of the legacy source game rather than a
-# browser-only rendering defect, so the release build must not alter those assets.
+# Fix repeated/parallax backgrounds globally in the renderer. This covers every
+# SurfaceBackground resource in every level, including WIP/test data, instead of
+# maintaining a fragile per-level texture list.
+python3 ../tools/patch_web_background_seams.py
 
 # The original 16/20px Pingus bitmap atlases do not contain the complete
 # Russian alphabet. Generate a tiny Web-only Cyrillic fallback atlas during
@@ -46,6 +47,11 @@ test -s data/images/exits/sortie_anim_ru.png
 test -s data/images/traps/laser_exit_ru.png
 test -s data/images/worldmaps/tutorial_layer0_ru.png
 grep -q 'yandex_localized_sprite_name' src/engine/display/sprite.cpp
+python3 ../tools/patch_web_visual_localization.py
+test -s data/images/groundpieces/ground/signposts/danger_ru.png
+test -s data/images/groundpieces/ground/penguinworld/penguinworld_ru.png
+test -s data/images/core/misc/404_ru.png
+grep -q 'dictionary_manager.get_language().get_language() == "ru"' src/engine/display/sprite.cpp
 python3 ../tools/patch_web_fonts.py
 
 python3 ../tools/patch_touch_input.py
@@ -141,8 +147,11 @@ grep -q 'pingusSetGameplayActive' ../dist/pingus.js
 grep -q 'PINGUS_CLOUD_KEY' ../dist/bootstrap.js
 grep -q 'player.getData' ../dist/bootstrap.js
 grep -q 'player.setData' ../dist/bootstrap.js
-grep -q 'id="backdrop"' ../dist/index.html
-grep -q 'drawBackdrop' ../dist/bootstrap.js
+grep -q 'pingus-static-shell-backdrop' ../dist/pingus.css
+if grep -Eq 'id="backdrop"|drawBackdrop|backdropContext|backdropLoop' ../dist/index.html ../dist/bootstrap.js ../dist/pingus.css; then
+  echo 'Retired live-copy backdrop is still present' >&2
+  exit 1
+fi
 grep -q 'pingusShowInterstitialAfterResultAction' ../dist/bootstrap.js
 grep -q 'INTERSTITIAL_MIN_INTERVAL_MS = 90000' ../dist/bootstrap.js
 if grep -q 'pingusShowInterstitialAfterLevel' ../dist/bootstrap.js; then
