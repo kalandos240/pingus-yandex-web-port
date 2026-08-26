@@ -127,6 +127,25 @@ for path in sorted((DATA / 'worldmaps').rglob('*.worldmap')):
     worldmap_refs.update(re.findall(r'\(image\s+"([^"]+)"\)',
                                     path.read_text(encoding='utf-8', errors='replace')))
 
+# The Indiana parody level is removed from shipped data by patch_yandex_content.
+# Its DODGE clue used four standalone Latin-letter images. Treat any remaining
+# reference or file as a release blocker so hidden/developer content cannot
+# silently reintroduce untranslated baked text later.
+removed_english_resources = {
+    'hotspots/desert/smallD',
+    'hotspots/desert/smallE',
+    'hotspots/desert/smallG',
+    'hotspots/desert/smallO',
+}
+remaining_removed_refs = sorted(removed_english_resources & all_level_refs)
+if remaining_removed_refs:
+    raise SystemExit('Web visual localization: removed English letter refs remain: ' + ', '.join(remaining_removed_refs))
+for resource in sorted(removed_english_resources):
+    if (IMAGES / f'{resource}.png').exists():
+        raise SystemExit(f'Web visual localization: removed English letter asset still ships: {resource}.png')
+if (LEVELS / 'desert/indiana-yingwan.pingus').exists():
+    raise SystemExit('Web visual localization: removed Indiana level still ships')
+
 known_baked_english = {
     'groundpieces/ground/signposts/danger': 'groundpieces/ground/signposts/danger_ru',
     'groundpieces/ground/penguinworld/penguinworld': 'groundpieces/ground/penguinworld/penguinworld_ru',
@@ -179,5 +198,6 @@ for path in [
 
 print(
     'Web visual localization: all known baked-English gameplay/status art has RU variants; '
-    f'{len(all_level_refs)} unique image refs across every level + {len(worldmap_refs)} worldmap refs audited'
+    'removed DODGE/Indiana assets absent; '
+    f'{len(all_level_refs)} unique image refs across every shipped level + {len(worldmap_refs)} worldmap refs audited'
 )
