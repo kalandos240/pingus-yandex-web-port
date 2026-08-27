@@ -1,0 +1,150 @@
+name: Certify Yandex multilingual runtime
+
+on:
+  push:
+    branches: [fix/yandex-moderation-4-4-8-2-3]
+    paths:
+      - '.github/workflows/yandex-locale-certify.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  certify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract exact production ZIP
+        run: |
+          set -euxo pipefail
+          test -s release/pingus-yandex-web.zip
+          rm -rf dist
+          mkdir dist
+          unzip -q release/pingus-yandex-web.zip -d dist
+          unzip -t release/pingus-yandex-web.zip
+          grep -q '<div id="loading-status">…</div>' dist/index.html
+          grep -q "environment?.i18n?.lang" dist/bootstrap.js
+          grep -q "const unlockAudio = () => setAudioPaused(window.pingusPagePaused());" dist/bootstrap.js
+          grep -q "window.addEventListener('blur', syncPagePause);" dist/bootstrap.js
+          grep -q "window.addEventListener('focus', syncPagePause);" dist/bootstrap.js
+          grep -q 'INTERSTITIAL_MIN_INTERVAL_MS = 90000' dist/bootstrap.js
+          mkdir src
+          tar -xzf dist/PINGUS-CORRESPONDING-SOURCE.tar.gz -C src
+          grep -q 'Yandex bilingual worldmap: EN=Tutorial Island, RU=Учебный остров' src/port/tools/patch_web_fonts.py
+          grep -q "localized_resources\['worldmaps/tutorial/layer0'\] = 'worldmaps/tutorial/layer0_ru'" src/port/tools/patch_yandex_exit_localization.py
+
+      - name: Build Yandex SDK locale mocks
+        run: |
+          set -euxo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          root=Path('dist')
+          html=(root/'index.html').read_text(encoding='utf-8')
+          for lang in ('en','ru'):
+              (root/f'qa-{lang}.html').write_text(
+                  html.replace('src="/sdk.js"', f'src="sdk-{lang}.js"'), encoding='utf-8')
+              js=r'''(() => {
+            const LANG = __LANG__;
+            const player = {
+              async getData() { return {}; },
+              async setData() {},
+              getMode() { return 'full'; }
+            };
+            const clickLogical = (x, y) => {
+              const canvas = document.getElementById('canvas');
+              const rect = canvas.getBoundingClientRect();
+              const cx = rect.left + x * rect.width / Math.max(1, canvas.width);
+              const cy = rect.top + y * rect.height / Math.max(1, canvas.height);
+              const base = { bubbles: true, cancelable: true, clientX: cx, clientY: cy, view: window };
+              canvas.dispatchEvent(new MouseEvent('mousemove', { ...base, button: 0, buttons: 0 }));
+              canvas.dispatchEvent(new MouseEvent('mousedown', { ...base, button: 0, buttons: 1 }));
+              canvas.dispatchEvent(new MouseEvent('mouseup', { ...base, button: 0, buttons: 0 }));
+            };
+            const inspectWorldmap = () => {
+              const canvas = document.getElementById('canvas');
+              let ok = false, hash = 2166136261 >>> 0, story = false;
+              try {
+                const stats = FS.readFile('/home/web_user/.pingus/savegames/variables.scm', { encoding: 'utf8' });
+                story = stats.includes('tutorial-startstory-seen');
+                const ctx = canvas.getContext('2d');
+                const data = ctx.getImageData(20, 20, Math.min(760, canvas.width - 20), Math.min(320, canvas.height - 20)).data;
+                let white = 0, sampled = 0;
+                for (let i = 0; i < data.length; i += 64) {
+                  sampled++;
+                  if (data[i] > 245 && data[i+1] > 245 && data[i+2] > 245 && data[i+3] > 245) white++;
+                  hash = Math.imul((hash ^ data[i] ^ data[i+1] ^ data[i+2] ^ data[i+3]) >>> 0, 16777619) >>> 0;
+                }
+                ok = sampled > 0 && white / sampled < 0.95;
+              } catch (_) {}
+              fetch('/__qa_' + LANG + '_lang_' + document.documentElement.lang + '__').catch(() => {});
+              fetch('/__qa_' + LANG + '_story_' + (story ? 'ok' : 'bad') + '__').catch(() => {});
+              fetch('/__qa_' + LANG + '_frame_' + (ok ? 'ok' : 'bad') + '__').catch(() => {});
+              fetch('/__qa_' + LANG + '_worldmap_' + hash.toString(16) + '__').catch(() => {});
+            };
+            window.YaGames = {
+              init: async () => ({
+                environment: { i18n: { lang: LANG }, app: { id: 'qa' } },
+                on() {}, off() {},
+                features: {
+                  LoadingAPI: { ready() {
+                    fetch('/__qa_' + LANG + '_game_ready__').catch(() => {});
+                    setTimeout(() => { clickLogical(400, 280); setTimeout(inspectWorldmap, 1800); }, 500);
+                  } },
+                  GameplayAPI: { start() {}, stop() {} }
+                },
+                adv: { showFullscreenAdv(options) { options?.callbacks?.onError?.(new Error('qa-no-ad')); } },
+                getPlayer: async () => player,
+                isAvailableMethod: async () => true
+              })
+            };
+          })();'''.replace('__LANG__', repr(lang))
+              (root/f'sdk-{lang}.js').write_text(js, encoding='utf-8')
+          PY
+          node --check dist/sdk-en.js
+          node --check dist/sdk-ru.js
+
+      - name: Run EN and RU worldmap certification
+        run: |
+          set -euxo pipefail
+          browser_bin="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium)"
+          : > qa-http.txt
+          python3 -m http.server 4190 --bind 127.0.0.1 --directory dist > qa-http.txt 2>&1 &
+          server_pid=$!
+          chrome_pid=''
+          cleanup(){ if [ -n "$chrome_pid" ]; then kill "$chrome_pid" 2>/dev/null || true; fi; kill "$server_pid" 2>/dev/null || true; }
+          trap cleanup EXIT
+          for _ in $(seq 1 50); do curl -fsS http://127.0.0.1:4190/qa-en.html >/dev/null && break || sleep .1; done
+          for lang in en ru; do
+            rm -rf ".chrome-${lang}"
+            "$browser_bin" --headless=new --no-sandbox --disable-dev-shm-usage --disable-gpu \
+              --autoplay-policy=no-user-gesture-required --user-data-dir="$PWD/.chrome-${lang}" \
+              "http://127.0.0.1:4190/qa-${lang}.html?pingus-smoke=1" \
+              > "qa-${lang}-out.txt" 2> "qa-${lang}-chrome.txt" &
+            chrome_pid=$!
+            result=timeout
+            for _ in $(seq 1 100); do
+              if grep -q 'GET /__pingus_error__' qa-http.txt; then result=runtime-error; break; fi
+              if grep -q "GET /__qa_${lang}_game_ready__" qa-http.txt \
+                && grep -q "GET /__qa_${lang}_lang_${lang}__" qa-http.txt \
+                && grep -q "GET /__qa_${lang}_story_ok__" qa-http.txt \
+                && grep -q "GET /__qa_${lang}_frame_ok__" qa-http.txt \
+                && grep -q "GET /__qa_${lang}_worldmap_" qa-http.txt; then
+                result=success; break
+              fi
+              if ! kill -0 "$chrome_pid" 2>/dev/null; then result=browser-exited; break; fi
+              sleep .5
+            done
+            test "$result" = success || { tail -200 "qa-${lang}-chrome.txt"; tail -150 qa-http.txt; exit 1; }
+            kill "$chrome_pid" 2>/dev/null || true
+            wait "$chrome_pid" 2>/dev/null || true
+            chrome_pid=''
+          done
+          en_hash=$(grep -oE '/__qa_en_worldmap_[0-9a-f]+__' qa-http.txt | tail -1 | sed -E 's#.*_worldmap_([0-9a-f]+)__#\1#')
+          ru_hash=$(grep -oE '/__qa_ru_worldmap_[0-9a-f]+__' qa-http.txt | tail -1 | sed -E 's#.*_worldmap_([0-9a-f]+)__#\1#')
+          test -n "$en_hash"
+          test -n "$ru_hash"
+          test "$en_hash" != "$ru_hash"
+          printf 'YANDEX_RUNTIME_LOCALE_PASS=1\nEN_WORLDMAP_HASH=%s\nRU_WORLDMAP_HASH=%s\n' "$en_hash" "$ru_hash"
