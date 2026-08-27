@@ -3,8 +3,8 @@
   "disableLoadingLogo": true,
   "showFullLoadingLogo": false,
   "advertisement": {
-    "minimumDelayBetweenInterstitial": 120,
-    "initialInterstitialDelay": 60,
+    "minimumDelayBetweenInterstitial": 90,
+    "initialInterstitialDelay": 90,
     "interstitial": {
       "disable": false
     },
@@ -16,7 +16,10 @@
     }
   },
   "device": {
-    "useBuiltInOrientationPopup": false,
+    "useBuiltInOrientationPopup": true,
     "supportedOrientations": ["landscape"]
+  },
+  "game": {
+    "adaptToSafeArea": true
   }
 }
