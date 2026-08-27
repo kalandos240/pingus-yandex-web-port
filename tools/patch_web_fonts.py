@@ -160,3 +160,29 @@ def append_fallback(name: str, size: int, pingus_green: bool):
 
 for spec in FONT_SPECS:
     append_fallback(*spec)
+
+# A legacy Yandex moderation workaround hard-wired the tutorial worldmap's
+# default layer to Russian. That fixed an old RU-only failure but breaks the
+# English locale. The localization patch already creates layer0_ru.sprite and
+# Sprite selects it only when tinygettext's active language is "ru". Normalize
+# the descriptors here, after all legacy localization steps have run, so:
+#   EN -> original Tutorial Island JPEG
+#   RU -> localized Учебный остров PNG
+worldmap_en = Path('data/images/worldmaps/tutorial/layer0.sprite')
+worldmap_ru = Path('data/images/worldmaps/tutorial/layer0_ru.sprite')
+english_image = '../tutorial_layer0.jpg'
+russian_image = '../tutorial_layer0_ru.png'
+if not worldmap_en.is_file() or not worldmap_ru.is_file():
+    raise SystemExit('Yandex bilingual worldmap: tutorial descriptors missing')
+en_text = worldmap_en.read_text(encoding='utf-8')
+if russian_image in en_text:
+    if en_text.count(russian_image) != 1:
+        raise SystemExit('Yandex bilingual worldmap: default RU image anchor duplicated')
+    en_text = en_text.replace(russian_image, english_image, 1)
+    worldmap_en.write_text(en_text, encoding='utf-8')
+ru_text = worldmap_ru.read_text(encoding='utf-8')
+if en_text.count(english_image) != 1 or russian_image in en_text:
+    raise SystemExit('Yandex bilingual worldmap: English descriptor is not original')
+if ru_text.count(russian_image) != 1 or english_image in ru_text:
+    raise SystemExit('Yandex bilingual worldmap: Russian descriptor is not localized')
+print('Yandex bilingual worldmap: EN=Tutorial Island, RU=Учебный остров')
