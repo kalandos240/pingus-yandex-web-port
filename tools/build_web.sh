@@ -24,10 +24,12 @@ python3 ../tools/patch_web_many_pingus.py
 python3 ../tools/patch_web_smallmap_fast.py
 python3 ../tools/patch_web_worldmap_ux.py
 
-# Fix repeated/parallax backgrounds globally in the renderer. This covers every
-# SurfaceBackground resource in every level, including WIP/test data, instead of
-# maintaining a fragile per-level texture list.
+# Yandex Web uses a fixed 800x600 framebuffer. Freeze every rear
+# SurfaceBackground to one viewport-sized frame: no parallax, no autonomous
+# scrolling and no tiling, so the seams seen in browser footage cannot occur.
 python3 ../tools/patch_web_background_seams.py
+grep -q 'one fixed 800x600 frame' ../tools/patch_web_background_seams.py
+grep -q 'Vector2i(-offset.x, -offset.y)' src/pingus/worldobjs/surface_background.cpp
 
 # The original 16/20px Pingus bitmap atlases do not contain the complete
 # Russian alphabet. Generate a tiny Web-only Cyrillic fallback atlas during
@@ -40,12 +42,17 @@ if ! python3 -c 'from PIL import Image, ImageDraw, ImageFont' >/dev/null 2>&1 ||
   sudo apt-get install -y --no-install-recommends fonts-dejavu-core python3-pil
 fi
 # PIL is now available. Build Russian copies of every player-facing EXIT
-# texture and the tutorial-map sign without changing the original assets.
+# texture and the tutorial-map sign. Then hard-wire the actual Tutorial Island
+# layer descriptor to the Russian map so early worldmap construction cannot
+# fall back to the baked-English JPEG.
 python3 ../tools/patch_yandex_exit_localization.py
+python3 ../tools/patch_force_tutorial_worldmap_ru.py
 test -s data/images/exits/ice2_ru.png
 test -s data/images/exits/sortie_anim_ru.png
 test -s data/images/traps/laser_exit_ru.png
 test -s data/images/worldmaps/tutorial_layer0_ru.png
+grep -q '../tutorial_layer0_ru.png' data/images/worldmaps/tutorial/layer0.sprite
+! grep -q '../tutorial_layer0.jpg' data/images/worldmaps/tutorial/layer0.sprite
 grep -q 'yandex_localized_sprite_name' src/engine/display/sprite.cpp
 python3 ../tools/patch_web_visual_localization.py
 test -s data/images/groundpieces/ground/signposts/danger_ru.png
