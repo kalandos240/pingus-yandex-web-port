@@ -1,0 +1,128 @@
+name: Certify final Yandex bilingual runtime
+
+on:
+  push:
+    branches: [fix/yandex-moderation-4-4-8-2-3]
+    paths:
+      - '.github/workflows/yandex-locale-certify-v2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  certify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Audit exact production ZIP
+        run: |
+          set -euxo pipefail
+          test -s release/pingus-yandex-web.zip
+          echo '41e2733acaa57d4024e586ffea0151501127495ee828884771df392a50aa19bd  release/pingus-yandex-web.zip' | sha256sum -c -
+          rm -rf dist src
+          mkdir dist src
+          unzip -q release/pingus-yandex-web.zip -d dist
+          unzip -t release/pingus-yandex-web.zip
+          grep -Fq '<div id="loading-status">…</div>' dist/index.html
+          grep -Fq 'applyLanguage(ysdk?.environment?.i18n?.lang);' dist/bootstrap.js
+          grep -Fq "window.addEventListener('blur', () => setAudioPaused(true));" dist/bootstrap.js
+          grep -Fq "window.addEventListener('focus', () => setAudioPaused(window.pingusPagePaused()));" dist/bootstrap.js
+          grep -Fq 'const unlockAudio = () => setAudioPaused(window.pingusPagePaused());' dist/bootstrap.js
+          grep -Fq 'INTERSTITIAL_MIN_INTERVAL_MS = 90000' dist/bootstrap.js
+          tar -xzf dist/PINGUS-CORRESPONDING-SOURCE.tar.gz -C src
+          grep -Fq 'Yandex bilingual worldmap: EN=Tutorial Island, RU=Учебный остров' src/port/tools/patch_web_fonts.py
+          grep -Fq "localized_resources['worldmaps/tutorial/layer0'] = 'worldmaps/tutorial/layer0_ru'" src/port/tools/patch_yandex_exit_localization.py
+          grep -Fq 'gameplay ignores iframe focus; audio still mutes on blur' src/port/tools/patch_yandex_ad_resume.py
+
+      - name: Build EN and RU Yandex SDK mocks
+        run: |
+          set -euxo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          root = Path('dist')
+          html = (root / 'index.html').read_text(encoding='utf-8')
+          for lang in ('en', 'ru'):
+              (root / f'qa-{lang}.html').write_text(
+                  html.replace('src="/sdk.js"', f'src="sdk-{lang}.js"'), encoding='utf-8')
+              js = r'''(() => {
+            const LANG = __LANG__;
+            const player = { async getData(){return {};}, async setData(){}, getMode(){return 'full';} };
+            const inspect = () => {
+              const canvas = document.getElementById('canvas');
+              let nonWhite = false, hash = 2166136261 >>> 0;
+              try {
+                const ctx = canvas?.getContext('2d');
+                const data = ctx?.getImageData(0, 0, canvas.width, canvas.height).data;
+                if (data) {
+                  let white = 0, sampled = 0;
+                  for (let i = 0; i < data.length; i += 4000) {
+                    sampled++;
+                    if (data[i] > 245 && data[i+1] > 245 && data[i+2] > 245 && data[i+3] > 245) white++;
+                    hash = Math.imul((hash ^ data[i] ^ data[i+1] ^ data[i+2] ^ data[i+3]) >>> 0, 16777619) >>> 0;
+                  }
+                  nonWhite = sampled > 0 && white / sampled < 0.95;
+                }
+              } catch (_) {}
+              fetch('/__qa_' + LANG + '_lang_' + document.documentElement.lang + '__').catch(()=>{});
+              fetch('/__qa_' + LANG + '_frame_' + (nonWhite ? 'ok' : 'bad') + '__').catch(()=>{});
+              fetch('/__qa_' + LANG + '_hash_' + hash.toString(16) + '__').catch(()=>{});
+            };
+            window.YaGames = { init: async () => ({
+              environment: { i18n: { lang: LANG }, app: { id: 'qa' } },
+              on(){}, off(){},
+              features: {
+                LoadingAPI: { ready(){ fetch('/__qa_' + LANG + '_ready__').catch(()=>{}); setTimeout(inspect, 400); } },
+                GameplayAPI: { start(){}, stop(){} }
+              },
+              adv: { showFullscreenAdv(o){ o?.callbacks?.onError?.(new Error('qa-no-ad')); } },
+              getPlayer: async () => player,
+              isAvailableMethod: async () => true
+            }) };
+          })();'''.replace('__LANG__', repr(lang))
+              (root / f'sdk-{lang}.js').write_text(js, encoding='utf-8')
+          PY
+          node --check dist/sdk-en.js
+          node --check dist/sdk-ru.js
+
+      - name: Run real packaged page in EN and RU
+        run: |
+          set -euxo pipefail
+          browser_bin="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium)"
+          : > qa-http.txt
+          python3 -m http.server 4191 --bind 127.0.0.1 --directory dist > qa-http.txt 2>&1 &
+          server_pid=$!
+          chrome_pid=''
+          cleanup(){ if [ -n "$chrome_pid" ]; then kill "$chrome_pid" 2>/dev/null || true; fi; kill "$server_pid" 2>/dev/null || true; }
+          trap cleanup EXIT
+          for _ in $(seq 1 50); do curl -fsS http://127.0.0.1:4191/qa-en.html >/dev/null && break || sleep .1; done
+          for lang in en ru; do
+            rm -rf ".chrome-${lang}"
+            "$browser_bin" --headless=new --no-sandbox --disable-dev-shm-usage --disable-gpu \
+              --autoplay-policy=no-user-gesture-required --user-data-dir="$PWD/.chrome-${lang}" \
+              "http://127.0.0.1:4191/qa-${lang}.html?pingus-smoke=1" \
+              > "qa-${lang}-out.txt" 2> "qa-${lang}-chrome.txt" &
+            chrome_pid=$!
+            result=timeout
+            for _ in $(seq 1 100); do
+              if grep -q 'GET /__pingus_error__' qa-http.txt; then result=runtime-error; break; fi
+              if grep -q "GET /__qa_${lang}_ready__" qa-http.txt \
+                && grep -q "GET /__qa_${lang}_lang_${lang}__" qa-http.txt \
+                && grep -q "GET /__qa_${lang}_frame_ok__" qa-http.txt \
+                && grep -q "GET /__qa_${lang}_hash_" qa-http.txt; then result=success; break; fi
+              if ! kill -0 "$chrome_pid" 2>/dev/null; then result=browser-exited; break; fi
+              sleep .5
+            done
+            test "$result" = success || { tail -200 "qa-${lang}-chrome.txt"; tail -150 qa-http.txt; exit 1; }
+            kill "$chrome_pid" 2>/dev/null || true
+            wait "$chrome_pid" 2>/dev/null || true
+            chrome_pid=''
+          done
+          en_hash=$(grep -oE '/__qa_en_hash_[0-9a-f]+__' qa-http.txt | tail -1 | sed -E 's#.*_hash_([0-9a-f]+)__#\1#')
+          ru_hash=$(grep -oE '/__qa_ru_hash_[0-9a-f]+__' qa-http.txt | tail -1 | sed -E 's#.*_hash_([0-9a-f]+)__#\1#')
+          test -n "$en_hash"
+          test -n "$ru_hash"
+          test "$en_hash" != "$ru_hash"
+          printf 'YANDEX_BILINGUAL_RUNTIME_PASS=1\nEN_FRAME_HASH=%s\nRU_FRAME_HASH=%s\n' "$en_hash" "$ru_hash"
