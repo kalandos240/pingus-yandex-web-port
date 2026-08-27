@@ -2,9 +2,12 @@ from pathlib import Path
 import sys
 
 if len(sys.argv) != 2:
-    raise SystemExit('usage: harden_v2_adapter.py DIST_DIR')
+    raise SystemExit('usage: harden_v2_adapter.py DIST_DIR_OR_ADAPTER_JS')
 
-path = Path(sys.argv[1]) / 'playgama-yandex-compat.js'
+arg = Path(sys.argv[1])
+path = arg if arg.is_file() or arg.suffix == '.js' else arg / 'playgama-yandex-compat.js'
+if not path.is_file():
+    raise SystemExit(f'Playgama adapter not found: {path}')
 s = path.read_text(encoding='utf-8')
 
 old = '''  const setPauseReason = (reason, active) => {\n    const wasPaused = pauseReasons.size > 0;\n    if (active) pauseReasons.add(reason); else pauseReasons.delete(reason);\n    const isPaused = pauseReasons.size > 0;\n    if (wasPaused !== isPaused) emitPauseState();\n  };'''
@@ -13,13 +16,14 @@ if s.count(old) != 1:
     raise SystemExit('pause gate anchor missing or duplicated')
 s = s.replace(old, new, 1)
 
-s, count = s.replace(
+count = s.count('bridge.advertisement?.setMinimumDelayBetweenInterstitial?.(120);')
+if count != 1:
+    raise SystemExit('interstitial delay anchor missing or duplicated')
+s = s.replace(
     'bridge.advertisement?.setMinimumDelayBetweenInterstitial?.(120);',
     'bridge.advertisement?.setMinimumDelayBetweenInterstitial?.(90);',
     1,
-), s.count('bridge.advertisement?.setMinimumDelayBetweenInterstitial?.(120);')
-if count != 1:
-    raise SystemExit('interstitial delay anchor missing or duplicated')
+)
 
 old = '''    // v2 storage automatically uses platform cloud storage when available and\n    // falls back to local storage otherwise. No v1 storage-type argument is used.\n    try {\n      const markerKey = '__playgama_bridge_port_v2';\n      await bridge.storage.get(markerKey).catch(() => undefined);\n      await bridge.storage.set(markerKey, { version: 2, updatedAt: Date.now() });\n    } catch (error) {\n      console.info('[Playgama] storage unavailable; native/local persistence remains available.', error);\n    }'''
 new = '''    // Probe v2 storage in the background. Storage health must never gate the\n    // first frame; the production Pingus cloud layer already has bounded\n    // timeouts and keeps IDBFS as a local fallback.\n    Promise.resolve().then(async () => {\n      const markerKey = '__playgama_bridge_port_v2';\n      await bridge.storage.get(markerKey).catch(() => undefined);\n      await bridge.storage.set(markerKey, { version: 2, updatedAt: Date.now() });\n    }).catch((error) => {\n      console.info('[Playgama] storage unavailable; native/local persistence remains available.', error);\n    });'''
