@@ -1,0 +1,169 @@
+name: Build Pingus for Playgama
+
+on:
+  push:
+    branches: [port/playgama]
+    paths-ignore:
+      - 'ci/**'
+      - 'release/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pingus-playgama-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  build-playgama:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    steps:
+      - name: Clone Playgama branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euxo pipefail
+          git clone --depth 1 --single-branch --branch port/playgama \
+            "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" repo
+
+      - name: Install host tools
+        run: |
+          set -euxo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            bzip2 ca-certificates curl git libboost-dev python3 xz-utils zip
+
+      - name: Install Emscripten 3.1.64
+        working-directory: repo
+        run: |
+          set -euxo pipefail
+          git clone --depth 1 https://github.com/emscripten-core/emsdk.git .emsdk
+          ./.emsdk/emsdk install 3.1.64
+          ./.emsdk/emsdk activate 3.1.64
+          source ./.emsdk/emsdk_env.sh
+          em++ --version
+
+      - name: Download and build original Pingus
+        working-directory: repo
+        run: |
+          set -euxo pipefail
+          curl -L --fail --retry 3 --retry-all-errors \
+            https://deb.debian.org/debian/pool/main/p/pingus/pingus_0.7.6.orig.tar.bz2 \
+            -o pingus.tar.bz2
+          tar -xjf pingus.tar.bz2
+          mv pingus-0.7.6 pingus-src
+          cp tools/build_web.sh pingus-src/build_web.sh
+          source ./.emsdk/emsdk_env.sh
+          cd pingus-src
+          bash build_web.sh 2>&1 | tee ../playgama-build.log
+
+      - name: Validate Playgama runtime and package ZIP
+        working-directory: repo
+        run: |
+          set -euxo pipefail
+          test -s dist/index.html
+          test -s dist/bootstrap.js
+          test -s dist/pingus.js
+          test -s dist/playgama-bridge-config.json
+          test -s dist/PINGUS-CORRESPONDING-SOURCE.tar.gz
+          grep -q 'bridge.playgama.com/v1/stable/playgama-bridge.js' dist/index.html
+          grep -q 'bridge.initialize()' dist/bootstrap.js
+          grep -q "sendMessage?.('game_ready')" dist/bootstrap.js
+          grep -q 'pg.storage.get(PINGUS_CLOUD_KEY)' dist/bootstrap.js
+          grep -q "showInterstitial('level_complete')" dist/bootstrap.js
+          grep -q 'INTERSTITIAL_MIN_INTERVAL_MS = 60000' dist/bootstrap.js
+          ! grep -Eq 'src="/sdk.js"|YaGames|showFullscreenAdv|window\.yandexSDKPromise' dist/index.html dist/bootstrap.js
+          node --check dist/bootstrap.js
+          test ! -e dist/index.wasm
+          test ! -e dist/index.data
+          cp pingus-src/COPYING dist/COPYING
+          cp pingus-src/AUTHORS dist/AUTHORS
+          cat > dist/README.txt <<'EOF'
+          Pingus 0.7.6 WebAssembly port for Playgama.
+          index.html is the entry point. The game uses the mandatory Playgama Bridge SDK.
+          WebAssembly and game data are embedded in pingus.js.
+          EOF
+          cat > dist/SOURCE-OFFER.txt <<'EOF'
+          This build contains GPL-licensed Pingus code and data.
+          Port source and build scripts: https://github.com/kalandos240/pingus-yandex-web-port
+          Original source: https://github.com/Pingus/pingus/tree/v0.7.6
+          EOF
+          printf 'commit=%s\nrun_id=%s\nplatform=playgama\nemscripten=3.1.64\n' \
+            "$GITHUB_SHA" "$GITHUB_RUN_ID" > dist/BUILD-INFO.txt
+          invalid_names=$(find dist -type f -printf '%P\n' | LC_ALL=C grep -E '[[:space:]]|[^ -~]' || true)
+          test -z "$invalid_names"
+          uncompressed_bytes=$(du -sb dist | cut -f1)
+          printf 'uncompressed_bytes=%s\n' "$uncompressed_bytes" | tee playgama-size-report.txt
+          test "$uncompressed_bytes" -le 100000000
+          (cd dist && zip -9 -X -r ../pingus-playgama-web.zip .)
+          test -s pingus-playgama-web.zip
+          zipinfo -1 pingus-playgama-web.zip | grep -qx 'index.html'
+          zipinfo -1 pingus-playgama-web.zip | grep -qx 'playgama-bridge-config.json'
+          zipinfo -1 pingus-playgama-web.zip | grep -qx 'pingus.js'
+          ! zipinfo -1 pingus-playgama-web.zip | grep -Eq '\.(wasm|data)$'
+          unzip -t pingus-playgama-web.zip
+          sha256sum pingus-playgama-web.zip | tee playgama-checksum.txt
+
+      - name: Smoke-test browser startup
+        working-directory: repo
+        run: |
+          set -euxo pipefail
+          browser_bin="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          : > playgama-browser-http.txt
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory dist > playgama-browser-http.txt 2>&1 &
+          server_pid=$!
+          chrome_pid=''
+          cleanup() { if [ -n "$chrome_pid" ]; then kill "$chrome_pid" 2>/dev/null || true; fi; kill "$server_pid" 2>/dev/null || true; }
+          trap cleanup EXIT
+          for _ in $(seq 1 50); do curl -fsS http://127.0.0.1:4173/index.html >/dev/null && break || sleep 0.1; done
+          "$browser_bin" --headless=new --no-sandbox --disable-dev-shm-usage --disable-gpu \
+            --autoplay-policy=no-user-gesture-required \
+            'http://127.0.0.1:4173/index.html?pingus-smoke=1' \
+            > playgama-browser-stdout.txt 2> playgama-browser-log.txt &
+          chrome_pid=$!
+          result=timeout
+          for _ in $(seq 1 120); do
+            if grep -q 'GET /__pingus_ready__' playgama-browser-http.txt; then result=success; break; fi
+            if grep -q 'GET /__pingus_error__' playgama-browser-http.txt; then result=runtime-error; break; fi
+            if ! kill -0 "$chrome_pid" 2>/dev/null; then result=browser-exited; break; fi
+            sleep 0.5
+          done
+          test "$result" = success || { tail -200 playgama-browser-log.txt; tail -100 playgama-browser-http.txt; exit 1; }
+
+      - name: Smoke-test persistent saves
+        working-directory: repo
+        run: |
+          set -euxo pipefail
+          browser_bin="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          python3 tools/make_persistence_smoke.py dist/index.html dist/persistence-smoke.html
+          rm -rf .chrome-playgama-persistence
+          : > playgama-persistence-http.txt
+          python3 -m http.server 4174 --bind 127.0.0.1 --directory dist > playgama-persistence-http.txt 2>&1 &
+          server_pid=$!
+          chrome_pid=''
+          cleanup() { if [ -n "$chrome_pid" ]; then kill "$chrome_pid" 2>/dev/null || true; fi; kill "$server_pid" 2>/dev/null || true; }
+          trap cleanup EXIT
+          for _ in $(seq 1 50); do curl -fsS http://127.0.0.1:4174/persistence-smoke.html >/dev/null && break || sleep 0.1; done
+          "$browser_bin" --headless=new --no-sandbox --disable-dev-shm-usage --disable-gpu \
+            --autoplay-policy=no-user-gesture-required --user-data-dir="$PWD/.chrome-playgama-persistence" \
+            'http://127.0.0.1:4174/persistence-smoke.html?pingus-persistence-smoke=1' \
+            > playgama-persistence-stdout.txt 2> playgama-persistence-log.txt &
+          chrome_pid=$!
+          result=timeout
+          for _ in $(seq 1 240); do
+            if grep -q 'GET /__pingus_persist_success__' playgama-persistence-http.txt; then result=success; break; fi
+            if grep -q 'GET /__pingus_persist_error__' playgama-persistence-http.txt; then result=runtime-error; break; fi
+            if ! kill -0 "$chrome_pid" 2>/dev/null; then result=browser-exited; break; fi
+            sleep 0.5
+          done
+          test "$result" = success || { tail -200 playgama-persistence-log.txt; tail -120 playgama-persistence-http.txt; exit 1; }
+
+      - name: Upload Playgama ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: pingus-playgama-web
+          path: repo/pingus-playgama-web.zip
+          if-no-files-found: error
+          retention-days: 30
