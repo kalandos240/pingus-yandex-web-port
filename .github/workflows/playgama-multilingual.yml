@@ -129,6 +129,26 @@ jobs:
                 const on=(n,cb)=>{{const a=listeners.get(n)||[];a.push(cb);listeners.set(n,a);}};
                 const off=(n,cb)=>{{listeners.set(n,(listeners.get(n)||[]).filter(x=>x!==cb));}};
                 const storage=new Map();
+                const inspectFrame=()=>{{
+                  const canvas=document.getElementById('canvas');
+                  let ok=false, hash=2166136261>>>0;
+                  try {{
+                    const ctx=canvas?.getContext('2d');
+                    const w=Math.min(500, canvas?.width||0), h=Math.min(220, Math.max(0,(canvas?.height||0)-120));
+                    const data=(w>0&&h>0)?ctx?.getImageData(40,120,w,h).data:null;
+                    if(data){{
+                      let white=0,sampled=0;
+                      for(let i=0;i<data.length;i+=64){{
+                        sampled++;
+                        if(data[i]>245&&data[i+1]>245&&data[i+2]>245&&data[i+3]>245) white++;
+                        hash=Math.imul((hash^data[i]^data[i+1]^data[i+2]^data[i+3])>>>0,16777619)>>>0;
+                      }}
+                      ok=sampled>0&&white/sampled<0.95;
+                    }}
+                  }} catch(_){{}}
+                  fetch(`/__qa_{lang}_frame_${{ok?'ok':'bad'}}__`).catch(()=>{{}});
+                  fetch(`/__qa_{lang}_crop_${{hash.toString(16)}}__`).catch(()=>{{}});
+                }};
                 window.bridge={{
                   version:'2.1.0',
                   EVENT_NAME:{{PAUSE_STATE_CHANGED:'pause_state_changed',AUDIO_STATE_CHANGED:'audio_state_changed',INTERSTITIAL_STATE_CHANGED:'interstitial_state_changed',REWARDED_STATE_CHANGED:'rewarded_state_changed'}},
@@ -136,7 +156,7 @@ jobs:
                   REWARDED_STATE:{{OPENED:'opened',REWARDED:'rewarded',CLOSED:'closed',FAILED:'failed'}},
                   PLATFORM_MESSAGE:{{GAME_READY:'game_ready',GAMEPLAY_STARTED:'gameplay_started',GAMEPLAY_STOPPED:'gameplay_stopped'}},
                   async initialize(){{}},
-                  platform:{{language:'{lang}',id:'qa',isAudioEnabled:true,isPaused:false,on,off,async sendMessage(m){{if(m==='game_ready') fetch('/__qa_{lang}_ready__').catch(()=>{{}});}}}},
+                  platform:{{language:'{lang}',id:'qa',isAudioEnabled:true,isPaused:false,on,off,async sendMessage(m){{if(m==='game_ready'){{fetch('/__qa_{lang}_ready__').catch(()=>{{}});fetch('/__qa_{lang}_lang_'+document.documentElement.lang+'__').catch(()=>{{}});setTimeout(inspectFrame,250);}}}}}},
                   storage:{{async get(k){{return storage.get(String(k));}},async set(k,v){{storage.set(String(k),v);}}}},
                   advertisement:{{isInterstitialSupported:true,isRewardedSupported:false,on,off,setMinimumDelayBetweenInterstitial(){{}},showInterstitial(){{}},showRewarded(){{}}}}
                 }};
@@ -153,17 +173,39 @@ jobs:
           : > locale-http.txt
           python3 -m http.server 4180 --bind 127.0.0.1 --directory dist > locale-http.txt 2>&1 &
           server_pid=$!
-          cleanup(){ kill "$server_pid" 2>/dev/null || true; }
+          chrome_pid=''
+          cleanup(){ if [ -n "$chrome_pid" ]; then kill "$chrome_pid" 2>/dev/null || true; fi; kill "$server_pid" 2>/dev/null || true; }
           trap cleanup EXIT
           for _ in $(seq 1 50); do curl -fsS http://127.0.0.1:4180/qa-en.html >/dev/null && break || sleep 0.1; done
           for lang in en ru; do
+            rm -rf ".chrome-qa-${lang}"
             "$browser_bin" --headless=new --no-sandbox --disable-dev-shm-usage --disable-gpu \
-              --autoplay-policy=no-user-gesture-required --virtual-time-budget=12000 \
+              --autoplay-policy=no-user-gesture-required --user-data-dir="$PWD/.chrome-qa-${lang}" \
               "http://127.0.0.1:4180/qa-${lang}.html?pingus-smoke=1" \
-              --dump-dom > "qa-${lang}-dom.txt" 2> "qa-${lang}-chrome.txt" || true
-            grep -q "GET /__qa_${lang}_ready__" locale-http.txt
-            grep -q 'GET /__pingus_ready__' locale-http.txt
+              > "qa-${lang}-stdout.txt" 2> "qa-${lang}-chrome.txt" &
+            chrome_pid=$!
+            result=timeout
+            for _ in $(seq 1 100); do
+              if grep -q 'GET /__pingus_error__' locale-http.txt; then result=runtime-error; break; fi
+              if grep -q "GET /__qa_${lang}_ready__" locale-http.txt \
+                && grep -q "GET /__qa_${lang}_lang_${lang}__" locale-http.txt \
+                && grep -q "GET /__qa_${lang}_frame_ok__" locale-http.txt; then
+                result=success; break
+              fi
+              if ! kill -0 "$chrome_pid" 2>/dev/null; then result=browser-exited; break; fi
+              sleep 0.5
+            done
+            test "$result" = success || { tail -200 "qa-${lang}-chrome.txt"; tail -150 locale-http.txt; exit 1; }
+            kill "$chrome_pid" 2>/dev/null || true
+            wait "$chrome_pid" 2>/dev/null || true
+            chrome_pid=''
           done
+          en_hash=$(grep -oE '/__qa_en_crop_[0-9a-f]+__' locale-http.txt | tail -1 | sed -E 's#.*_crop_([0-9a-f]+)__#\1#')
+          ru_hash=$(grep -oE '/__qa_ru_crop_[0-9a-f]+__' locale-http.txt | tail -1 | sed -E 's#.*_crop_([0-9a-f]+)__#\1#')
+          test -n "$en_hash"
+          test -n "$ru_hash"
+          test "$en_hash" != "$ru_hash"
+          echo "Rendered language crop hashes: en=$en_hash ru=$ru_hash"
 
       - name: Create clean Playgama moderation ZIP
         run: |
