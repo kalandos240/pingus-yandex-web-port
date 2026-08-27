@@ -1,0 +1,188 @@
+name: Build multilingual Pingus for Playgama
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [port/playgama-v2]
+    paths:
+      - 'tools/build_playgama_web.sh'
+      - 'tools/**'
+      - 'playgama/**'
+      - 'web/**'
+      - '.github/workflows/playgama-multilingual.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pingus-playgama-multilingual-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-certify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 80
+    steps:
+      - name: Checkout Playgama branch
+        uses: actions/checkout@v4
+
+      - name: Install host tools
+        run: |
+          set -euxo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            bzip2 ca-certificates curl git libboost-dev python3 python3-pil \
+            fonts-dejavu-core xz-utils zip ffmpeg
+
+      - name: Install pinned Emscripten SDK
+        run: |
+          set -euxo pipefail
+          git clone --depth 1 https://github.com/emscripten-core/emsdk.git .emsdk
+          ./.emsdk/emsdk install 3.1.64
+          ./.emsdk/emsdk activate 3.1.64
+          source ./.emsdk/emsdk_env.sh
+          em++ --version
+
+      - name: Download original Pingus 0.7.6
+        run: |
+          set -euxo pipefail
+          curl -L --fail --retry 3 --retry-all-errors \
+            https://deb.debian.org/debian/pool/main/p/pingus/pingus_0.7.6.orig.tar.bz2 \
+            -o pingus.tar.bz2
+          tar -xjf pingus.tar.bz2
+          mv pingus-0.7.6 pingus-src
+
+      - name: Compile multilingual Playgama runtime
+        working-directory: pingus-src
+        run: |
+          set -euxo pipefail
+          source ../.emsdk/emsdk_env.sh
+          bash ../tools/build_playgama_web.sh 2>&1 | tee ../playgama-multilingual-build.log
+
+      - name: Audit language-specific baked graphics before packaging
+        run: |
+          set -euxo pipefail
+          # Regression from Playgama QA: English base map MUST remain English.
+          grep -q '../tutorial_layer0.jpg' pingus-src/data/images/worldmaps/tutorial/layer0.sprite
+          ! grep -q '../tutorial_layer0_ru.png' pingus-src/data/images/worldmaps/tutorial/layer0.sprite
+          grep -q '../tutorial_layer0_ru.png' pingus-src/data/images/worldmaps/tutorial/layer0_ru.sprite
+          test -s pingus-src/data/images/worldmaps/tutorial_layer0.jpg
+          test -s pingus-src/data/images/worldmaps/tutorial_layer0_ru.png
+          # Runtime selector must only redirect graphical text for Russian.
+          grep -q 'dictionary_manager.get_language().get_language() == "ru"' pingus-src/src/engine/display/sprite.cpp
+          grep -q 'worldmaps/tutorial/layer0_ru' pingus-src/src/engine/display/sprite.cpp
+          grep -q 'groundpieces/ground/signposts/danger_ru' pingus-src/src/engine/display/sprite.cpp
+          grep -q 'exits/ice2_ru' pingus-src/src/engine/display/sprite.cpp
+
+      - name: Install current Playgama Bridge v2 wrapper
+        run: |
+          set -euxo pipefail
+          python3 playgama/package_playgama.py dist \
+            --adapter playgama/playgama-yandex-compat.js \
+            --config playgama/playgama-bridge-config.json
+          python3 playgama/harden_v2_adapter.py dist/playgama-yandex-compat.js
+          grep -q 'https://bridge.playgama.com/v2/stable/playgama-bridge.js' dist/index.html
+          ! grep -q 'bridge.playgama.com/v1/' dist/index.html
+          grep -q 'playgama-yandex-compat.js' dist/index.html
+          node --check dist/playgama-yandex-compat.js
+          node --check dist/bootstrap.js
+
+      - name: Audit Playgama package requirements
+        run: |
+          set -euxo pipefail
+          test -s dist/index.html
+          test -s dist/pingus.js
+          test -s dist/bootstrap.js
+          test -s dist/pingus.css
+          test -s dist/playgama-bridge-config.json
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          cfg=json.loads(Path('dist/playgama-bridge-config.json').read_text())
+          assert cfg['disableLoadingLogo'] is True
+          assert cfg['showFullLoadingLogo'] is False
+          assert cfg['advertisement']['minimumDelayBetweenInterstitial'] == 90
+          assert cfg['advertisement']['initialInterstitialDelay'] == 90
+          assert cfg['advertisement']['interstitial']['disable'] is False
+          assert cfg['advertisement']['rewarded']['disable'] is True
+          assert cfg['advertisement']['banner']['disable'] is True
+          assert cfg['device']['supportedOrientations'] == ['landscape']
+          assert cfg['game']['adaptToSafeArea'] is True
+          PY
+          invalid_names=$(find dist -type f -printf '%P\n' | LC_ALL=C grep -E '[[:space:]]|[^ -~]' || true)
+          test -z "$invalid_names"
+          test "$(du -sb dist | cut -f1)" -lt 300000000
+          ! grep -R -E 'googletagmanager|google-analytics|gtag\(' dist/index.html dist/bootstrap.js dist/playgama-yandex-compat.js
+
+      - name: Build English and Russian Bridge QA pages
+        run: |
+          set -euxo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          html=Path('dist/index.html').read_text()
+          bridge='https://bridge.playgama.com/v2/stable/playgama-bridge.js'
+          for lang in ('en','ru'):
+              page=html.replace(bridge, f'playgama-bridge-qa-{lang}.js')
+              Path(f'dist/qa-{lang}.html').write_text(page)
+              mock=f'''(() => {{
+                const listeners=new Map();
+                const on=(n,cb)=>{{const a=listeners.get(n)||[];a.push(cb);listeners.set(n,a);}};
+                const off=(n,cb)=>{{listeners.set(n,(listeners.get(n)||[]).filter(x=>x!==cb));}};
+                const storage=new Map();
+                window.bridge={{
+                  version:'2.1.0',
+                  EVENT_NAME:{{PAUSE_STATE_CHANGED:'pause_state_changed',AUDIO_STATE_CHANGED:'audio_state_changed',INTERSTITIAL_STATE_CHANGED:'interstitial_state_changed',REWARDED_STATE_CHANGED:'rewarded_state_changed'}},
+                  INTERSTITIAL_STATE:{{OPENED:'opened',CLOSED:'closed',FAILED:'failed'}},
+                  REWARDED_STATE:{{OPENED:'opened',REWARDED:'rewarded',CLOSED:'closed',FAILED:'failed'}},
+                  PLATFORM_MESSAGE:{{GAME_READY:'game_ready',GAMEPLAY_STARTED:'gameplay_started',GAMEPLAY_STOPPED:'gameplay_stopped'}},
+                  async initialize(){{}},
+                  platform:{{language:'{lang}',id:'qa',isAudioEnabled:true,isPaused:false,on,off,async sendMessage(m){{if(m==='game_ready') fetch('/__qa_{lang}_ready__').catch(()=>{{}});}}}},
+                  storage:{{async get(k){{return storage.get(String(k));}},async set(k,v){{storage.set(String(k),v);}}}},
+                  advertisement:{{isInterstitialSupported:true,isRewardedSupported:false,on,off,setMinimumDelayBetweenInterstitial(){{}},showInterstitial(){{}},showRewarded(){{}}}}
+                }};
+              }})();'''
+              Path(f'dist/playgama-bridge-qa-{lang}.js').write_text(mock)
+          PY
+          node --check dist/playgama-bridge-qa-en.js
+          node --check dist/playgama-bridge-qa-ru.js
+
+      - name: Browser-smoke English and Russian locales
+        run: |
+          set -euxo pipefail
+          browser_bin="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium)"
+          : > locale-http.txt
+          python3 -m http.server 4180 --bind 127.0.0.1 --directory dist > locale-http.txt 2>&1 &
+          server_pid=$!
+          cleanup(){ kill "$server_pid" 2>/dev/null || true; }
+          trap cleanup EXIT
+          for _ in $(seq 1 50); do curl -fsS http://127.0.0.1:4180/qa-en.html >/dev/null && break || sleep 0.1; done
+          for lang in en ru; do
+            "$browser_bin" --headless=new --no-sandbox --disable-dev-shm-usage --disable-gpu \
+              --autoplay-policy=no-user-gesture-required --virtual-time-budget=12000 \
+              "http://127.0.0.1:4180/qa-${lang}.html?pingus-smoke=1" \
+              --dump-dom > "qa-${lang}-dom.txt" 2> "qa-${lang}-chrome.txt" || true
+            grep -q "GET /__qa_${lang}_ready__" locale-http.txt
+            grep -q 'GET /__pingus_ready__' locale-http.txt
+          done
+
+      - name: Create clean Playgama moderation ZIP
+        run: |
+          set -euxo pipefail
+          rm -f dist/qa-en.html dist/qa-ru.html dist/playgama-bridge-qa-en.js dist/playgama-bridge-qa-ru.js
+          (cd dist && zip -9 -X -r ../pingus-playgama-multilingual.zip .)
+          unzip -t pingus-playgama-multilingual.zip
+          zipinfo -1 pingus-playgama-multilingual.zip | grep -qx 'index.html'
+          zipinfo -1 pingus-playgama-multilingual.zip | grep -qx 'playgama-bridge-config.json'
+          ! zipinfo -1 pingus-playgama-multilingual.zip | grep -q 'qa-'
+          sha256sum pingus-playgama-multilingual.zip | tee playgama-multilingual-sha256.txt
+
+      - name: Upload multilingual Playgama build
+        uses: actions/upload-artifact@v4
+        with:
+          name: pingus-playgama-multilingual
+          path: |
+            pingus-playgama-multilingual.zip
+            playgama-multilingual-sha256.txt
+            playgama-multilingual-build.log
+          if-no-files-found: error
+          retention-days: 90
