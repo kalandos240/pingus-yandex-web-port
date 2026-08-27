@@ -1,8 +1,9 @@
-name: Package Playgama build
+name: Package and QA Pingus for Playgama
 
 on:
   workflow_dispatch:
   push:
+    branches: [port/playgama-v2]
     paths:
       - 'playgama/**'
       - '.github/workflows/package-playgama.yml'
@@ -10,48 +11,63 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: pingus-playgama-v2-${{ github.ref_name }}
+  cancel-in-progress: true
+
 env:
-  # Exact runtime that already rendered correctly in Playgama and passed
-  # real SDK/storage certification. Never substitute an hourly rebuild here.
-  PINGUS_PLAYGAMA_BASE: d0525afb6458ae9f72e40e628b438465367ebdc7
-  PINGUS_JS_SHA256: 66735b95c95872f80888d8cff1bf0cf68095c5f8a001508a7f0ce21ac2a7b775
-  PINGUS_BOOTSTRAP_SHA256: 88cfc5589313fae2c3fb6c2c32cb72f6b43cfeca37d5457edde9ef9c9bf6e150
+  APPROVED_YANDEX_ZIP_SHA256: ed081432e5504e302af5dae71392730baa9258def9ea7300114d8a31463f4719
+  APPROVED_PINGUS_JS_SHA256: e9f12a3f3a72ebc1fba45b75cc9c8e694a08aa3b4a61834c579423a1c1134b01
+  APPROVED_BOOTSTRAP_SHA256: 1c6baf6880ed8df8e91e9a587b53a167bac873dfc03dacf102b0fdc2075608c6
 
 jobs:
-  package:
-    runs-on: ubuntu-latest
+  package-and-qa:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
     steps:
-      - name: Checkout Playgama packaging files
+      - name: Checkout clean Playgama v2 branch
         uses: actions/checkout@v4
 
-      - name: Download pinned verified Pingus runtime
+      - name: Verify approved final Pingus runtime
         run: |
-          set -euo pipefail
-          curl -fL --retry 4 --retry-all-errors \
-            "https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/${PINGUS_PLAYGAMA_BASE}/release/pingus-yandex-web.zip" \
-            -o /tmp/pingus-yandex-web.zip
-          test -s /tmp/pingus-yandex-web.zip
-          unzip -t /tmp/pingus-yandex-web.zip
-
+          set -euxo pipefail
+          test -s release/pingus-yandex-web.zip
+          echo "${APPROVED_YANDEX_ZIP_SHA256}  release/pingus-yandex-web.zip" | sha256sum -c -
+          unzip -t release/pingus-yandex-web.zip
           rm -rf dist-playgama
           mkdir dist-playgama
-          unzip -q /tmp/pingus-yandex-web.zip -d dist-playgama
-
-          echo "${PINGUS_JS_SHA256}  dist-playgama/pingus.js" | sha256sum -c -
-          echo "${PINGUS_BOOTSTRAP_SHA256}  dist-playgama/bootstrap.js" | sha256sum -c -
+          unzip -q release/pingus-yandex-web.zip -d dist-playgama
+          echo "${APPROVED_PINGUS_JS_SHA256}  dist-playgama/pingus.js" | sha256sum -c -
+          echo "${APPROVED_BOOTSTRAP_SHA256}  dist-playgama/bootstrap.js" | sha256sum -c -
           cp dist-playgama/pingus.js /tmp/pingus-base.js
           cp dist-playgama/bootstrap.js /tmp/pingus-base-bootstrap.js
 
-      - name: Install Playgama Bridge integration
+      - name: Install Playgama Bridge v2 compatibility layer
         run: |
-          set -euo pipefail
+          set -euxo pipefail
           python3 playgama/package_playgama.py dist-playgama \
             --adapter playgama/playgama-yandex-compat.js \
             --config playgama/playgama-bridge-config.json
 
-      - name: Validate Playgama package without runtime mutation
+          # Paint the game shell before the remote Bridge download can block the
+          # parser. This removes the transient white viewport seen by QA.
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('dist-playgama/index.html')
+          s=p.read_text(encoding='utf-8')
+          css='<link rel="stylesheet" href="pingus.css">'
+          bridge='<script src="https://bridge.playgama.com/v2/stable/playgama-bridge.js"></script>'
+          if css not in s or bridge not in s:
+              raise SystemExit('Playgama head markers missing')
+          if s.index(css) > s.index(bridge):
+              s=s.replace(css, '', 1)
+              s=s.replace(bridge, css+'\n  '+bridge, 1)
+          p.write_text(s, encoding='utf-8')
+          PY
+
+      - name: Audit current Playgama requirements
         run: |
-          set -euo pipefail
+          set -euxo pipefail
           test -s dist-playgama/index.html
           test -s dist-playgama/playgama-yandex-compat.js
           test -s dist-playgama/playgama-bridge-config.json
@@ -59,48 +75,217 @@ jobs:
           test -s dist-playgama/bootstrap.js
           test -s dist-playgama/pingus.js
 
+          # Mandatory/current SDK wiring.
           grep -q 'https://bridge.playgama.com/v2/stable/playgama-bridge.js' dist-playgama/index.html
+          ! grep -q 'bridge.playgama.com/v1/' dist-playgama/index.html
+          ! grep -Eq '<script[^>]+src="?/sdk\.js' dist-playgama/index.html
           grep -q 'playgama-yandex-compat.js' dist-playgama/index.html
           grep -q 'Playgama Bridge v2' dist-playgama/playgama-yandex-compat.js
+          grep -q "bridge.version || '').startsWith('2.')" dist-playgama/playgama-yandex-compat.js
+          grep -q "GAME_READY || 'game_ready'" dist-playgama/playgama-yandex-compat.js
+          grep -q "GAMEPLAY_STARTED || 'gameplay_started'" dist-playgama/playgama-yandex-compat.js
+          grep -q 'bridge.storage.get' dist-playgama/playgama-yandex-compat.js
+          grep -q 'bridge.storage.set' dist-playgama/playgama-yandex-compat.js
+          grep -q 'advertisement.showInterstitial' dist-playgama/playgama-yandex-compat.js
+          grep -q 'AUDIO_STATE_CHANGED' dist-playgama/playgama-yandex-compat.js
+          grep -q 'PAUSE_STATE_CHANGED' dist-playgama/playgama-yandex-compat.js
+          grep -q 'INTERSTITIAL_STATE_CHANGED' dist-playgama/playgama-yandex-compat.js
+
+          # CSS must be available before the remote Bridge script.
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('dist-playgama/index.html').read_text()
+          assert s.index('<link rel="stylesheet" href="pingus.css">') < s.index('bridge.playgama.com/v2/stable/playgama-bridge.js')
+          PY
+
+          # Configuration semantics (Bridge v2 ad delays are seconds).
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          cfg=json.loads(Path('dist-playgama/playgama-bridge-config.json').read_text())
+          assert cfg['disableLoadingLogo'] is True
+          assert cfg['showFullLoadingLogo'] is False
+          assert cfg['advertisement']['minimumDelayBetweenInterstitial'] == 90
+          assert cfg['advertisement']['initialInterstitialDelay'] == 90
+          assert cfg['advertisement']['interstitial']['disable'] is False
+          assert cfg['advertisement']['rewarded']['disable'] is True
+          assert cfg['advertisement']['banner']['disable'] is True
+          assert cfg['device']['supportedOrientations'] == ['landscape']
+          assert cfg['device']['useBuiltInOrientationPopup'] is True
+          assert cfg['game']['adaptToSafeArea'] is True
+          PY
+
+          # Packaging may not mutate the approved game runtime.
+          cmp /tmp/pingus-base.js dist-playgama/pingus.js
+          cmp /tmp/pingus-base-bootstrap.js dist-playgama/bootstrap.js
+          echo "${APPROVED_PINGUS_JS_SHA256}  dist-playgama/pingus.js" | sha256sum -c -
+          echo "${APPROVED_BOOTSTRAP_SHA256}  dist-playgama/bootstrap.js" | sha256sum -c -
+          node --check dist-playgama/playgama-yandex-compat.js
+          node --check dist-playgama/bootstrap.js
+
+          # Desktop/mobile presentation requirements.
           grep -q 'Playgama full-viewport background fix v3' dist-playgama/pingus.css
           grep -q 'background-size: cover' dist-playgama/pingus.css
           grep -q 'display: none !important' dist-playgama/pingus.css
-
-          if grep -q 'bridge.playgama.com/v1/' dist-playgama/index.html; then exit 1; fi
-          if grep -Eq '<script[^>]+src="?/sdk\.js' dist-playgama/index.html; then exit 1; fi
-
-          # Critical invariant: Playgama packaging may not touch game runtime.
-          cmp /tmp/pingus-base.js dist-playgama/pingus.js
-          cmp /tmp/pingus-base-bootstrap.js dist-playgama/bootstrap.js
-          echo "${PINGUS_JS_SHA256}  dist-playgama/pingus.js" | sha256sum -c -
-          echo "${PINGUS_BOOTSTRAP_SHA256}  dist-playgama/bootstrap.js" | sha256sum -c -
-
-          node --check dist-playgama/playgama-yandex-compat.js
-          node --check dist-playgama/bootstrap.js
-          python3 -m json.tool dist-playgama/playgama-bridge-config.json >/dev/null
-          python3 - <<'PY'
-          import json
-          with open('dist-playgama/playgama-bridge-config.json', encoding='utf-8') as f:
-              cfg = json.load(f)
-          assert cfg['advertisement']['rewarded']['disable'] is True
-          assert cfg['advertisement']['interstitial']['disable'] is False
-          PY
-
-          unpacked_bytes="$(du -sb dist-playgama | cut -f1)"
+          invalid_names=$(find dist-playgama -type f -printf '%P\n' | LC_ALL=C grep -E '[[:space:]]|[^ -~]' || true)
+          test -z "$invalid_names"
+          unpacked_bytes=$(du -sb dist-playgama | cut -f1)
           echo "Unpacked Playgama bytes: ${unpacked_bytes}"
-          test "${unpacked_bytes}" -lt 300000000
+          test "$unpacked_bytes" -lt 300000000
 
-      - name: Create Playgama ZIP
+      - name: Build Playgama QA mock
         run: |
-          set -euo pipefail
-          (cd dist-playgama && zip -9 -X -r ../pingus-playgama-v3.zip .)
-          unzip -t pingus-playgama-v3.zip
-          ls -lh pingus-playgama-v3.zip
+          set -euxo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          src=Path('dist-playgama/index.html').read_text()
+          src=src.replace('https://bridge.playgama.com/v2/stable/playgama-bridge.js','playgama-bridge-qa-mock.js')
+          Path('dist-playgama/playgama-qa-smoke.html').write_text(src)
+          PY
+          cat > dist-playgama/playgama-bridge-qa-mock.js <<'JS'
+          (() => {
+            const listeners = new Map();
+            const storage = new Map();
+            const on = (name, callback) => {
+              const list = listeners.get(name) || [];
+              list.push(callback);
+              listeners.set(name, list);
+              if (name === 'pause_state_changed') setTimeout(() => callback(true), 0);
+            };
+            const off = (name, callback) => {
+              const list = listeners.get(name) || [];
+              listeners.set(name, list.filter((item) => item !== callback));
+            };
+            const sampleFrame = () => {
+              const canvas=document.getElementById('canvas');
+              const loading=document.getElementById('loading');
+              let nonWhite=false;
+              try {
+                const ctx=canvas?.getContext('2d');
+                const data=ctx?.getImageData(0,0,canvas.width,canvas.height).data;
+                if (data) {
+                  let white=0, sampled=0;
+                  for (let i=0;i<data.length;i+=4000) {
+                    sampled++;
+                    if (data[i]>245 && data[i+1]>245 && data[i+2]>245 && data[i+3]>245) white++;
+                  }
+                  nonWhite=sampled>0 && white/sampled<0.95;
+                }
+              } catch (_) {}
+              const visible=canvas && canvas.getBoundingClientRect().width>0 && loading?.hidden;
+              fetch(nonWhite && visible ? '/__playgama_frame_nonwhite__' : '/__playgama_frame_bad__').catch(()=>{});
+            };
+            window.bridge={
+              version:'2.1.0',
+              EVENT_NAME:{
+                PAUSE_STATE_CHANGED:'pause_state_changed',
+                AUDIO_STATE_CHANGED:'audio_state_changed',
+                INTERSTITIAL_STATE_CHANGED:'interstitial_state_changed',
+                REWARDED_STATE_CHANGED:'rewarded_state_changed'
+              },
+              INTERSTITIAL_STATE:{LOADING:'loading',OPENED:'opened',CLOSED:'closed',FAILED:'failed'},
+              REWARDED_STATE:{OPENED:'opened',REWARDED:'rewarded',CLOSED:'closed',FAILED:'failed'},
+              PLATFORM_MESSAGE:{GAME_READY:'game_ready',GAMEPLAY_STARTED:'gameplay_started',GAMEPLAY_STOPPED:'gameplay_stopped'},
+              async initialize() {},
+              platform:{
+                language:'en', id:'playgama-qa', isAudioEnabled:true, isPaused:true, on, off,
+                async sendMessage(message) {
+                  if (message === 'game_ready') {
+                    fetch('/__playgama_game_ready__').catch(()=>{});
+                    fetch('/__playgama_lang_'+document.documentElement.lang+'__').catch(()=>{});
+                    setTimeout(sampleFrame, 100);
+                  }
+                }
+              },
+              storage:{
+                async get(key) { return storage.get(String(key)); },
+                async set(key,value) { storage.set(String(key),value); }
+              },
+              advertisement:{
+                isInterstitialSupported:true,
+                isRewardedSupported:false,
+                on, off,
+                setMinimumDelayBetweenInterstitial() {},
+                showInterstitial() {},
+                showRewarded() {}
+              }
+            };
+          })();
+          JS
+          node --check dist-playgama/playgama-bridge-qa-mock.js
 
-      - name: Upload Playgama build
+      - name: QA-smoke Bridge 2.1, English and initially paused iframe
+        run: |
+          set -euxo pipefail
+          browser_bin="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          : > playgama-qa-http.txt
+          python3 -m http.server 4175 --bind 127.0.0.1 --directory dist-playgama > playgama-qa-http.txt 2>&1 &
+          server_pid=$!
+          chrome_pid=''
+          cleanup() { if [ -n "$chrome_pid" ]; then kill "$chrome_pid" 2>/dev/null || true; fi; kill "$server_pid" 2>/dev/null || true; }
+          trap cleanup EXIT
+          for _ in $(seq 1 50); do curl -fsS http://127.0.0.1:4175/playgama-qa-smoke.html >/dev/null && break || sleep 0.1; done
+          "$browser_bin" --headless=new --no-sandbox --disable-dev-shm-usage --disable-gpu \
+            --autoplay-policy=no-user-gesture-required \
+            'http://127.0.0.1:4175/playgama-qa-smoke.html?pingus-smoke=1' \
+            > playgama-qa-stdout.txt 2> playgama-qa-log.txt &
+          chrome_pid=$!
+          result=timeout
+          for _ in $(seq 1 80); do
+            if grep -q 'GET /__pingus_error__' playgama-qa-http.txt; then result=runtime-error; break; fi
+            if grep -q 'GET /__pingus_ready__' playgama-qa-http.txt \
+              && grep -q 'GET /__playgama_game_ready__' playgama-qa-http.txt \
+              && grep -q 'GET /__playgama_lang_en__' playgama-qa-http.txt \
+              && grep -q 'GET /__playgama_frame_nonwhite__' playgama-qa-http.txt; then
+              result=success; break
+            fi
+            if ! kill -0 "$chrome_pid" 2>/dev/null; then result=browser-exited; break; fi
+            sleep 0.5
+          done
+          test "$result" = success || { tail -250 playgama-qa-log.txt; tail -150 playgama-qa-http.txt; exit 1; }
+
+      - name: Smoke-test persistent Pingus saves through packaged page
+        run: |
+          set -euxo pipefail
+          browser_bin="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || command -v chromium-browser)"
+          python3 tools/make_persistence_smoke.py dist-playgama/playgama-qa-smoke.html dist-playgama/persistence-smoke.html
+          rm -rf .chrome-playgama-persistence
+          : > persistence-http-log.txt
+          python3 -m http.server 4176 --bind 127.0.0.1 --directory dist-playgama > persistence-http-log.txt 2>&1 &
+          server_pid=$!
+          chrome_pid=''
+          cleanup() { if [ -n "$chrome_pid" ]; then kill "$chrome_pid" 2>/dev/null || true; fi; kill "$server_pid" 2>/dev/null || true; }
+          trap cleanup EXIT
+          for _ in $(seq 1 50); do curl -fsS http://127.0.0.1:4176/persistence-smoke.html >/dev/null && break || sleep 0.1; done
+          "$browser_bin" --headless=new --no-sandbox --disable-dev-shm-usage --disable-gpu \
+            --autoplay-policy=no-user-gesture-required --user-data-dir="$PWD/.chrome-playgama-persistence" \
+            'http://127.0.0.1:4176/persistence-smoke.html?pingus-persistence-smoke=1' \
+            > persistence-smoke-stdout.txt 2> persistence-smoke-log.txt &
+          chrome_pid=$!
+          result=timeout
+          for _ in $(seq 1 240); do
+            if grep -q 'GET /__pingus_persist_success__' persistence-http-log.txt; then result=success; break; fi
+            if grep -q 'GET /__pingus_persist_error__' persistence-http-log.txt; then result=runtime-error; break; fi
+            if ! kill -0 "$chrome_pid" 2>/dev/null; then result=browser-exited; break; fi
+            sleep 0.5
+          done
+          test "$result" = success || { tail -200 persistence-smoke-log.txt; tail -120 persistence-http-log.txt; exit 1; }
+
+      - name: Create clean Playgama ZIP
+        run: |
+          set -euxo pipefail
+          rm -f dist-playgama/playgama-qa-smoke.html dist-playgama/playgama-bridge-qa-mock.js dist-playgama/persistence-smoke.html
+          (cd dist-playgama && zip -9 -X -r ../pingus-playgama-v4.zip .)
+          unzip -t pingus-playgama-v4.zip
+          zipinfo -1 pingus-playgama-v4.zip | grep -qx 'index.html'
+          zipinfo -1 pingus-playgama-v4.zip | grep -qx 'playgama-bridge-config.json'
+          sha256sum pingus-playgama-v4.zip | tee playgama-v4-checksum.txt
+          ls -lh pingus-playgama-v4.zip
+
+      - name: Upload Playgama v4 build
         uses: actions/upload-artifact@v4
         with:
-          name: pingus-playgama-v3
-          path: pingus-playgama-v3.zip
+          name: pingus-playgama-v4
+          path: pingus-playgama-v4.zip
           if-no-files-found: error
           retention-days: 90
