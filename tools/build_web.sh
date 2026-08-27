@@ -24,27 +24,18 @@ python3 ../tools/patch_web_many_pingus.py
 python3 ../tools/patch_web_smallmap_fast.py
 python3 ../tools/patch_web_worldmap_ux.py
 
-# Yandex Web uses a fixed 800x600 framebuffer. Freeze every rear
-# SurfaceBackground to one viewport-sized frame: no parallax, no autonomous
-# scrolling and no tiling, so the seams seen in browser footage cannot occur.
+# Web uses a fixed 800x600 framebuffer. Freeze every rear SurfaceBackground to
+# one viewport-sized frame: no parallax, no autonomous scrolling and no tiling.
 python3 ../tools/patch_web_background_seams.py
 grep -q 'one fixed 800x600 frame' ../tools/patch_web_background_seams.py
 grep -q 'Vector2i(-offset.x, -offset.y)' src/pingus/worldobjs/surface_background.cpp
 
-# The original 16/20px Pingus bitmap atlases do not contain the complete
-# Russian alphabet. Generate a tiny Web-only Cyrillic fallback atlas during
-# the build, using a distro font only as the source rasterizer. The generated
-# PNGs themselves are embedded in the final self-contained game.
 if ! python3 -c 'from PIL import Image, ImageDraw, ImageFont' >/dev/null 2>&1 || \
    [ ! -f /usr/share/fonts/truetype/dejavu/DejaVuSans.ttf ]; then
   echo 'Installing Web Cyrillic font generation dependencies'
   sudo apt-get update
   sudo apt-get install -y --no-install-recommends fonts-dejavu-core python3-pil
 fi
-# PIL is now available. Build Russian copies of every player-facing EXIT
-# texture and the tutorial-map sign. Then hard-wire the actual Tutorial Island
-# layer descriptor to the Russian map so early worldmap construction cannot
-# fall back to the baked-English JPEG.
 python3 ../tools/patch_yandex_exit_localization.py
 python3 ../tools/patch_force_tutorial_worldmap_ru.py
 test -s data/images/exits/ice2_ru.png
@@ -67,15 +58,9 @@ python3 ../tools/patch_web_options.py
 python3 ../tools/patch_web_audio_channels.py
 python3 ../tools/patch_sdl_framebuffer.py
 python3 ../tools/patch_groundmap_erase.py
-# Apply the decorative widescreen fill late: several earlier Web patches use
-# the original canvas markup as an anchor. Cloud synchronization then patches
-# the final browser lifecycle/save code just before packaging.
 python3 ../tools/patch_web_backdrop.py
 python3 ../tools/patch_yandex_cloud_saves.py
 
-# Browser SDL_mixer cannot decode Pingus' original tracker modules (.it/.xm/
-# .s3m/.mod). Preserve the original music by rendering those modules to OGG
-# before embedding the data directory.
 mapfile -d '' TRACKER_MUSIC < <(find data/music -maxdepth 1 -type f \
   \( -iname '*.it' -o -iname '*.xm' -o -iname '*.s3m' -o -iname '*.mod' \) -print0)
 if (( ${#TRACKER_MUSIC[@]} > 0 )); then
@@ -101,9 +86,6 @@ mapfile -t SOURCES < <(find external/tinygettext/tinygettext src -type f -name '
 (( ${#SOURCES[@]} >= 200 )) || { echo "Unexpectedly small source set" >&2; exit 1; }
 printf 'Compiling %s original C++ source files (desktop editor omitted)\n' "${#SOURCES[@]}"
 
-# Build a production-optimized self-contained runtime. O2 materially reduces
-# CPU time in Pingus' software renderer; release assertions are disabled after
-# the browser/gameplay smoke tests proved the patched code paths.
 em++ "${SOURCES[@]}" \
   -I. -Isrc -Iexternal -Iexternal/tinygettext \
   -std=c++11 -O2 -fexceptions -Wno-invalid-source-encoding \
@@ -136,12 +118,12 @@ shell = shell.replace(marker, '<script src="pingus.js"></script>')
 out_path.write_text(shell, encoding='utf-8')
 PY
 
-# Yandex hosts archive games behind a nonce-based Content-Security-Policy.
-# Externalize the generated bootstrap/style and remove inline event handlers.
+# Externalize generated bootstrap/style and remove inline event handlers.
 python3 ../tools/postprocess_csp.py
 
-# Ship the corresponding GPL source with the distributed object-code build so
-# source availability does not depend on access to the private development repo.
+# Ship GPL corresponding source before the platform-specific runtime postprocess;
+# the bundle already includes the complete tools/web directories, including the
+# Playgama adapter and Bridge config used below.
 python3 ../tools/package_gpl_source.py
 
 test -s ../dist/index.html
@@ -170,5 +152,26 @@ if find ../dist -maxdepth 1 -type f \( -name '*.wasm' -o -name '*.data' \) | gre
   echo 'Unexpected external wasm/data payload in dist' >&2
   exit 1
 fi
+
+# This branch is a Playgama distribution. Transform only the platform-facing
+# browser layer after the proven game/WebAssembly build has passed its base
+# assertions. The native Pingus/gameplay fixes remain identical to Yandex.
+if [ -f ../web/playgama-bridge-config.json ]; then
+  python3 ../tools/postprocess_playgama.py
+  test -s ../dist/playgama-bridge-config.json
+  grep -q 'bridge.playgama.com/v1/stable/playgama-bridge.js' ../dist/index.html
+  grep -q 'bridge.initialize()' ../dist/bootstrap.js
+  grep -q "sendMessage?.('game_ready')" ../dist/bootstrap.js
+  grep -q 'pg.storage.get(PINGUS_CLOUD_KEY)' ../dist/bootstrap.js
+  grep -q "showInterstitial('level_complete')" ../dist/bootstrap.js
+  grep -q 'INTERSTITIAL_MIN_INTERVAL_MS = 60000' ../dist/bootstrap.js
+  if grep -Eq 'src="/sdk.js"|YaGames|showFullscreenAdv|window\.yandexSDKPromise' ../dist/index.html ../dist/bootstrap.js; then
+    echo 'Yandex SDK/runtime marker leaked into Playgama dist' >&2
+    exit 1
+  fi
+  node --check ../dist/bootstrap.js
+  printf 'Playgama distribution validation passed\n'
+fi
+
 printf 'Self-contained browser runtime created:\n'
 find ../dist -maxdepth 1 -type f -printf '  %f %s bytes\n' | sort
