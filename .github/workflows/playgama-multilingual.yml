@@ -16,13 +16,16 @@ permissions:
 jobs:
   build-and-certify:
     runs-on: ubuntu-24.04
-    timeout-minutes: 80
+    timeout-minutes: 85
     steps:
       - name: Checkout Playgama branch
         uses: actions/checkout@v4
 
       - name: Build and certify multilingual Playgama package
         run: bash tools/ci_playgama_multilingual.sh
+
+      - name: Reproduce real Playgama paused-muted localization reload
+        run: bash tools/ci_playgama_real_tester_regression.sh
 
       - name: Upload multilingual Playgama build
         uses: actions/upload-artifact@v4
