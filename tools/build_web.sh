@@ -24,9 +24,13 @@ python3 ../tools/patch_web_many_pingus.py
 python3 ../tools/patch_web_smallmap_fast.py
 python3 ../tools/patch_web_worldmap_ux.py
 
-# Keep the original Pingus background artwork and its original tiling behavior.
-# The visible seams/repetition are part of the legacy source game rather than a
-# browser-only rendering defect, so the release build must not alter those assets.
+# Yandex Web uses a fixed 800x600 framebuffer. Freeze every rear
+# SurfaceBackground to one viewport-sized frame: no parallax, no autonomous
+# scrolling and no tiling. This preserves the approved static-background build
+# instead of reverting to the original moving/tiled desktop backgrounds.
+python3 ../tools/patch_web_background_seams.py
+grep -q 'one fixed 800x600 frame' ../tools/patch_web_background_seams.py
+grep -q 'Vector2i(-offset.x, -offset.y)' src/pingus/worldobjs/surface_background.cpp
 
 # The original 16/20px Pingus bitmap atlases do not contain the complete
 # Russian alphabet. Generate a tiny Web-only Cyrillic fallback atlas during
@@ -38,7 +42,25 @@ if ! python3 -c 'from PIL import Image, ImageDraw, ImageFont' >/dev/null 2>&1 ||
   sudo apt-get update
   sudo apt-get install -y --no-install-recommends fonts-dejavu-core python3-pil
 fi
+# Restore the previously certified Yandex visual localization. Besides PO text,
+# Pingus contains baked English words in exit textures and the Tutorial Island
+# map artwork, so generate Russian-only sprite variants and select them by locale.
+python3 ../tools/patch_yandex_exit_localization.py
+python3 ../tools/patch_force_tutorial_worldmap_ru.py
+test -s data/images/exits/ice2_ru.png
+test -s data/images/exits/sortie_anim_ru.png
+test -s data/images/traps/laser_exit_ru.png
+test -s data/images/worldmaps/tutorial_layer0_ru.png
+grep -q '../tutorial_layer0_ru.png' data/images/worldmaps/tutorial/layer0.sprite
+! grep -q '../tutorial_layer0.jpg' data/images/worldmaps/tutorial/layer0.sprite
+grep -q 'yandex_localized_sprite_name' src/engine/display/sprite.cpp
+python3 ../tools/patch_web_visual_localization.py
+test -s data/images/groundpieces/ground/signposts/danger_ru.png
+test -s data/images/groundpieces/ground/penguinworld/penguinworld_ru.png
+test -s data/images/core/misc/404_ru.png
+grep -q 'dictionary_manager.get_language().get_language() == "ru"' src/engine/display/sprite.cpp
 python3 ../tools/patch_web_fonts.py
+grep -q 'Yandex bilingual worldmap: EN=Tutorial Island, RU=Учебный остров' ../tools/patch_web_fonts.py
 
 python3 ../tools/patch_touch_input.py
 python3 ../tools/patch_web_menu.py
@@ -133,8 +155,16 @@ grep -q 'pingusSetGameplayActive' ../dist/pingus.js
 grep -q 'PINGUS_CLOUD_KEY' ../dist/bootstrap.js
 grep -q 'player.getData' ../dist/bootstrap.js
 grep -q 'player.setData' ../dist/bootstrap.js
-grep -q 'id="backdrop"' ../dist/index.html
-grep -q 'drawBackdrop' ../dist/bootstrap.js
+grep -q 'pingus-static-shell-backdrop' ../dist/pingus.css
+if grep -Eq 'id="backdrop"|drawBackdrop|backdropContext|backdropLoop' ../dist/index.html ../dist/bootstrap.js ../dist/pingus.css; then
+  echo 'Retired live-copy backdrop is still present' >&2
+  exit 1
+fi
+grep -q 'pingusShowInterstitialFromUserAction' ../dist/bootstrap.js
+if grep -q 'pingusShowInterstitialAfterLevel' ../dist/bootstrap.js; then
+  echo 'Legacy automatic post-level interstitial hook is still present' >&2
+  exit 1
+fi
 node --check ../dist/bootstrap.js
 if find ../dist -maxdepth 1 -type f \( -name '*.wasm' -o -name '*.data' \) | grep -q .; then
   echo 'Unexpected external wasm/data payload in dist' >&2
