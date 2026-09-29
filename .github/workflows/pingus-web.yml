@@ -2,7 +2,7 @@ name: Build original Pingus for Web
 
 on:
   push:
-    branches: [main]
+    branches: [main, final-yandex-ads-static-ru]
     paths-ignore:
       - 'ci/**'
       - 'release/**'
