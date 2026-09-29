@@ -36,6 +36,26 @@ if desert_text.count(indiana_line) != 1:
 desert_set.write_text(desert_text.replace(indiana_line, '', 1), encoding='utf-8')
 print('Yandex content: removed public Indiana Jones / religious-reference Desert level')
 
+# The removed Indiana parody also carries a baked English DODGE clue assembled
+# from four standalone Latin-letter hotspot images. Remove the now-unreachable
+# level data and those four assets from the shipped build so visual localization
+# cannot regress even through hidden/developer content.
+indiana_level = Path('data/levels/desert/indiana-yingwan.pingus')
+if not indiana_level.is_file():
+    raise SystemExit('Indiana-style Desert level file missing before release removal')
+indiana_level_text = indiana_level.read_text(encoding='utf-8')
+for resource in ('smallD', 'smallE', 'smallG', 'smallO'):
+    marker = f'hotspots/desert/{resource}'
+    if marker not in indiana_level_text:
+        raise SystemExit(f'expected baked-English Indiana marker missing: {marker}')
+indiana_level.unlink()
+for filename in ('smallD.png', 'smallE.png', 'smallG.png', 'smallO.png'):
+    asset = Path('data/images/hotspots/desert') / filename
+    if not asset.is_file():
+        raise SystemExit(f'expected Indiana letter asset missing: {asset}')
+    asset.unlink()
+print('Yandex content: removed Indiana level data + baked English DODGE letter assets from shipped data')
+
 # Several core Tutorial Island levels reuse a decorated Christmas-tree terrain
 # asset. The object is actual ground, so deleting it could alter level geometry.
 # Swap it for the similarly sized neutral snowman ground asset instead. This
