@@ -1,41 +1,54 @@
 from pathlib import Path
-import importlib
-import math
-import os
 import re
-import subprocess
-import sys
 
-try:
-    from PIL import Image
-except ModuleNotFoundError:
-    # This patch currently runs before the shared Web-font dependency block.
-    # Install Pillow once, then restart this script so the same deterministic
-    # texture conversion can run without changing the rest of the build order.
-    subprocess.run(['sudo', 'apt-get', 'update'], check=True)
-    subprocess.run([
-        'sudo', 'apt-get', 'install', '-y', '--no-install-recommends', 'python3-pil'
-    ], check=True)
-    importlib.invalidate_caches()
-    os.execv(sys.executable, [sys.executable, __file__])
+CPP = Path('src/pingus/worldobjs/surface_background.cpp')
+LEVELS = Path('data/levels')
 
-# Pingus 0.7.6 repeats small SurfaceBackground images. Several legacy sky/cloud
-# textures were painted as ordinary images rather than truly tileable textures,
-# so opposite edges do not match and the browser shows obvious rectangular
-# seams. The previous Web fix mirrored tiles; that removed pixel jumps but made
-# visible mirror axes, which still looked like seams.
+# Yandex Web: make every rear SurfaceBackground fully static.
 #
-# Instead, make the *source background textures themselves* periodic. Only image
-# resources referenced by surface-background objects are touched. A cosine
-# feather blends each pair of opposite edges over a narrow strip, making the
-# first/last pixels identical while leaving the interior and original level
-# geometry untouched. Pingus can then use its normal SurfaceBackground tiling.
+# The original desktop renderer combines parallax, autonomous scrolling and
+# edge-to-edge repetition. Many Pingus 0.7.6 background images were not authored
+# as seamless textures, so moving/tiled backgrounds expose rectangular seams in
+# the browser. For the fixed 800x600 Web framebuffer, the robust solution is to
+# render exactly one viewport-sized background frame, pinned to screen space.
+# There is no repetition, parallax, animation or scroll, therefore no moving
+# tile boundary can ever become visible.
 
-LEVEL_ROOT = Path('data/levels')
-IMAGE_ROOT = Path('data/images')
+s = CPP.read_text(encoding='utf-8')
 
+settings_anchor = '''  reader.read_bool("keep-aspect", keep_aspect);\n\n  if (!stretch_x && !stretch_y && color.a == 0)'''
+settings_patch = '''  reader.read_bool("keep-aspect", keep_aspect);\n\n#ifdef __EMSCRIPTEN__\n  // Yandex browser build: rear backgrounds are deliberately static. Force the\n  // Surface path so the image can be resized to the 800x600 framebuffer once,\n  // disable parallax and autonomous scrolling, and never repeat it on screen.\n  para_x = 0.0f;\n  para_y = 0.0f;\n  scroll_x = 0.0f;\n  scroll_y = 0.0f;\n  stretch_x = true;\n  stretch_y = true;\n  keep_aspect = false;\n#endif\n\n  if (!stretch_x && !stretch_y && color.a == 0)'''
+if settings_patch not in s:
+    if s.count(settings_anchor) != 1:
+        raise SystemExit('Web static background: constructor settings anchor missing or duplicated')
+    s = s.replace(settings_anchor, settings_patch, 1)
 
-def extract_balanced(text, start):
+scale_anchor = '''    if (stretch_x && stretch_y)\n    {\n      surface = surface.scale(world->get_width(), world->get_height());\n    }'''
+scale_patch = '''    if (stretch_x && stretch_y)\n    {\n#ifdef __EMSCRIPTEN__\n      // The Web framebuffer is intentionally fixed at 800x600 by the earlier\n      // performance patch. Scale to that viewport, not to the (often much\n      // larger) scrollable level dimensions.\n      surface = surface.scale(globals::default_screen_width,\n                              globals::default_screen_height);\n#else\n      surface = surface.scale(world->get_width(), world->get_height());\n#endif\n    }'''
+if scale_patch not in s:
+    if s.count(scale_anchor) != 1:
+        raise SystemExit('Web static background: stretch scaling anchor missing or duplicated')
+    s = s.replace(scale_anchor, scale_patch, 1)
+
+update_anchor = '''void\nSurfaceBackground::update()\n{\n  bg_sprite.update();'''
+update_patch = '''void\nSurfaceBackground::update()\n{\n#ifdef __EMSCRIPTEN__\n  // Keep the first frame forever. Scroll offsets were disabled in the\n  // constructor, and animated background sprites must not advance either.\n  return;\n#endif\n  bg_sprite.update();'''
+if update_patch not in s:
+    if s.count(update_anchor) != 1:
+        raise SystemExit('Web static background: update anchor missing or duplicated')
+    s = s.replace(update_anchor, update_patch, 1)
+
+draw_anchor = '''  offset.x -= gc.color().get_rect().left;\n  offset.y -= gc.color().get_rect().top;\n\n  int start_x = static_cast<int>((static_cast<float>(offset.x) * para_x) + scroll_ox);'''
+draw_patch = '''  offset.x -= gc.color().get_rect().left;\n  offset.y -= gc.color().get_rect().top;\n\n#ifdef __EMSCRIPTEN__\n  // Draw exactly one viewport-sized frame in screen space. Subtracting the\n  // current world-to-screen offset cancels the camera transform, so the image\n  // stays fixed while the level moves underneath it. No tiling means no seam.\n  gc.color().draw(bg_sprite, Vector2i(-offset.x, -offset.y), pos.z);\n  return;\n#endif\n\n  int start_x = static_cast<int>((static_cast<float>(offset.x) * para_x) + scroll_ox);'''
+if draw_patch not in s:
+    if s.count(draw_anchor) != 1:
+        raise SystemExit('Web static background: draw anchor missing or duplicated')
+    s = s.replace(draw_anchor, draw_patch, 1)
+
+CPP.write_text(s, encoding='utf-8')
+
+# Whole shipped-data audit. We keep this broad so any later level addition is
+# automatically covered by the renderer-level policy rather than a texture list.
+def balanced_end(text, start):
     depth = 0
     in_string = False
     escaped = False
@@ -56,138 +69,48 @@ def extract_balanced(text, start):
         elif ch == ')':
             depth -= 1
             if depth == 0:
-                return text[start:i + 1]
-    return text[start:]
+                return i + 1
+    raise SystemExit('Web static background: malformed surface-background block')
 
+total = 0
+resources = set()
+scrolling = 0
+parallax = 0
+for path in sorted(LEVELS.rglob('*.pingus')):
+    text = path.read_text(encoding='utf-8', errors='strict')
+    pos = 0
+    while True:
+        start = text.find('(surface-background', pos)
+        if start < 0:
+            break
+        end = balanced_end(text, start)
+        block = text[start:end]
+        total += 1
+        mx = re.search(r'\(image\s+"([^"]+)"\)', block)
+        if mx:
+            resources.add(mx.group(1))
+        if re.search(r'\(scroll-[xy]\s+[-+0-9.]', block):
+            scrolling += 1
+        if re.search(r'\(para-[xy]\s+[-+0-9.]', block):
+            parallax += 1
+        pos = end
 
-def background_resources():
-    names = set()
-    marker = '(surface-background'
-    for level in LEVEL_ROOT.rglob('*.pingus'):
-        text = level.read_text(encoding='utf-8', errors='ignore')
-        pos = 0
-        while True:
-            start = text.find(marker, pos)
-            if start < 0:
-                break
-            block = extract_balanced(text, start)
-            match = re.search(r'\(image\s+"([^"]+)"\)', block)
-            if match:
-                names.add(match.group(1))
-            pos = start + len(block)
-    return sorted(names)
+if total < 200 or len(resources) < 25:
+    raise SystemExit(f'Web static background: unexpectedly small audit: {total} objects, {len(resources)} resources')
 
+patched = CPP.read_text(encoding='utf-8')
+for marker in (
+    'para_x = 0.0f;',
+    'scroll_x = 0.0f;',
+    'surface.scale(globals::default_screen_width',
+    'gc.color().draw(bg_sprite, Vector2i(-offset.x, -offset.y), pos.z);',
+    '// Keep the first frame forever.',
+):
+    if marker not in patched:
+        raise SystemExit(f'Web static background: renderer marker missing: {marker}')
 
-def resolve_image(resource):
-    base = IMAGE_ROOT / resource
-    for suffix in ('.png', '.jpg', '.jpeg'):
-        candidate = Path(str(base) + suffix)
-        if candidate.is_file():
-            return candidate
-
-    sprite = Path(str(base) + '.sprite')
-    if sprite.is_file():
-        text = sprite.read_text(encoding='utf-8', errors='ignore')
-        # SpriteDescription files store the image path as a quoted PNG/JPG.
-        for quoted in re.findall(r'"([^"]+\.(?:png|jpg|jpeg))"', text, flags=re.I):
-            candidate = (sprite.parent / quoted).resolve()
-            try:
-                candidate.relative_to(Path.cwd().resolve())
-            except ValueError:
-                continue
-            if candidate.is_file():
-                return candidate
-    return None
-
-
-def blend_tuple(a, b, weight):
-    # Move both samples toward their average; at weight=1 they become exactly
-    # equal, at weight=0 they remain unchanged.
-    avg = tuple((x + y) * 0.5 for x, y in zip(a, b))
-    left = tuple(int(round(x * (1.0 - weight) + m * weight)) for x, m in zip(a, avg))
-    right = tuple(int(round(y * (1.0 - weight) + m * weight)) for y, m in zip(b, avg))
-    return left, right
-
-
-def make_periodic(path):
-    with Image.open(path) as source:
-        original_mode = source.mode
-        has_alpha = 'A' in source.getbands()
-        image = source.convert('RGBA' if has_alpha else 'RGB')
-
-    width, height = image.size
-    if width < 8 or height < 8:
-        return False
-
-    pixels = image.load()
-    # Wide enough to hide the old mismatch on cloudy gradients, but never so
-    # wide that the center of the artwork is altered.
-    band = max(12, min(width, height) // 10)
-    band = min(band, width // 3, height // 3)
-
-    # Left/right feather. Cosine easing has zero slope at both ends, avoiding a
-    # new visible band where the correction fades out.
-    for d in range(band):
-        weight = 0.5 * (1.0 + math.cos(math.pi * d / max(1, band - 1)))
-        x0 = d
-        x1 = width - 1 - d
-        for y in range(height):
-            a, b = pixels[x0, y], pixels[x1, y]
-            pixels[x0, y], pixels[x1, y] = blend_tuple(a, b, weight)
-
-    # Top/bottom feather. Running this second preserves the already-equal
-    # left/right boundary because corresponding edge pixels receive the same
-    # correction.
-    for d in range(band):
-        weight = 0.5 * (1.0 + math.cos(math.pi * d / max(1, band - 1)))
-        y0 = d
-        y1 = height - 1 - d
-        for x in range(width):
-            a, b = pixels[x, y0], pixels[x, y1]
-            pixels[x, y0], pixels[x, y1] = blend_tuple(a, b, weight)
-
-    # Enforce exact final equality after integer rounding.
-    for y in range(height):
-        avg = tuple((a + b) // 2 for a, b in zip(pixels[0, y], pixels[width - 1, y]))
-        pixels[0, y] = avg
-        pixels[width - 1, y] = avg
-    for x in range(width):
-        avg = tuple((a + b) // 2 for a, b in zip(pixels[x, 0], pixels[x, height - 1]))
-        pixels[x, 0] = avg
-        pixels[x, height - 1] = avg
-
-    if original_mode not in ('RGB', 'RGBA'):
-        image = image.convert(original_mode)
-
-    suffix = path.suffix.lower()
-    if suffix in ('.jpg', '.jpeg'):
-        image.convert('RGB').save(path, quality=95, subsampling=0, optimize=True)
-    else:
-        image.save(path, optimize=True)
-    return True
-
-
-resources = background_resources()
-processed = []
-missing = []
-seen_paths = set()
-for resource in resources:
-    path = resolve_image(resource)
-    if path is None:
-        missing.append(resource)
-        continue
-    key = path.resolve()
-    if key in seen_paths:
-        continue
-    seen_paths.add(key)
-    if make_periodic(path):
-        processed.append((resource, path.as_posix()))
-
-if not processed:
-    raise SystemExit('Web background seams: no SurfaceBackground images were processed')
-
-print(f'Web background seams: feathered {len(processed)} unique background texture(s)')
-for resource, path in processed:
-    print(f'  {resource} -> {path}')
-if missing:
-    print(f'Web background seams: {len(missing)} unresolved resource(s) left unchanged')
+print(
+    'Web static backgrounds: one fixed 800x600 frame per SurfaceBackground; '
+    f'{total} object(s), {len(resources)} resource type(s), '
+    f'{scrolling} source scrolling block(s), {parallax} source parallax block(s) audited'
+)
