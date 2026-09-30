@@ -1,0 +1,188 @@
+name: Record Pingus horizontal gameplay video
+
+on:
+  push:
+    branches: [final-yandex-ads-static-ru]
+    paths:
+      - '.github/workflows/record-pingus-gameplay.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  record:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install recording tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends xvfb xdotool ffmpeg imagemagick
+          browser_bin="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium)"
+          test -n "$browser_bin"
+          echo "BROWSER_BIN=$browser_bin" >> "$GITHUB_ENV"
+
+      - name: Prepare exact Yandex build for recording
+        run: |
+          set -euxo pipefail
+          rm -rf video-dist video-out
+          mkdir -p video-dist video-out
+          unzip -q release/pingus-yandex-web.zip -d video-dist
+          test -s video-dist/index.html
+          test -s video-dist/bootstrap.js
+          test -s video-dist/pingus.js
+
+          cat > video-dist/sdk.js <<'JS'
+          (() => {
+            const player = {
+              async getData() { return {}; },
+              async setData() {},
+              getMode() { return 'full'; }
+            };
+            window.YaGames = {
+              init: async () => ({
+                environment: { i18n: { lang: 'ru' }, app: { id: 'gameplay-video' } },
+                on() {}, off() {},
+                features: {
+                  LoadingAPI: { ready() {} },
+                  GameplayAPI: { start() {}, stop() {} }
+                },
+                adv: {
+                  showFullscreenAdv(options) {
+                    options?.callbacks?.onError?.(new Error('video-recording-no-ad'));
+                  }
+                },
+                getPlayer: async () => player,
+                isAvailableMethod: async () => true
+              })
+            };
+          })();
+          JS
+
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('video-dist/bootstrap.js')
+          s = p.read_text(encoding='utf-8')
+          anchor = """      window.Module = {
+                canvas,
+                noAudioDecoding: true,"""
+          replacement = """      const videoLevel = new URLSearchParams(location.search).get('video-level');
+              window.Module = {
+                canvas,
+                arguments: videoLevel ? [videoLevel] : [],
+                noAudioDecoding: true,"""
+          if s.count(anchor) != 1:
+              raise SystemExit('video Module anchor missing or duplicated')
+          p.write_text(s.replace(anchor, replacement, 1), encoding='utf-8')
+          PY
+          node --check video-dist/bootstrap.js
+
+          # Keep the production archive untouched; only this disposable recording
+          # copy receives the direct-level query parameter support.
+
+      - name: Start virtual display and local server
+        run: |
+          set -euxo pipefail
+          Xvfb :99 -screen 0 1920x1080x24 -ac +extension GLX +render -noreset >video-out/xvfb.log 2>&1 &
+          echo $! > video-out/xvfb.pid
+          python3 -m http.server 4198 --bind 127.0.0.1 --directory video-dist >video-out/http.log 2>&1 &
+          echo $! > video-out/http.pid
+          for i in $(seq 1 50); do
+            curl -fsS http://127.0.0.1:4198/index.html >/dev/null && break
+            sleep .2
+          done
+
+      - name: Record four gameplay scenes
+        env:
+          DISPLAY: :99
+        run: |
+          set -euxo pipefail
+
+          record_scene() {
+            idx="$1"
+            level="$2"
+            warmup="$3"
+            duration="$4"
+            keyseq="$5"
+
+            rm -rf "video-out/chrome-$idx"
+            url="http://127.0.0.1:4198/?video-level=$level"
+
+            "$BROWSER_BIN"               --no-sandbox               --disable-dev-shm-usage               --disable-gpu               --disable-infobars               --disable-translate               --disable-session-crashed-bubble               --disable-features=TranslateUI               --autoplay-policy=no-user-gesture-required               --user-data-dir="$PWD/video-out/chrome-$idx"               --app="$url"               --window-position=0,0               --window-size=1920,1080               >"video-out/chrome-$idx.out" 2>"video-out/chrome-$idx.err" &
+            chrome_pid=$!
+
+            sleep 6
+            # StartScreen: keyboard activation avoids a visible mouse pointer.
+            xdotool key Return
+            sleep "$warmup"
+
+            # Optional gameplay input: fast-forward / action selection / camera.
+            if [ -n "$keyseq" ]; then
+              eval "$keyseq"
+            fi
+
+            # Capture exactly the X display and never draw the OS mouse cursor.
+            ffmpeg -hide_banner -loglevel error -y               -f x11grab -draw_mouse 0 -framerate 60 -video_size 1920x1080 -i :99.0               -t "$duration" -an               -c:v libx264 -preset medium -crf 17 -pix_fmt yuv420p               -movflags +faststart "video-out/clip-$idx.mp4"
+
+            ffmpeg -hide_banner -loglevel error -y               -ss 1 -i "video-out/clip-$idx.mp4" -frames:v 1 "video-out/clip-$idx.png"
+
+            kill "$chrome_pid" 2>/dev/null || true
+            wait "$chrome_pid" 2>/dev/null || true
+            sleep 1
+          }
+
+          # 1) Ice tutorial: vertical movement/floater mechanic.
+          record_scene 1 "/data/levels/tutorial/floater-tutorial-grumbel.pingus" 1.2 5.3             "xdotool key 1; sleep .6; xdotool key f"
+
+          # 2) Desert: broad action set and a completely different palette.
+          record_scene 2 "/data/levels/desert/desert1-janne.pingus" 1.0 5.3             "xdotool key f; sleep 1; xdotool key Right; sleep .4; xdotool key Right"
+
+          # 3) Jungle cave: dense terrain, bridge/jump/miner abilities.
+          record_scene 3 "/data/levels/jungle/cave-jungle1-mw.pingus" 1.0 5.3             "xdotool key f; sleep 1; xdotool key Left; sleep .4; xdotool key 3"
+
+          # 4) Alien level: visually distinct sci-fi scene.
+          record_scene 4 "/data/levels/alien/aliens1-phil.pingus" 1.0 5.3             "xdotool key f; sleep 1; xdotool key Right; sleep .4; xdotool key 2"
+
+      - name: Assemble polished 1080p horizontal montage
+        run: |
+          set -euxo pipefail
+
+          # 4 x 5.3 s with three 0.4 s crossfades = 20.0 s exactly.
+          ffmpeg -hide_banner -loglevel error -y             -i video-out/clip-1.mp4             -i video-out/clip-2.mp4             -i video-out/clip-3.mp4             -i video-out/clip-4.mp4             -filter_complex "
+              [0:v]fps=60,format=yuv420p,setpts=PTS-STARTPTS[v0];
+              [1:v]fps=60,format=yuv420p,setpts=PTS-STARTPTS[v1];
+              [2:v]fps=60,format=yuv420p,setpts=PTS-STARTPTS[v2];
+              [3:v]fps=60,format=yuv420p,setpts=PTS-STARTPTS[v3];
+              [v0][v1]xfade=transition=fade:duration=0.4:offset=4.9[x1];
+              [x1][v2]xfade=transition=fade:duration=0.4:offset=9.8[x2];
+              [x2][v3]xfade=transition=fade:duration=0.4:offset=14.7[v]
+            "             -map "[v]" -t 20             -c:v libx264 -preset slow -crf 16 -pix_fmt yuv420p             -profile:v high -level 4.2 -movflags +faststart             video-out/pingus-gameplay-1080p-silent.mp4
+
+          # Add original Pingus music from the corresponding GPL source package.
+          mkdir -p video-out/source
+          tar -xzf video-dist/PINGUS-CORRESPONDING-SOURCE.tar.gz -C video-out/source
+          mkdir -p video-out/original
+          tar -xjf video-out/source/pingus-0.7.6.orig.tar.bz2 -C video-out/original --strip-components=1
+          music="video-out/original/data/music/pingus-1.it"
+          test -s "$music"
+
+          ffmpeg -hide_banner -loglevel error -y             -i video-out/pingus-gameplay-1080p-silent.mp4             -stream_loop -1 -i "$music"             -filter_complex "[1:a]volume=0.42,afade=t=in:st=0:d=0.7,afade=t=out:st=18.8:d=1.2[a]"             -map 0:v -map "[a]" -t 20             -c:v copy -c:a aac -b:a 192k             -movflags +faststart             video-out/Pingus-Yandex-Gameplay-1920x1080-20s.mp4
+
+          ffprobe -v error             -show_entries format=duration,size:stream=codec_name,width,height,r_frame_rate             -of json video-out/Pingus-Yandex-Gameplay-1920x1080-20s.mp4             > video-out/final-ffprobe.json
+
+      - name: Upload gameplay video
+        uses: actions/upload-artifact@v4
+        with:
+          name: pingus-horizontal-gameplay-video
+          path: |
+            video-out/Pingus-Yandex-Gameplay-1920x1080-20s.mp4
+            video-out/final-ffprobe.json
+            video-out/clip-1.png
+            video-out/clip-2.png
+            video-out/clip-3.png
+            video-out/clip-4.png
+          if-no-files-found: error
+          retention-days: 30
