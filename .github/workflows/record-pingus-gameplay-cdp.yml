@@ -303,7 +303,7 @@ jobs:
           tar -xjf video-out/source/pingus-0.7.6.orig.tar.bz2 -C video-out/original --strip-components=1
           music="video-out/original/data/music/pingus-1.it"
 
-          ffmpeg -hide_banner -loglevel error -y             -i video-out/montage-silent.mp4             -stream_loop -1 -i "$music"             -filter_complex "[1:a]volume=0.42,afade=t=in:st=0:d=.6,afade=t=out:st=18.8:d=1.2[a]"             -map 0:v -map "[a]" -t 20             -c:v copy -c:a aac -b:a 192k             -movflags +faststart             video-out/Pingus-Yandex-Gameplay-1920x1080-20s.mp4
+          ffmpeg -hide_banner -loglevel error -y             -i video-out/montage-silent.mp4             -stream_loop -1 -i "$music"             -filter_complex "[1:a]volume=0.42,afade=t=in:st=0:d=0.6,afade=t=out:st=18.8:d=1.2[a]"             -map 0:v -map "[a]" -t 20             -c:v copy -c:a aac -b:a 192k             -movflags +faststart             video-out/Pingus-Yandex-Gameplay-1920x1080-20s.mp4
 
           ffprobe -v error             -show_entries format=duration,size:stream=codec_name,width,height,r_frame_rate             -of json video-out/Pingus-Yandex-Gameplay-1920x1080-20s.mp4             > video-out/final-ffprobe.json
 
