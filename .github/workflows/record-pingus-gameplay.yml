@@ -64,19 +64,22 @@ jobs:
 
           python3 - <<'PY'
           from pathlib import Path
+          import re
           p = Path('video-dist/bootstrap.js')
           s = p.read_text(encoding='utf-8')
-          anchor = """      window.Module = {
-                canvas,
-                noAudioDecoding: true,"""
-          replacement = """      const videoLevel = new URLSearchParams(location.search).get('video-level');
-              window.Module = {
-                canvas,
-                arguments: videoLevel ? [videoLevel] : [],
-                noAudioDecoding: true,"""
-          if s.count(anchor) != 1:
-              raise SystemExit('video Module anchor missing or duplicated')
-          p.write_text(s.replace(anchor, replacement, 1), encoding='utf-8')
+          pattern = re.compile(r'(?m)^(?P<indent>\s*)window\.Module\s*=\s*\{\s*\n(?P=indent)\s*canvas,\s*\n')
+          m = pattern.search(s)
+          if not m:
+              raise SystemExit('video Module anchor missing')
+          indent = m.group('indent')
+          replacement = (
+              f"{indent}const videoLevel = new URLSearchParams(location.search).get('video-level');\n"
+              f"{indent}window.Module = {{\n"
+              f"{indent}  canvas,\n"
+              f"{indent}  arguments: videoLevel ? [videoLevel] : [],\n"
+          )
+          s = s[:m.start()] + replacement + s[m.end():]
+          p.write_text(s, encoding='utf-8')
           PY
           node --check video-dist/bootstrap.js
 
