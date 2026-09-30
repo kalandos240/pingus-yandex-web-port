@@ -176,13 +176,27 @@ jobs:
           def eval_js(expression):
               return command('Runtime.evaluate', {'expression': expression, 'returnByValue': True})
 
-          def press_enter():
-              common = {
-                  'key': 'Enter', 'code': 'Enter',
-                  'windowsVirtualKeyCode': 13, 'nativeVirtualKeyCode': 13,
-              }
-              command('Input.dispatchKeyEvent', {'type': 'keyDown', **common})
-              command('Input.dispatchKeyEvent', {'type': 'keyUp', **common})
+          def click_play_button():
+              rect_result = eval_js("""(() => {
+                const r = document.getElementById('canvas').getBoundingClientRect();
+                return {left:r.left, top:r.top, width:r.width, height:r.height};
+              })()""")
+              rect = rect_result.get('result', {}).get('value') or {}
+              # StartScreenOkButton is positioned at logical (645, 450);
+              # click safely inside its ~60px surface.
+              x = float(rect.get('left', 0)) + 675.0 / 800.0 * float(rect.get('width', 1920))
+              y = float(rect.get('top', 0)) + 465.0 / 600.0 * float(rect.get('height', 1080))
+              command('Input.dispatchMouseEvent', {'type':'mouseMoved', 'x':x, 'y':y})
+              command('Input.dispatchMouseEvent', {
+                  'type':'mousePressed', 'x':x, 'y':y,
+                  'button':'left', 'buttons':1, 'clickCount':1,
+              })
+              command('Input.dispatchMouseEvent', {
+                  'type':'mouseReleased', 'x':x, 'y':y,
+                  'button':'left', 'buttons':0, 'clickCount':1,
+              })
+              # Keep any native pointer away from the gameplay area.
+              command('Input.dispatchMouseEvent', {'type':'mouseMoved', 'x':2, 'y':2})
 
           try:
               command('Page.enable')
@@ -210,8 +224,8 @@ jobs:
                   # this; keep a little extra time for slower shared runners.
                   time.sleep(3)
 
-              press_enter()
-              time.sleep(1.8)
+              click_play_button()
+              time.sleep(2.0)
 
               # Verify that the gameplay canvas contains non-trivial pixels.
               probe = command('Page.captureScreenshot', {
