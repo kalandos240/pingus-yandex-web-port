@@ -1,0 +1,325 @@
+name: Record Pingus gameplay via headless Chrome
+
+on:
+  push:
+    branches: [final-yandex-ads-static-ru]
+    paths:
+      - '.github/workflows/record-pingus-gameplay-cdp.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  record:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install recorder dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ffmpeg
+          python3 -m pip install --quiet websocket-client
+          browser_bin="$(command -v google-chrome || command -v google-chrome-stable || command -v chromium)"
+          test -n "$browser_bin"
+          echo "BROWSER_BIN=$browser_bin" >> "$GITHUB_ENV"
+
+      - name: Prepare disposable video build
+        run: |
+          set -euxo pipefail
+          rm -rf video-dist video-out
+          mkdir -p video-dist video-out
+          unzip -q release/pingus-yandex-web.zip -d video-dist
+
+          cat > video-dist/sdk.js <<'JS'
+          (() => {
+            const player = {
+              async getData() { return {}; },
+              async setData() {},
+              getMode() { return 'full'; }
+            };
+            window.YaGames = {
+              init: async () => ({
+                environment: { i18n: { lang: 'ru' }, app: { id: 'gameplay-video' } },
+                on() {}, off() {},
+                features: {
+                  LoadingAPI: { ready() {} },
+                  GameplayAPI: { start() {}, stop() {} }
+                },
+                adv: {
+                  showFullscreenAdv(options) {
+                    options?.callbacks?.onError?.(new Error('video-recording-no-ad'));
+                  }
+                },
+                getPlayer: async () => player,
+                isAvailableMethod: async () => true
+              })
+            };
+          })();
+          JS
+
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p = Path('video-dist/bootstrap.js')
+          s = p.read_text(encoding='utf-8')
+          pattern = re.compile(r'(?m)^(?P<indent>\s*)window\.Module\s*=\s*\{\s*\n(?P=indent)\s*canvas,\s*\n')
+          m = pattern.search(s)
+          if not m:
+              raise SystemExit('video Module anchor missing')
+          indent = m.group('indent')
+          replacement = (
+              f"{indent}const videoLevel = new URLSearchParams(location.search).get('video-level');\n"
+              f"{indent}window.Module = {{\n"
+              f"{indent}  canvas,\n"
+              f"{indent}  arguments: videoLevel ? [videoLevel] : [],\n"
+          )
+          s = s[:m.start()] + replacement + s[m.end():]
+          p.write_text(s, encoding='utf-8')
+          PY
+          node --check video-dist/bootstrap.js
+
+          python3 -m http.server 4198 --bind 127.0.0.1 --directory video-dist >video-out/http.log 2>&1 &
+          echo $! > video-out/http.pid
+          for i in $(seq 1 50); do
+            curl -fsS http://127.0.0.1:4198/index.html >/dev/null && break
+            sleep .2
+          done
+
+      - name: Write Chrome DevTools recorder
+        run: |
+          cat > video-out/record_scene.py <<'PY'
+          import base64
+          import json
+          import os
+          import subprocess
+          import sys
+          import time
+          import urllib.request
+          from pathlib import Path
+
+          import websocket
+
+          browser = os.environ['BROWSER_BIN']
+          index = int(sys.argv[1])
+          level = sys.argv[2]
+          duration = float(sys.argv[3])
+          port = 9300 + index
+          out = Path('video-out') / f'scene-{index}'
+          frames = out / 'frames'
+          frames.mkdir(parents=True, exist_ok=True)
+          profile = out / 'profile'
+          profile.mkdir(parents=True, exist_ok=True)
+
+          url = f'http://127.0.0.1:4198/?video-level={level}'
+          cmd = [
+              browser,
+              '--headless=new',
+              '--no-sandbox',
+              '--no-first-run',
+              '--no-default-browser-check',
+              '--disable-default-apps',
+              '--disable-background-networking',
+              '--disable-component-update',
+              '--disable-sync',
+              '--disable-dev-shm-usage',
+              '--disable-gpu',
+              '--hide-scrollbars',
+              '--mute-audio',
+              '--autoplay-policy=no-user-gesture-required',
+              '--force-device-scale-factor=1',
+              '--window-size=1920,1080',
+              f'--remote-debugging-port={port}',
+              f'--user-data-dir={profile}',
+              url,
+          ]
+          chrome_out = open(out / 'chrome.out', 'wb')
+          chrome_err = open(out / 'chrome.err', 'wb')
+          proc = subprocess.Popen(cmd, stdout=chrome_out, stderr=chrome_err)
+
+          def get_page_ws():
+              endpoint = f'http://127.0.0.1:{port}/json'
+              last = None
+              for _ in range(160):
+                  try:
+                      with urllib.request.urlopen(endpoint, timeout=1) as response:
+                          pages = json.load(response)
+                      for page in pages:
+                          if page.get('type') == 'page' and '127.0.0.1:4198' in page.get('url', ''):
+                              return page['webSocketDebuggerUrl']
+                  except Exception as error:
+                      last = error
+                  time.sleep(.1)
+              raise RuntimeError(f'Chrome page websocket not available: {last}')
+
+          ws = websocket.create_connection(get_page_ws(), timeout=2)
+          next_id = 1
+
+          def command(method, params=None, wait=True):
+              nonlocal_holder = None
+              global next_id
+              ident = next_id
+              next_id += 1
+              ws.send(json.dumps({'id': ident, 'method': method, 'params': params or {}}))
+              if not wait:
+                  return None
+              while True:
+                  msg = json.loads(ws.recv())
+                  if msg.get('id') == ident:
+                      if 'error' in msg:
+                          raise RuntimeError(f'{method}: {msg["error"]}')
+                      return msg.get('result', {})
+
+          def eval_js(expression):
+              return command('Runtime.evaluate', {'expression': expression, 'returnByValue': True})
+
+          def press_enter():
+              common = {
+                  'key': 'Enter', 'code': 'Enter',
+                  'windowsVirtualKeyCode': 13, 'nativeVirtualKeyCode': 13,
+              }
+              command('Input.dispatchKeyEvent', {'type': 'keyDown', **common})
+              command('Input.dispatchKeyEvent', {'type': 'keyUp', **common})
+
+          try:
+              command('Page.enable')
+              command('Runtime.enable')
+              command('Page.bringToFront')
+
+              # Wait for Emscripten to paint the StartScreen.
+              ready = False
+              for _ in range(120):
+                  try:
+                      result = eval_js("""(() => {
+                        const c = document.getElementById('canvas');
+                        const loading = document.getElementById('loading');
+                        return !!(c && c.width >= 800 && c.height >= 600 &&
+                          loading && getComputedStyle(loading).display === 'none');
+                      })()""")
+                      ready = bool(result.get('result', {}).get('value'))
+                  except Exception:
+                      ready = False
+                  if ready:
+                      break
+                  time.sleep(.1)
+              if not ready:
+                  # The release normally reaches the first frame well before
+                  # this; keep a little extra time for slower shared runners.
+                  time.sleep(3)
+
+              press_enter()
+              time.sleep(1.8)
+
+              # Verify that the gameplay canvas contains non-trivial pixels.
+              probe = command('Page.captureScreenshot', {
+                  'format': 'png',
+                  'captureBeyondViewport': False,
+                  'fromSurface': True,
+              })
+              (out / 'preview.png').write_bytes(base64.b64decode(probe['data']))
+
+              command('Page.startScreencast', {
+                  'format': 'jpeg',
+                  'quality': 92,
+                  'maxWidth': 1920,
+                  'maxHeight': 1080,
+                  'everyNthFrame': 1,
+              })
+
+              ws.settimeout(.5)
+              started = time.monotonic()
+              count = 0
+              while time.monotonic() - started < duration:
+                  try:
+                      msg = json.loads(ws.recv())
+                  except Exception:
+                      continue
+                  if msg.get('method') != 'Page.screencastFrame':
+                      continue
+                  params = msg['params']
+                  count += 1
+                  (frames / f'{count:06d}.jpg').write_bytes(base64.b64decode(params['data']))
+                  command('Page.screencastFrameAck', {'sessionId': params['sessionId']}, wait=False)
+
+              try:
+                  command('Page.stopScreencast', wait=False)
+              except Exception:
+                  pass
+
+              if count < 20:
+                  raise RuntimeError(f'too few screencast frames: {count}')
+              (out / 'frame-count.txt').write_text(str(count), encoding='utf-8')
+              (out / 'duration.txt').write_text(str(duration), encoding='utf-8')
+          finally:
+              try:
+                  ws.close()
+              except Exception:
+                  pass
+              proc.terminate()
+              try:
+                  proc.wait(timeout=5)
+              except subprocess.TimeoutExpired:
+                  proc.kill()
+              chrome_out.close()
+              chrome_err.close()
+          PY
+
+      - name: Record four visually distinct gameplay scenes
+        run: |
+          set -euxo pipefail
+
+          python3 video-out/record_scene.py 1 "/data/levels/tutorial/floater-tutorial-grumbel.pingus" 5.3
+          python3 video-out/record_scene.py 2 "/data/levels/desert/desert1-janne.pingus" 5.3
+          python3 video-out/record_scene.py 3 "/data/levels/jungle/cave-jungle1-mw.pingus" 5.3
+          python3 video-out/record_scene.py 4 "/data/levels/alien/aliens1-phil.pingus" 5.3
+
+          for i in 1 2 3 4; do
+            n="$(cat video-out/scene-$i/frame-count.txt)"
+            test "$n" -ge 20
+            # Preserve 5.3 seconds regardless of the actual CDP screencast rate.
+            rate="$((n * 10))/53"
+            ffmpeg -hide_banner -loglevel error -y               -framerate "$rate"               -i "video-out/scene-$i/frames/%06d.jpg"               -t 5.3               -vf "scale=1920:1080:flags=lanczos,fps=60"               -an -c:v libx264 -preset medium -crf 16 -pix_fmt yuv420p               -movflags +faststart "video-out/clip-$i.mp4"
+          done
+
+      - name: Assemble 20-second 1080p montage with Pingus music
+        run: |
+          set -euxo pipefail
+
+          ffmpeg -hide_banner -loglevel error -y             -i video-out/clip-1.mp4             -i video-out/clip-2.mp4             -i video-out/clip-3.mp4             -i video-out/clip-4.mp4             -filter_complex "
+              [0:v]setpts=PTS-STARTPTS[v0];
+              [1:v]setpts=PTS-STARTPTS[v1];
+              [2:v]setpts=PTS-STARTPTS[v2];
+              [3:v]setpts=PTS-STARTPTS[v3];
+              [v0][v1]xfade=transition=fade:duration=0.4:offset=4.9[x1];
+              [x1][v2]xfade=transition=fade:duration=0.4:offset=9.8[x2];
+              [x2][v3]xfade=transition=fade:duration=0.4:offset=14.7[v]
+            "             -map "[v]" -t 20             -c:v libx264 -preset slow -crf 15 -pix_fmt yuv420p             -profile:v high -level 4.2 -movflags +faststart             video-out/montage-silent.mp4
+
+          mkdir -p video-out/source video-out/original
+          tar -xzf video-dist/PINGUS-CORRESPONDING-SOURCE.tar.gz -C video-out/source
+          tar -xjf video-out/source/pingus-0.7.6.orig.tar.bz2 -C video-out/original --strip-components=1
+          music="video-out/original/data/music/pingus-1.it"
+
+          ffmpeg -hide_banner -loglevel error -y             -i video-out/montage-silent.mp4             -stream_loop -1 -i "$music"             -filter_complex "[1:a]volume=0.42,afade=t=in:st=0:d=.6,afade=t=out:st=18.8:d=1.2[a]"             -map 0:v -map "[a]" -t 20             -c:v copy -c:a aac -b:a 192k             -movflags +faststart             video-out/Pingus-Yandex-Gameplay-1920x1080-20s.mp4
+
+          ffprobe -v error             -show_entries format=duration,size:stream=codec_name,width,height,r_frame_rate             -of json video-out/Pingus-Yandex-Gameplay-1920x1080-20s.mp4             > video-out/final-ffprobe.json
+
+      - name: Upload final video and visual QA frames
+        uses: actions/upload-artifact@v4
+        with:
+          name: pingus-horizontal-gameplay-cdp
+          path: |
+            video-out/Pingus-Yandex-Gameplay-1920x1080-20s.mp4
+            video-out/final-ffprobe.json
+            video-out/scene-1/preview.png
+            video-out/scene-2/preview.png
+            video-out/scene-3/preview.png
+            video-out/scene-4/preview.png
+            video-out/scene-1/frame-count.txt
+            video-out/scene-2/frame-count.txt
+            video-out/scene-3/frame-count.txt
+            video-out/scene-4/frame-count.txt
+          if-no-files-found: error
+          retention-days: 30
