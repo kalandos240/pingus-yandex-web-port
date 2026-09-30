@@ -132,6 +132,7 @@ jobs:
               '--force-device-scale-factor=1',
               '--window-size=1920,1080',
               f'--remote-debugging-port={port}',
+              '--remote-allow-origins=*',
               f'--user-data-dir={profile}',
               url,
           ]
