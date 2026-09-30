@@ -117,8 +117,13 @@ jobs:
             "$BROWSER_BIN"               --no-sandbox               --disable-dev-shm-usage               --disable-gpu               --disable-infobars               --disable-translate               --disable-session-crashed-bubble               --disable-features=TranslateUI               --autoplay-policy=no-user-gesture-required               --user-data-dir="$PWD/video-out/chrome-$idx"               --app="$url"               --window-position=0,0               --window-size=1920,1080               >"video-out/chrome-$idx.out" 2>"video-out/chrome-$idx.err" &
             chrome_pid=$!
 
-            sleep 6
-            # StartScreen: keyboard activation avoids a visible mouse pointer.
+            sleep 10
+            # Focus the app and start the level without placing a visible mouse
+            # cursor inside the game canvas.
+            win_id="$(xdotool search --onlyvisible --name 'Pingus' 2>/dev/null | tail -1 || true)"
+            if [ -n "$win_id" ]; then
+              xdotool windowactivate --sync "$win_id" || true
+            fi
             xdotool key Return
             sleep "$warmup"
 
